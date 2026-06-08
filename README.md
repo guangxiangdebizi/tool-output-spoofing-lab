@@ -115,7 +115,8 @@ that is already covered by nearby work. The current paper direction is:
 
 Start with `docs/paper-draft-zh.md`, `docs/paper-draft.md`,
 `docs/benchmark-baseline-contract.md`, `docs/benchmark-overlay-strategy.md`,
-`docs/partial-pilot-results.md`, `docs/novelty-audit.md`, and
+`docs/ccfa-review-gap-analysis.md`, `docs/partial-pilot-results.md`,
+`docs/novelty-audit.md`, and
 `docs/venue-strategy.md`.
 
 The Chinese draft is currently the most complete manuscript-style version. It

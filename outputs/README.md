@@ -14,5 +14,7 @@ Canonical manuscript artifacts that are intentionally kept in git:
   copied from the remote benchmark host.
 - `*_model_full_summary.json` and `*_model_full_manifest.json`, once remote
   sharded full runs complete and are merged.
+- `*_model_full_ci.json`, once generated with
+  `scripts/summarize_model_results_with_ci.py`.
 
 Large trace directories stay under `traces/` and remain ignored by default.

@@ -23,6 +23,8 @@ DEFAULT_TASKS = [
     "remove_reminder_with_recency_latest",
 ]
 
+_SCENARIO_CACHE: dict[str, dict[str, Any]] = {}
+
 
 @dataclass(frozen=True)
 class ToolSandboxImportStatus:
@@ -46,6 +48,9 @@ def check_toolsandbox_available(path: str | Path | None = None) -> ToolSandboxIm
 
 
 def load_real_scenarios(path: str | Path | None = None) -> dict[str, Any]:
+    cache_key = str(Path(path).resolve()) if path else "__default__"
+    if cache_key in _SCENARIO_CACHE:
+        return _SCENARIO_CACHE[cache_key]
     status = check_toolsandbox_available(path)
     if not status.available:
         raise RuntimeError(
@@ -56,7 +61,9 @@ def load_real_scenarios(path: str | Path | None = None) -> dict[str, Any]:
     from tool_sandbox.common.tool_discovery import ToolBackend  # type: ignore
     from tool_sandbox.scenarios import named_scenarios  # type: ignore
 
-    return named_scenarios(preferred_tool_backend=ToolBackend.DEFAULT)
+    scenarios = named_scenarios(preferred_tool_backend=ToolBackend.DEFAULT)
+    _SCENARIO_CACHE[cache_key] = scenarios
+    return scenarios
 
 
 def _enum_value(value: Any) -> str:

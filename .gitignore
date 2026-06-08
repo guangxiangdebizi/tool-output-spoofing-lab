@@ -12,8 +12,10 @@ outputs/*
 !outputs/agentdojo_full_manifest.json
 !outputs/toolsandbox_model_full_summary.json
 !outputs/toolsandbox_model_full_manifest.json
+!outputs/toolsandbox_model_full_ci.json
 !outputs/agentdojo_model_full_summary.json
 !outputs/agentdojo_model_full_manifest.json
+!outputs/agentdojo_model_full_ci.json
 !outputs/prompt_leakage_audit_expanded_gpt54.json
 !outputs/readback_scoring_ablation.json
 traces/*.tmp

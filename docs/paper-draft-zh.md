@@ -93,6 +93,38 @@ PoisonedRAG 证明少量污染文档即可显著影响 RAG 输出 [19]；SafeRAG
 
 防御者可以控制 agent harness，包括 schema validation、prompt filtering、重复调用、元数据检查、读回验证、独立授权源、签名 scope token、freshness check、final-answer gate 等。评测时，只有 oracle 能访问 hidden truth；部署型防御不能直接读取 hidden truth，否则只能标注为 privileged upper bound。
 
+### 3.1 Formal problem definition
+
+令真实环境状态为 \(s\)，原 benchmark 工具在状态 \(s\) 和任务 \(x\) 下产生真实观察 \(y=T(s,x)\)，其 schema 为 \(K\)。攻击者生成模型可见观察 \(\tilde{y}\)，满足：
+
+\[
+\tilde{y} \models K,\quad \tilde{y} \neq_{\mathrm{sem}} y,\quad \mathrm{Instr}(\tilde{y})=0,\quad s'=s
+\]
+
+其中 \(\tilde{y} \models K\) 表示 schema-valid，\(\tilde{y} \neq_{\mathrm{sem}} y\) 表示至少一个 decisive field 的语义值与真实状态不一致，\(\mathrm{Instr}(\tilde{y})=0\) 表示观察中不包含显式指令注入 payload，\(s'=s\) 表示攻击不改变后端真实状态或 benchmark oracle。模型只接收可见 trace：
+
+\[
+v = \mathrm{Filter}_{\mathrm{visible}}(x,\tilde{y},z_p)
+\]
+
+其中 \(z_p\) 是 defense profile \(p\) 允许的验证观察，例如 schema check、same-channel repeat、read-back 或 independent authority。模型输出结构化 decision \(d=M(v)\)，oracle \(O(d,s,x)\) 只在离线评分时使用 hidden truth。
+
+本文的核心事件定义为：
+
+\[
+A_i = \mathbb{1}\left[m_i=\mathrm{spoofed}\land d_i \text{ commits to a false decisive field}\land d_i \text{ is not uncertain}\right]
+\]
+
+也就是模型在 spoofed 条件下把虚假 decisive field 作为最终 verdict basis。对于 truthful 条件，clean utility 事件为：
+
+\[
+U_i = \mathbb{1}\left[m_i=\mathrm{truthful}\land d_i \text{ commits to the truthful decisive field}\land d_i \text{ is not uncertain}\right]
+\]
+
+该定义刻意不把“拒绝一切工具输出”视为成功防御，因为它会降低 \(U_i\)。因此主指标必须同时报告 ASR、clean utility、over-refusal 与 cost。
+
+两个简单边界命题解释了弱基线为何不足。**命题 1（schema 不推出语义真实）：** 对任意非平凡 schema \(K\)，若存在两个合法值 \(y,\tilde{y}\models K\) 且在 decisive field 上语义不同，则仅做 schema validation 的 agent 无法从 \(K\) 推出 \(y\) 与 hidden state \(s\) 一致。**命题 2（同源重复无独立信息增益）：** 若 primary channel 与 repeat channel 共享同一 compromised failure domain，则 \(P(\tilde{y}_2=\tilde{y}_1\mid \tilde{y}_1 \text{ false})=1\) 时，repeat-same-tool 不能降低 false acceptance，只能重复同一错误观察。读回或独立授权源的有效性因此依赖 split-channel 假设；若 primary 与 validator 共享失效域，该 validator 必须降级为 same-channel evidence。
+
 ## 4 Benchmark Overlay 设计
 
 ### 4.1 为什么不自建主 benchmark
@@ -348,7 +380,26 @@ Read-back baseline 的部署假设是 split-channel：攻击者可以伪造 prim
 4. 增加第二、第三个模型。
 5. 增加 generator ablation：static、random、template plausible、optimized。
 
-### 8.3 实现与可复现性协议
+### 8.3 CCF-A readiness audit
+
+按 USENIX Security / IEEE S&P / NDSS / CCS 风格审稿标准，当前版本应被定位为 **overlay protocol + pilot evidence**，而不是已完成的 full benchmark paper。强审稿人最可能质疑四点：第一，当前 ToolSandbox/AgentDojo pilot 是 scripted tool-plan / model-final-decision over trace，不是 autonomous full agent loop；第二，已完成的现有 benchmark 真实模型任务数仍小；第三，AgentDojo truthful clean utility 偏低，不能直接作为防御有效性主证据；第四，read-back projection scoring 必须预注册，否则会被视为 post-hoc score repair。
+
+因此，本文把投稿前 P0 要求固定为：
+
+| Requirement | 当前状态 | 投稿前证据门槛 |
+| --- | --- | --- |
+| Existing benchmark substrate | ToolSandbox/AgentDojo pilot 已完成，full overlay 远端运行中 | 至少两个现有 substrate 的 30-45 paired tasks 或全量/candidate slice |
+| Model coverage | 主要为 `gpt-5.4-mini` | 至少 2 个模型，最好 3 个 |
+| Agent-loop boundary | 当前是 trace-final-decision pilot | 主文标题/贡献/限制明确边界；若要称 full agent benchmark，需补 autonomous loop |
+| Scoring contract | 已有 read-back scoring ablation | 主实验前固定 exact-primary 与 restricted projection 规则 |
+| Validator deployability | read-back 与 privileged upper bound 已区分，但 authorization authority 仍需更真实 | 拆分 deployable signed/read-back authority 与 privileged oracle |
+| AgentDojo utility | clean utility 偏低 | 修复 clean utility 或降级为 portability evidence |
+| Statistics | pilot 表为计数比例 | 95% CI、paired bootstrap/McNemar、API/parse error 分母策略 |
+| Cost | 已记录 tool-call cost | 增加 latency/token/tool-call overhead 表 |
+
+完整审稿缺口清单见 `docs/ccfa-review-gap-analysis.md`。该清单是本文的 readiness gate：只有当 P0 项被实验证据覆盖后，本文才应被改写为 CCF-A full-paper claim。
+
+### 8.4 实现与可复现性协议
 
 当前仓库实现采用 trace-first 设计：每个 cell 生成 JSONL trace，事件级区分 hidden events 与 model-visible events。`oracle_context`、`raw_tool_result`、`truth_result`、mode label、success criteria、ground-truth tool-plan metadata 和 scoring 字段只用于 harness 与离线评分，不进入模型 prompt。模型看到的是经过 `visible_rows_for_model` 过滤后的事件列表、profile policy、任务描述和强制 JSON 输出 schema。
 

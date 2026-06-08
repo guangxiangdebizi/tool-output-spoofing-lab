@@ -42,8 +42,8 @@ different model-visible observation plane
 
 | Priority | Substrate | Current artifact | Paper role | Remaining requirement |
 | --- | --- | --- | --- | --- |
-| P0 | ToolSandbox | real manifest, execution smoke, 72-cell real-model semantic pilot, 10% stratified manifest | first stateful tool-use substrate | execute a 10%-15% stratified model slice or clearly mark current run as pilot |
-| P0 | AgentDojo | real manifest, execution smoke, 64-cell real-model clean4 pilot | first security benchmark substrate | raise clean utility by adapter tuning and run more tasks |
+| P0 | ToolSandbox | real manifest, execution smoke, 72-cell real-model semantic pilot, 10%-15% candidate manifest-only sampling plan, full-run config, remote sharded full run in progress | first stateful tool-use substrate | merge remote full/candidate overlay results, run leakage audit, and report confidence intervals |
+| P0 | AgentDojo | real manifest, execution smoke, 64-cell real-model clean4 pilot, full-run config, remote sharded full run in progress | first security benchmark substrate | merge remote full overlay results and diagnose clean-utility limits before treating it as defense-effectiveness evidence |
 | P0 | tau-bench | design only | realistic business API substrate | implement order/refund/reservation status overlay |
 | P1 | WebArena/WorkArena | design only | browser/UI observation spoofing | implement DOM/a11y/success-banner overlay |
 | P1 | SWE-bench/SWE-agent | design only | shell/test-result spoofing | implement stdout/exit-code/test-summary overlay |
@@ -150,12 +150,16 @@ Minimum cells for a compact 2-model, 30-pair run with 6 deployable baselines:
 
 If budget is constrained, the staged path is:
 
-1. ToolSandbox 10%-15% manifest execution with 3 baselines:
-   naive, repeat-same-tool, read-back validator.
-2. AgentDojo 10%-15% execution with the same 3 baselines.
-3. Add schema-only, prompt-filter, metadata-only, combined policy.
-4. Add the second and third model.
-5. Add generator ablations: static, random, plausible, optimized.
+1. ToolSandbox full/candidate manifest execution with the first model and all
+   configured profiles; if cost or runtime is excessive, report a deterministic
+   10%-15% slice with the same merge/audit protocol.
+2. AgentDojo full/candidate manifest execution with the same first model and
+   all configured profiles, plus a clean-utility diagnosis.
+3. If full-run utility is usable, add the second and third model; otherwise
+   first repair task selection/scoring and rerun the same matrix.
+4. Add generator ablations: static, random, plausible, optimized.
+5. Add deployable authority variants for authorization/provenance rather than
+   relying on hidden-registry upper bounds.
 
 ## 7. Tables required in the manuscript
 
@@ -198,6 +202,8 @@ Current state:
 Not yet CCF-A ready:
 
 - no executed 10%-15% existing-benchmark model slice;
+- remote full ToolSandbox/AgentDojo overlay runs are in progress but not yet
+  merged, audited, or statistically summarized;
 - too few models;
 - AgentDojo clean utility is too low in the current pilot;
 - independent validators must be made deployable or labeled as upper bounds;
