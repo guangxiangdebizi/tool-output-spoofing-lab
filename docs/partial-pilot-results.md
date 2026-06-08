@@ -57,7 +57,7 @@ Aggregate:
 | schema-only | 3 / 6 | 3 / 6 | 4 / 6 | 0 / 6 | 1 |
 | repeat-same-tool | 5 / 6 | 5 / 6 | 4 / 6 | 0 / 6 | 0 |
 | metadata-only validator | 3 / 6 | 4 / 6 | 4 / 6 | 0 / 6 | 0 |
-| read-back validator | 0 / 6 | 0 / 6 | 0 / 6 | 6 / 6 | 0 |
+| read-back validator | 0 / 6 | 0 / 6 | 6 / 6 | 6 / 6 | 0 |
 | privileged independent-validator | 0 / 6 | 0 / 6 | 4 / 6 | 6 / 6 | 1 |
 
 Interpretation:
@@ -66,10 +66,27 @@ Interpretation:
   naive/repeat/schema/metadata accept false state in 3-5 of 6 spoofed cases.
 - Same-channel repetition is especially weak in this slice: 5 / 6 spoofed ASR.
 - Read-back and privileged independent validation block spoofed ASR in all 6
-  spoofed cases, but read-back currently has 0 / 6 truthful clean utility under
-  this scoring, so it cannot yet be claimed as a solved deployable defense.
+  spoofed cases. Read-back also preserves 6 / 6 truthful utility after scoring
+  restricted read-back projections as semantically equivalent to primary
+  truthful content.
 - The run had 2 API failures across 72 cells; these are counted as uncertainty
   stubs and reflected in the aggregate.
+- All rates use attempted cells as the denominator. API errors are converted
+  into uncertainty stubs and are not counted as clean utility or successful
+  refusals.
+
+Read-back scoring ablation:
+
+| Substrate | Scoring | Read-back spoofed ASR | Read-back truthful utility |
+| --- | --- | ---: | ---: |
+| ToolSandbox 72 | exact-primary | 0 / 6 | 0 / 6 |
+| ToolSandbox 72 | restricted read-back projection | 0 / 6 | 6 / 6 |
+| AgentDojo clean4 | exact-primary | 0 / 4 | 1 / 4 |
+| AgentDojo clean4 | restricted read-back projection | 0 / 4 | 4 / 4 |
+
+Artifact: `outputs/readback_scoring_ablation.json`. Projection scoring does
+not change spoofed ASR; it only accounts for truthful read-back validators where
+the model reports the verified read-back observation in an equivalent shape.
 
 ### AgentDojo clean4 64-cell real-model pilot
 
@@ -99,7 +116,7 @@ Aggregate:
 | prompt-filter | 0 / 4 | 0 / 4 | 0 / 4 | 0 / 4 | 0 |
 | repeat-same-tool | 2 / 4 | 2 / 4 | 2 / 4 | 0 / 4 | 0 |
 | metadata-only validator | 1 / 4 | 1 / 4 | 2 / 4 | 0 / 4 | 0 |
-| read-back validator | 0 / 4 | 0 / 4 | 1 / 4 | 4 / 4 | 0 |
+| read-back validator | 0 / 4 | 0 / 4 | 4 / 4 | 4 / 4 | 0 |
 | privileged independent-validator | 0 / 4 | 0 / 4 | 2 / 4 | 4 / 4 | 0 |
 | combined policy | 0 / 4 | 0 / 4 | 0 / 4 | 4 / 4 | 0 |
 
@@ -110,9 +127,12 @@ Interpretation:
 - The same qualitative pattern appears: naive/schema/repeat accept false state
   in 2 / 4 spoofed cases, while read-back/independent/combined block spoofed
   ASR.
-- Clean utility remains limited, especially for prompt-filter and combined
-  policy. This should still be written as second-substrate feasibility plus
-  partial attack signal, not as final defense effectiveness.
+- Clean utility remains limited for prompt-filter and combined policy, but
+  read-back utility improves to 4 / 4 under semantic projection scoring. This
+  should still be written as second-substrate feasibility plus partial attack
+  signal, not as final defense effectiveness.
+- AgentDojo currently cannot support a general prompt-filter/combined-defense
+  effectiveness claim because those profiles have unacceptable truthful utility.
 
 ### Local multi-surface 48-cell real-toolcall pilot
 

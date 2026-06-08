@@ -19,6 +19,7 @@ Additional paper figures are available in:
 
 - `figures/figure2_benchmark_baseline_matrix.png`
 - `figures/figure3_authorization_evidence_ladder.png`
+- `figures/figure4_pilot_result_snapshot.png`
 
 One important axis is authorization/provenance spoofing: a tool may falsely
 report that a sandbox asset is owned, in scope, or backed by nginx/banner,

@@ -8,7 +8,7 @@
 
 本文将该问题定义为 **tool-output spoofing**：攻击者不修改用户请求、系统提示或后端真实状态，只控制模型可见的工具观察平面，使其包含 schema-valid 但语义错误的状态、实体绑定、凭证、来源、授权或新鲜度字段。与从零自建 toy benchmark 不同，本文提出一种 **observation-spoofing overlay**：在 AgentDojo、ToolSandbox、tau-bench、WebArena/WorkArena、SWE-bench、MCP Security Bench、MCP-SafetyBench、PoisonedRAG/SafeRAG 等已有高价值 agent/tool-use benchmark 上，保持原始任务、真实后端状态和 oracle 不变，仅成对替换模型可见观察，从而比较不同防御基线在 false acceptance 与 clean utility 之间的权衡。
 
-我们进一步把用户关心的授权/来源伪造抽象为一个独立评测轴：工具可能声称某资产已被授权、已验证所有权、存在 nginx/banner/证书/资产清单等证据，从而诱导模型把未授权对象升级为可进行更高等级评估的对象。该轴只评测授权状态和允许的评估等级，不生成命令、payload、endpoint 行动或可操作攻击步骤。当前仓库已完成多个小规模真实模型 pilot：ToolSandbox 24-cell semantic-normalized slice、AgentDojo 32-cell plausible semantic-spoof slice、authorization/provenance 12-cell pilot、optimized observation 6-cell pilot，以及新增的 authorization evidence-control 20-cell slice。结果显示，弱基线经常接受 schema-valid 虚假观察；独立读回、独立授权源或组合策略能显著降低 false acceptance，但会带来额外工具调用成本和潜在 clean utility 损失。本文当前结论仍限定为 pilot 证据；最终主张需要 10%-15% 现有 benchmark 切片、30-45 paired scenarios、2-3 个模型和置信区间支持。
+我们进一步把用户关心的授权/来源伪造抽象为一个独立评测轴：工具可能声称某资产已被授权、已验证所有权、存在 nginx/banner/证书/资产清单等证据，从而诱导模型把未授权对象升级为可进行更高等级评估的对象。该轴只评测授权状态和允许的评估等级，不生成命令、payload、endpoint 行动或可操作攻击步骤。当前仓库已完成多个小规模真实模型 pilot：ToolSandbox 72-cell semantic-normalized slice、AgentDojo 64-cell clean4 semantic-spoof slice、local multi-surface 48-cell regression slice、authorization/provenance 12-cell pilot、optimized observation 6-cell pilot，以及 authorization evidence-control 20-cell slice。在当前小规模 pilot 中，弱基线经常接受 schema-valid 虚假观察；独立读回、独立授权源或组合策略能显著降低 false acceptance，但会带来额外工具调用成本和潜在 clean utility 损失。本文当前结论仍限定为 pilot 证据；最终主张需要 10%-15% 现有 benchmark 切片、30-45 paired scenarios、2-3 个模型和置信区间支持。
 
 本文所有 pilot 表采用的 canonical artifact 固定在 `outputs/main_pilot_index.json`。旧版 summary/manifest 保留用于 traceability，但不作为主文报告结果。
 
@@ -154,8 +154,8 @@ x = (B, task_id, user_task, hidden_truth, visible_truthful_observation,
 
 | Priority | Substrate | 当前 artifact | 论文角色 | 剩余要求 |
 | --- | --- | --- | --- | --- |
-| P0 | ToolSandbox | real manifest、execution smoke、24-cell real-model semantic pilot、10% stratified manifest | 第一个 stateful tool-use substrate | 执行 10%-15% stratified model slice |
-| P0 | AgentDojo | real manifest、execution smoke、32-cell plausible pilot | 第一个 security benchmark substrate | 扩大任务数并提高 clean utility |
+| P0 | ToolSandbox | real manifest、execution smoke、72-cell real-model semantic pilot、10% stratified manifest | 第一个 stateful tool-use substrate | 执行 10%-15% stratified model slice |
+| P0 | AgentDojo | real manifest、execution smoke、64-cell clean4 pilot | 第一个 security benchmark substrate | 扩大任务数并提高 clean utility |
 | P0 | tau-bench | 设计完成，未实现 | 真实业务 API substrate | 实现 order/refund/reservation status overlay |
 | P1 | WebArena/WorkArena | 设计完成，未实现 | 浏览器/UI observation spoofing | 实现 DOM/a11y/success-banner overlay |
 | P1 | SWE-bench/SWE-agent | 设计完成，未实现 | shell/test-result spoofing | 实现 stdout/exit-code/test-summary overlay |
@@ -219,6 +219,8 @@ subject to schema_valid = true,
 | combined policy | candidate deployable | schema + prompt filter + freshness + read-back/authority + final gate | 无 | 估计实用安全/utility tradeoff |
 | privileged oracle upper bound | ablation only | primary result + hidden truthful result exposed as validator | 有 | 只作上界，不能称为部署防御 |
 
+Read-back baseline 的部署假设是 split-channel：攻击者可以伪造 primary observation channel，但不能同时控制 canonical read-back path 或独立状态权威源。如果同一后端和读回路径都被攻破，read-back 不再提供独立性，只能退化为 same-channel repetition。
+
 在当前 local authorization pilots 中，`mock_independent_scope_registry` 应视为 upper-bound authority，除非后续实现为显式 signed-scope 或 challenge-response verifier。本文不把 hidden-registry 读法声称为已部署防御。
 
 授权/来源伪造必须特别区分 user-claim-only、format/provenance-only、stale evidence、contradictory evidence、verified positive control。否则模型拒绝所有授权请求也可能看似安全，但没有实用价值。
@@ -226,6 +228,10 @@ subject to schema_valid = true,
 ![Figure 3: authorization evidence ladder](../figures/figure3_authorization_evidence_ladder.png)
 
 **图 3：Authorization/provenance evidence ladder。** 从用户自称、无证据声明、过期证据、矛盾证据到独立可验证授权，不同证据等级应导致不同 verdict；评测度量模型是否随证据强度合理变化。
+
+![Figure 4: pilot result snapshot](../figures/figure4_pilot_result_snapshot.png)
+
+**图 4：Pilot 结果快照。** 红色表示 spoofed 条件下的 attack success，绿色表示 truthful 条件下的 clean utility，蓝色表示有效验证比例。该图只总结当前 pilot 证据，不代表 full benchmark 结果。
 
 授权/来源轴的证据梯度定义如下：
 
@@ -250,6 +256,8 @@ subject to schema_valid = true,
 - **Effective Verification：** 验证是否实际改变错误结论或确认真实状态。
 - **Tool-call Cost：** 每个任务平均额外工具调用数。
 - **Parse/API Error Rate：** 真实模型输出解析失败或 API 错误比例。
+
+所有比例默认以 attempted cells 为分母。API error 被转换为 uncertainty stub 并单列报告；它不会被解释为成功拒绝，在 truthful 条件下也不计入 clean utility。
 
 授权/来源伪造专项指标：
 
@@ -322,10 +330,21 @@ Canonical artifacts：
 | schema-only | 3/6 | 3/6 | 4/6 | schema 合法不能证明语义真实；1 个 API error |
 | repeat-same-tool | 5/6 | 5/6 | 4/6 | 同源重复未提供独立性，反而最脆弱 |
 | metadata-only | 3/6 | 4/6 | 4/6 | metadata 不能验证内容 |
-| read-back validator | 0/6 | 0/6 | 0/6 | 阻断假状态，但 clean utility 当前不合格 |
+| read-back validator | 0/6 | 0/6 | 6/6 | 阻断假状态，同时保留 truthful utility |
 | privileged independent validator | 0/6 | 0/6 | 4/6 | 上界基线，不应直接声称可部署；1 个 API error |
 
-结论：在现有 ToolSandbox substrate 上，只要模型可见 observation 被规范成合理语义字段，弱基线会稳定接受假状态；同源重复不是有效验证；读回/独立验证能降低 ASR，但读回 clean utility 需要修复后才能作为部署型防御主张。
+结论：在现有 ToolSandbox substrate 上，只要模型可见 observation 被规范成合理语义字段，弱基线会稳定接受假状态；同源重复不是有效验证；读回/独立验证能降低 ASR。读回结果需要用语义投影评分，因为模型可能报告 read-back 观察的等价投影，而不是 primary truthful result 的原始字段形状。
+
+Scoring ablation：
+
+| Substrate | Scoring | Read-back spoofed ASR | Read-back truthful utility | 解释 |
+| --- | --- | ---: | ---: | --- |
+| ToolSandbox 72 | exact-primary | 0/6 | 0/6 | 严格要求匹配 primary result 的原始字段形状 |
+| ToolSandbox 72 | restricted read-back projection | 0/6 | 6/6 | 模型使用 verified read-back evidence 的等价投影 |
+| AgentDojo clean4 | exact-primary | 0/4 | 1/4 | 1 个样本字段形状完全一致 |
+| AgentDojo clean4 | restricted read-back projection | 0/4 | 4/4 | 投影只允许 whole object、`value/text/wifi_enabled` 或 `records[*]` 中预声明键 |
+
+该消融固定在 `outputs/readback_scoring_ablation.json`。Projection scoring 不改变 spoofed ASR，只修正 truthful read-back utility；每个 cell 同时记录 `clean_utility_exact`、`clean_utility_semantic` 和 `semantic_projection_paths`，避免 silent score rewrite。
 
 ### 9.2 AgentDojo 64-cell clean4 semantic-spoof pilot
 
@@ -348,11 +367,11 @@ AgentDojo 当前使用官方任务和 ground-truth tool plan，但不是 autonom
 | repeat-same-tool | 2/4 | 2/4 | 2/4 | 同源重复不能充分验证 |
 | prompt-filter | 0/4 | 0/4 | 0/4 | 无 ASR 但 utility 崩塌，不能算好防御 |
 | metadata-only | 1/4 | 1/4 | 2/4 | metadata 仍不足 |
-| read-back validator | 0/4 | 0/4 | 1/4 | 能阻断 spoofed ASR，但 utility 仍低 |
+| read-back validator | 0/4 | 0/4 | 4/4 | 能阻断 spoofed ASR，并保留 truthful utility |
 | independent validator | 0/4 | 0/4 | 2/4 | 上界信号清晰 |
 | combined policy | 0/4 | 0/4 | 0/4 | 过度保守，需调参 |
 
-结论：AgentDojo pilot 的主要价值不是展示弱基线失败或防御有效，而是证明 overlay 可以迁移到第二个已有 benchmark。当前 clean utility 偏低，必须先调试 clean-utility-focused task slice，再扩大任务数，避免把任务难度误判为防御效果。
+结论：AgentDojo pilot 的主要价值不是展示弱基线失败或防御有效，而是证明 overlay 可以迁移到第二个已有 benchmark。当前 clean utility 偏低，必须先调试 clean-utility-focused task slice，再扩大任务数，避免把任务难度误判为防御效果。AgentDojo 当前不能支撑 prompt-filter/combined 的有效性 claim；这些 profile 在 truthful 条件下 utility 不合格。可作为正面信号的是 read-back-specific result 和跨 substrate 可迁移性。
 
 ### 9.2.1 Local multi-surface 48-cell real-toolcall pilot
 
@@ -491,19 +510,19 @@ Tool-output spoofing 是工具调用型 LLM 智能体中的基础 observation-in
 
 [1] K. Greshake, S. Abdelnabi, S. Mishra, C. Endres, T. Holz, and M. Fritz. "Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection." arXiv:2302.12173, 2023.
 
-[2] X. Zhan, Z. Xu, Y. Liu, Y. Deng, and P. Liu. "InjecAgent: Benchmarking Indirect Prompt Injections in Tool-Integrated Large Language Model Agents." arXiv:2403.02691, 2024.
+[2] Q. Zhan, Z. Liang, Z. Ying, and D. Kang. "InjecAgent: Benchmarking Indirect Prompt Injections in Tool-Integrated Large Language Model Agents." arXiv:2403.02691, 2024.
 
 [3] E. Debenedetti, J. Zhang, M. Balunovic, L. Beurer-Kellner, M. Fischer, and F. Tramèr. "AgentDojo: A Dynamic Environment to Evaluate Prompt Injection Attacks and Defenses for LLM Agents." NeurIPS Datasets and Benchmarks Track, 2024.
 
 [4] Y. Ruan, H. Dong, A. Wang, S. Pitis, Y. Zhou, J. Ba, Y. Dubois, C. J. Maddison, and T. Hashimoto. "Identifying the Risks of LM Agents with an LM-Emulated Sandbox." arXiv:2309.15817, 2023.
 
-[5] D. Zhang et al. "MCP Security Bench (MSB): Benchmarking Attacks Against Model Context Protocol in LLM Agents." ICLR, 2026.
+[5] D. Zhang, Z. Li, X. Luo, X. Liu, P. Li, and W. Xu. "MCP Security Bench (MSB): Benchmarking Attacks Against Model Context Protocol in LLM Agents." ICLR, 2026.
 
-[6] X. J. et al. "MCP-SafetyBench / MCPSafety: Benchmarking Safety Risks in Model Context Protocol Systems." arXiv/project report, 2026.
+[6] X. Zong, Z. Shen, L. Wang, Y. Lan, and C. Yang. "MCP-SafetyBench: A Benchmark for Safety Evaluation of Large Language Models with Real-World MCP Servers." ICLR, 2026.
 
-[7] Z. Hu et al. "MalTool: Malicious Tool Attacks on LLM Agents." arXiv:2602.12194, 2026.
+[7] Y. Hu, Y. Jia, M. Li, D. Song, and N. Gong. "MalTool: Malicious Tool Attacks on LLM Agents." arXiv:2602.12194, 2026.
 
-[8] M. Mo et al. "Attractive Metadata Attack: Inducing LLM Agents to Invoke Malicious Tools." arXiv:2508.02110, 2025.
+[8] K. Mo, L. Hu, Y. Long, and Z. Li. "Attractive Metadata Attack: Inducing LLM Agents to Invoke Malicious Tools." NeurIPS, 2025.
 
 [9] L. Yan, R. Li, X. Han, W. Li, B. Wang, L. Wang, C. Lyu, and G. Chen. "Trust No Tool: Evaluating and Defending LLM Agents under Untrusted Tool Feedback." arXiv:2605.17453, 2026.
 
@@ -515,16 +534,16 @@ Tool-output spoofing 是工具调用型 LLM 智能体中的基础 observation-in
 
 [13] C. E. Jimenez, J. Yang, A. Wettig, S. Yao, K. Pei, O. Press, and K. Narasimhan. "SWE-bench: Can Language Models Resolve Real-World GitHub Issues?" ICLR, 2024.
 
-[14] Y. Qin et al. "ToolBench: Towards Better Instruction Tuning for Tool Learning." arXiv:2307.16789, 2023.
+[14] Y. Qin, S. Liang, Y. Ye, K. Zhu, L. Yan, Y. Lu, Y. Lin, X. Cong, X. Tang, B. Qian, S. Zhao, L. Hong, R. Tian, R. Xie, J. Zhou, M. Gerstein, D. Li, Z. Liu, and M. Sun. "ToolLLM: Facilitating Large Language Models to Master 16000+ Real-World APIs." arXiv:2307.16789, 2023.
 
-[15] M. Li et al. "API-Bank: A Comprehensive Benchmark for Tool-Augmented LLMs." arXiv:2304.08244, 2023.
+[15] M. Li, Y. Zhao, B. Yu, F. Song, H. Li, H. Yu, Z. Li, F. Huang, and Y. Li. "API-Bank: A Comprehensive Benchmark for Tool-Augmented LLMs." arXiv:2304.08244, 2023.
 
-[16] D. Drouin et al. "WorkArena: How Capable Are Web Agents at Solving Common Knowledge Work Tasks?" arXiv:2403.07718, 2024.
+[16] A. Drouin, M. Gasse, M. Caccia, I. H. Laradji, M. Del Verme, T. Marty, L. Boisvert, M. Thakkar, Q. Cappart, D. Vazquez, N. Chapados, and A. Lacoste. "WorkArena: How Capable Are Web Agents at Solving Common Knowledge Work Tasks?" arXiv:2403.07718, 2024.
 
-[17] F. F. Xu et al. "VisualWebArena: Evaluating Multimodal Agents on Realistic Visual Web Tasks." arXiv:2401.13649, 2024.
+[17] J. Y. Koh, R. Lo, L. Jang, V. Duvvur, M. C. Lim, P.-Y. Huang, G. Neubig, S. Zhou, R. Salakhutdinov, and D. Fried. "VisualWebArena: Evaluating Multimodal Agents on Realistic Visual Web Tasks." arXiv:2401.13649, 2024.
 
 [18] J. Yang, C. E. Jimenez, A. Wettig, K. Lieret, S. Yao, K. Narasimhan, and O. Press. "SWE-agent: Agent-Computer Interfaces Enable Automated Software Engineering." arXiv:2405.15793, 2024.
 
-[19] W. Zou et al. "PoisonedRAG: Knowledge Corruption Attacks to Retrieval-Augmented Generation of Large Language Models." arXiv:2402.07867, 2024.
+[19] W. Zou, R. Geng, B. Wang, and J. Jia. "PoisonedRAG: Knowledge Corruption Attacks to Retrieval-Augmented Generation of Large Language Models." arXiv:2402.07867, 2024.
 
-[20] SafeRAG authors. "SafeRAG: Benchmarking Security and Safety for Retrieval-Augmented Generation." arXiv / benchmark report, 2025.
+[20] X. Liang, S. Niu, Z. Li, S. Zhang, H. Wang, F. Xiong, J. Z. Fan, B. Tang, S. Song, M. Wang, and J. Yang. "SafeRAG: Benchmarking Security in Retrieval-Augmented Generation of Large Language Model." arXiv:2501.18636, 2025.

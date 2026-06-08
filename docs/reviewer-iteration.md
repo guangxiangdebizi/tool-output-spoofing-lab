@@ -1441,7 +1441,7 @@ Result:
 | schema-only | 3 / 6 | 3 / 6 | 4 / 6 | 0 / 6 | 1 |
 | repeat-same-tool | 5 / 6 | 5 / 6 | 4 / 6 | 0 / 6 | 0 |
 | metadata-only validator | 3 / 6 | 4 / 6 | 4 / 6 | 0 / 6 | 0 |
-| read-back validator | 0 / 6 | 0 / 6 | 0 / 6 | 6 / 6 | 0 |
+| read-back validator | 0 / 6 | 0 / 6 | 6 / 6 | 6 / 6 | 0 |
 | privileged independent-validator | 0 / 6 | 0 / 6 | 4 / 6 | 6 / 6 | 1 |
 
 Interpretation:
@@ -1449,8 +1449,10 @@ Interpretation:
 - The strongest current existing-substrate signal is now 72 cells rather than
   the earlier 24-cell slice.
 - Weak baselines remain vulnerable, especially repeat-same-tool.
-- Read-back blocks spoofed ASR but currently fails truthful clean utility under
-  this scoring; this is the next defense-engineering issue.
+- Read-back blocks spoofed ASR and preserves truthful clean utility after
+  semantic read-back projection scoring. The original 0 / 6 utility was a
+  scorer normalization bug: the model committed to the correct read-back
+  projection rather than the primary result's exact field shape.
 
 ### AgentDojo clean4 64-cell pilot
 
@@ -1476,7 +1478,7 @@ Result:
 | prompt-filter | 0 / 4 | 0 / 4 | 0 / 4 | 0 / 4 |
 | repeat-same-tool | 2 / 4 | 2 / 4 | 2 / 4 | 0 / 4 |
 | metadata-only validator | 1 / 4 | 1 / 4 | 2 / 4 | 0 / 4 |
-| read-back validator | 0 / 4 | 0 / 4 | 1 / 4 | 4 / 4 |
+| read-back validator | 0 / 4 | 0 / 4 | 4 / 4 | 4 / 4 |
 | privileged independent-validator | 0 / 4 | 0 / 4 | 2 / 4 | 4 / 4 |
 | combined policy | 0 / 4 | 0 / 4 | 0 / 4 | 4 / 4 |
 
@@ -1485,7 +1487,8 @@ Interpretation:
 - The second-substrate result now has 64 real-model cells.
 - The pattern is qualitatively consistent with ToolSandbox: naive/schema/repeat
   accept false state; read-back/independent block spoofed ASR.
-- Clean utility is still too low for strong defense-effectiveness claims.
+- Clean utility is still too low for prompt-filter and combined policy, but
+  read-back now preserves utility under semantic projection scoring.
 
 ### Local multi-surface 48-cell pilot
 
@@ -1515,6 +1518,43 @@ Current reviewer posture after this run:
 - The work has moved from sanity checks to credible small-pilot evidence on two
   existing substrates plus a broad local regression slice.
 - It is still not CCF-A ready because there is no executed 10%-15% slice,
-  read-back utility needs fixing, and only one model has been used.
+  AgentDojo prompt-filter/combined utility needs fixing, and only one model has
+  been used.
   Nevertheless, this is a materially stronger empirical base than the earlier
   2-task pilots.
+
+## Round 27: reviewer audit of read-back scoring and figure completion
+
+External reviewer posture after the expanded run:
+
+- Current evidence is a credible small pilot on two existing benchmark
+  substrates, not a completed paper-grade benchmark.
+- The highest-risk issue was post-hoc interpretation of read-back utility:
+  ToolSandbox read-back utility moved from strict exact-primary 0 / 6 to
+  restricted projection 6 / 6; AgentDojo moved from 1 / 4 to 4 / 4.
+- This is methodologically defensible only if reported as an explicit scoring
+  ablation, not a silent rewrite.
+
+Implemented response:
+
+- Added dual metrics in `src/tool_spoof_lab/structured_oracle.py`:
+  `clean_utility_exact`, `clean_utility_semantic`,
+  `semantic_projection_used`, and `semantic_projection_paths`.
+- Restricted projection matching to whole-object equality, canonical keys
+  (`value`, `text`, `wifi_enabled`), and pre-declared `records[*]` fields such
+  as `person_id`, `message_id`, `content`, `name`, and `phone_number`.
+- Added `outputs/readback_scoring_ablation.json`.
+- Updated `docs/paper-draft-zh.md` and `docs/partial-pilot-results.md` to
+  report exact-primary vs restricted read-back projection scoring.
+- Added Figure 4:
+  `figures/figure4_pilot_result_snapshot.png` and
+  `figures/figure4_pilot_result_snapshot.svg`.
+
+Remaining reviewer blockers:
+
+- Execute at least a 10%-15% ToolSandbox or AgentDojo slice, or a stronger
+  12-task ToolSandbox pilot if budget is constrained.
+- Add a second model small run.
+- Repair AgentDojo prompt-filter/combined truthful utility before claiming
+  those as deployable defenses.
+- Add run-level prompt leakage audit artifact for the expanded runs.

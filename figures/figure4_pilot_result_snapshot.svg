@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900">
+  <rect width="1400" height="900" fill="#ffffff"/>
+  <text x="70" y="70" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700" fill="#111827">Pilot result snapshot: spoofed ASR vs truthful utility</text>
+  <text x="70" y="108" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#4b5563">Existing benchmark pilots use paired truthful/spoofed observations; local multi-surface pilot is a regression slice, not the main benchmark.</text>
+
+  <rect x="70" y="145" width="1260" height="66" rx="10" fill="#f3f4f6"/>
+  <text x="90" y="186" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" fill="#111827">Substrate</text>
+  <text x="260" y="186" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" fill="#111827">Baseline</text>
+  <text x="520" y="186" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" fill="#111827">Spoofed ASR</text>
+  <text x="780" y="186" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" fill="#111827">Truthful utility</text>
+  <text x="1070" y="186" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" fill="#111827">Effective verification</text>
+
+  <g font-family="Arial, Helvetica, sans-serif" font-size="17" fill="#111827">
+    <text x="90" y="255">ToolSandbox</text>
+    <text x="90" y="315">72 cells</text>
+    <text x="260" y="255">naive</text>
+    <text x="260" y="315">repeat-same-tool</text>
+    <text x="260" y="375">read-back</text>
+    <text x="260" y="435">independent validator</text>
+
+    <text x="90" y="525">AgentDojo</text>
+    <text x="90" y="585">64 cells</text>
+    <text x="260" y="525">naive</text>
+    <text x="260" y="585">repeat-same-tool</text>
+    <text x="260" y="645">read-back</text>
+    <text x="260" y="705">independent validator</text>
+
+    <text x="90" y="780">Local regression</text>
+    <text x="90" y="840">48 cells</text>
+    <text x="260" y="780">naive</text>
+    <text x="260" y="840">repeat-same-tool</text>
+  </g>
+
+  <g stroke="#e5e7eb" stroke-width="1">
+    <line x1="70" y1="465" x2="1330" y2="465"/>
+    <line x1="70" y1="735" x2="1330" y2="735"/>
+  </g>
+
+  <g font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#374151">
+    <text x="520" y="225">0</text><text x="615" y="225">50%</text><text x="713" y="225">100%</text>
+    <text x="780" y="225">0</text><text x="875" y="225">50%</text><text x="973" y="225">100%</text>
+    <text x="1070" y="225">0</text><text x="1165" y="225">50%</text><text x="1263" y="225">100%</text>
+  </g>
+
+  <g fill="#e5e7eb">
+    <rect x="520" y="241" width="200" height="18" rx="4"/><rect x="780" y="241" width="200" height="18" rx="4"/><rect x="1070" y="241" width="200" height="18" rx="4"/>
+    <rect x="520" y="301" width="200" height="18" rx="4"/><rect x="780" y="301" width="200" height="18" rx="4"/><rect x="1070" y="301" width="200" height="18" rx="4"/>
+    <rect x="520" y="361" width="200" height="18" rx="4"/><rect x="780" y="361" width="200" height="18" rx="4"/><rect x="1070" y="361" width="200" height="18" rx="4"/>
+    <rect x="520" y="421" width="200" height="18" rx="4"/><rect x="780" y="421" width="200" height="18" rx="4"/><rect x="1070" y="421" width="200" height="18" rx="4"/>
+    <rect x="520" y="511" width="200" height="18" rx="4"/><rect x="780" y="511" width="200" height="18" rx="4"/><rect x="1070" y="511" width="200" height="18" rx="4"/>
+    <rect x="520" y="571" width="200" height="18" rx="4"/><rect x="780" y="571" width="200" height="18" rx="4"/><rect x="1070" y="571" width="200" height="18" rx="4"/>
+    <rect x="520" y="631" width="200" height="18" rx="4"/><rect x="780" y="631" width="200" height="18" rx="4"/><rect x="1070" y="631" width="200" height="18" rx="4"/>
+    <rect x="520" y="691" width="200" height="18" rx="4"/><rect x="780" y="691" width="200" height="18" rx="4"/><rect x="1070" y="691" width="200" height="18" rx="4"/>
+    <rect x="520" y="766" width="200" height="18" rx="4"/><rect x="780" y="766" width="200" height="18" rx="4"/><rect x="1070" y="766" width="200" height="18" rx="4"/>
+    <rect x="520" y="826" width="200" height="18" rx="4"/><rect x="780" y="826" width="200" height="18" rx="4"/><rect x="1070" y="826" width="200" height="18" rx="4"/>
+  </g>
+
+  <g>
+    <rect x="520" y="241" width="133" height="18" rx="4" fill="#ef4444"/><rect x="780" y="241" width="133" height="18" rx="4" fill="#22c55e"/><rect x="1070" y="241" width="0" height="18" rx="4" fill="#3b82f6"/>
+    <rect x="520" y="301" width="167" height="18" rx="4" fill="#ef4444"/><rect x="780" y="301" width="133" height="18" rx="4" fill="#22c55e"/><rect x="1070" y="301" width="0" height="18" rx="4" fill="#3b82f6"/>
+    <rect x="520" y="361" width="0" height="18" rx="4" fill="#ef4444"/><rect x="780" y="361" width="200" height="18" rx="4" fill="#22c55e"/><rect x="1070" y="361" width="200" height="18" rx="4" fill="#3b82f6"/>
+    <rect x="520" y="421" width="0" height="18" rx="4" fill="#ef4444"/><rect x="780" y="421" width="133" height="18" rx="4" fill="#22c55e"/><rect x="1070" y="421" width="200" height="18" rx="4" fill="#3b82f6"/>
+
+    <rect x="520" y="511" width="100" height="18" rx="4" fill="#ef4444"/><rect x="780" y="511" width="50" height="18" rx="4" fill="#22c55e"/><rect x="1070" y="511" width="0" height="18" rx="4" fill="#3b82f6"/>
+    <rect x="520" y="571" width="100" height="18" rx="4" fill="#ef4444"/><rect x="780" y="571" width="100" height="18" rx="4" fill="#22c55e"/><rect x="1070" y="571" width="0" height="18" rx="4" fill="#3b82f6"/>
+    <rect x="520" y="631" width="0" height="18" rx="4" fill="#ef4444"/><rect x="780" y="631" width="200" height="18" rx="4" fill="#22c55e"/><rect x="1070" y="631" width="200" height="18" rx="4" fill="#3b82f6"/>
+    <rect x="520" y="691" width="0" height="18" rx="4" fill="#ef4444"/><rect x="780" y="691" width="100" height="18" rx="4" fill="#22c55e"/><rect x="1070" y="691" width="200" height="18" rx="4" fill="#3b82f6"/>
+
+    <rect x="520" y="766" width="100" height="18" rx="4" fill="#ef4444"/><rect x="780" y="766" width="200" height="18" rx="4" fill="#22c55e"/><rect x="1070" y="766" width="0" height="18" rx="4" fill="#3b82f6"/>
+    <rect x="520" y="826" width="100" height="18" rx="4" fill="#ef4444"/><rect x="780" y="826" width="175" height="18" rx="4" fill="#22c55e"/><rect x="1070" y="826" width="0" height="18" rx="4" fill="#3b82f6"/>
+  </g>
+
+  <g font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#111827">
+    <text x="665" y="255">4/6</text><text x="925" y="255">4/6</text><text x="1280" y="255">0/6</text>
+    <text x="695" y="315">5/6</text><text x="925" y="315">4/6</text><text x="1280" y="315">0/6</text>
+    <text x="532" y="375">0/6</text><text x="990" y="375">6/6</text><text x="1280" y="375">6/6</text>
+    <text x="532" y="435">0/6</text><text x="925" y="435">4/6</text><text x="1280" y="435">6/6</text>
+    <text x="632" y="525">2/4</text><text x="840" y="525">1/4</text><text x="1280" y="525">0/4</text>
+    <text x="632" y="585">2/4</text><text x="890" y="585">2/4</text><text x="1280" y="585">0/4</text>
+    <text x="532" y="645">0/4</text><text x="990" y="645">4/4</text><text x="1280" y="645">4/4</text>
+    <text x="532" y="705">0/4</text><text x="890" y="705">2/4</text><text x="1280" y="705">4/4</text>
+    <text x="632" y="780">4/8</text><text x="990" y="780">8/8</text><text x="1280" y="780">0/8</text>
+    <text x="632" y="840">4/8</text><text x="965" y="840">7/8</text><text x="1280" y="840">0/8</text>
+  </g>
+
+  <g font-family="Arial, Helvetica, sans-serif" font-size="16" fill="#374151">
+    <rect x="70" y="865" width="18" height="18" fill="#ef4444" rx="3"/><text x="98" y="879">spoofed attack success</text>
+    <rect x="300" y="865" width="18" height="18" fill="#22c55e" rx="3"/><text x="328" y="879">truthful clean utility</text>
+    <rect x="535" y="865" width="18" height="18" fill="#3b82f6" rx="3"/><text x="563" y="879">effective independent verification</text>
+  </g>
+</svg>
