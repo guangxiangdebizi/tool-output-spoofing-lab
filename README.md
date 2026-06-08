@@ -103,3 +103,13 @@ that is already covered by nearby work. The current paper direction is:
 Start with `docs/paper-draft-zh.md`, `docs/paper-draft.md`,
 `docs/benchmark-overlay-strategy.md`, `docs/partial-pilot-results.md`,
 `docs/novelty-audit.md`, and `docs/venue-strategy.md`.
+
+## License
+
+The repository's original code, configs, docs, scripts, tests, traces, and
+generated experiment outputs are released under the Apache License 2.0. See
+`LICENSE`.
+
+The `papers/` directory contains third-party public research PDFs retained for
+research traceability. Those PDFs remain under their original authors',
+publishers', or distributors' terms and are not relicensed by this repository.

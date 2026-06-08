@@ -8,6 +8,7 @@ version = "0.1.0"
 description = "Local scaffold for studying AI-agent deception through spoofed tool outputs."
 requires-python = ">=3.10"
 dependencies = []
+license = "Apache-2.0"
 
 [tool.setuptools.packages.find]
 where = ["src"]
