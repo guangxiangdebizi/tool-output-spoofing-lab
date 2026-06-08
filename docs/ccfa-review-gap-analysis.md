@@ -22,7 +22,7 @@ not a claim that the listed gaps are solved.
 
 - Two-substrate full benchmark-level evaluation. AgentDojo 97-task full overlay
   is complete, but ToolSandbox full overlay is still running. As of
-  2026-06-09 00:00 CST it had produced 5567/12384 expected
+  2026-06-09 00:10 CST it had produced 6272/12384 expected
   `gpt-5.4-mini` ToolSandbox cells under five remote shards. The paper still
   lacks the merged ToolSandbox result and multi-model evidence.
 - Full autonomous LLM-agent risk. The current runners evaluate model final
@@ -108,7 +108,8 @@ claim two existing-benchmark full-overlay evidence. The run uses
 `gpt-5.4-mini`, `configs/experiments/toolsandbox_model_full.json`, and full
 `outputs/toolsandbox_full_manifest.json` on the remote cloud host. It is
 sharded across five `ts_full_stable_*` screens, with `full_monitor` configured
-to merge shard summaries and compute CI after completion.
+to merge shard summaries, compute CI, run prompt-leakage audit, and generate
+paired-statistics diagnostics after completion.
 
 Important reviewer-facing nuance: failed earlier cells must not be silently
 counted as robustness. The runner now reuses only completed real model traces

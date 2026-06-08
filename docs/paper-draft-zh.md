@@ -8,7 +8,9 @@
 
 本文将该问题定义为 **tool-output spoofing**：攻击者不修改用户请求、系统提示或后端真实状态，只控制模型可见的工具观察平面，使其包含 schema-valid 但语义错误的状态、实体绑定、凭证、来源、授权或新鲜度字段。与从零自建 toy benchmark 不同，本文提出一种 **observation-spoofing overlay**：在 AgentDojo、ToolSandbox、tau-bench、WebArena/WorkArena、SWE-bench、MCP Security Bench、MCP-SafetyBench、PoisonedRAG/SafeRAG 等已有高价值 agent/tool-use benchmark 上，保持原始任务、真实后端状态和 oracle 不变，仅成对替换模型可见观察，从而比较不同防御基线在 false acceptance 与 clean utility 之间的权衡。
 
-我们进一步把用户关心的授权/来源伪造抽象为一个独立评测轴：工具可能声称某资产已被授权、已验证所有权、存在 nginx/banner/证书/资产清单等证据，从而诱导模型把未授权对象升级为可进行更高等级评估的对象。该轴只评测授权状态和允许的评估等级，不生成命令、payload、endpoint 行动或可操作攻击步骤。当前仓库已完成多个真实模型 pilot、一个 AgentDojo 1552-cell full overlay run，并正在远端云主机运行 ToolSandbox full overlay；截至 2026-06-09 00:00 CST，该 ToolSandbox run 已产生 5567/12384 个预期 `gpt-5.4-mini` cells，5 个 shard 仍在运行。已完成证据显示弱基线经常接受 schema-valid 虚假观察；read-back 或 independent-authority 基线能降低 false acceptance；combined policy 的 utility/调参仍未稳定。本文当前结论仍限定为 trace-final-decision overlay 证据；最终 CCF-A 级主张需要至少两个现有 benchmark 的 full overlay、2-3 个模型、预注册 scoring contract 和置信区间支持；candidate slice 只能作为预算敏感性或附录，不替代 full run。
+我们进一步把用户关心的授权/来源伪造抽象为一个独立评测轴：工具可能声称某资产已被授权、已验证所有权、存在 nginx/banner/证书/资产清单等证据，从而诱导模型把未授权对象升级为可进行更高等级评估的对象。该轴只评测授权状态和允许的评估等级，不生成命令、payload、endpoint 行动或可操作攻击步骤。当前仓库已完成多个真实模型 pilot、一个 AgentDojo 1552-cell full overlay run，并正在远端云主机运行 ToolSandbox full overlay；截至 2026-06-09 00:10 CST，该 ToolSandbox run 已产生 6272/12384 个预期 `gpt-5.4-mini` cells，5 个 shard 仍在运行。已完成证据显示弱基线经常接受 schema-valid 虚假观察；read-back 或 independent-authority 基线能降低 false acceptance；combined policy 的 utility/调参仍未稳定。本文当前结论仍限定为 trace-final-decision overlay 证据；最终 CCF-A 级主张需要至少两个现有 benchmark 的 full overlay、2-3 个模型、预注册 scoring contract 和置信区间支持；candidate slice 只能作为预算敏感性或附录，不替代 full run。
+
+本文的核心优势不是替代 AgentDojo、ToolSandbox 等 benchmark，而是把它们已有的任务、环境和 oracle 变成一个更干净的 observation-integrity 测试床：同一任务、同一 hidden truth、同一 oracle，只改变模型可见观察。这样可以把 schema-valid factual falsehood 与 prompt injection、工具选择错误、任务规划失败和后端状态变化解耦。AgentDojo full-overlay 的当前结果已经体现这一点：naive baseline 在 28/97 个 spoofed tasks 上接受假状态，schema-only 在 31/97 上接受假状态，而 read-back、independent validator 和 combined policy 均为 0/97；对同一 97 个任务做 paired exact McNemar/binomial test 后，read-back 相对 naive 的 ASR 降幅为 -0.289，Holm-adjusted `p=5.22e-08`。这说明本文要测的 failure mode 不是纯理论假设，而是能在现有 benchmark substrate 上稳定复现的模型决策风险。
 
 本文所有 pilot 表采用的 canonical artifact 固定在 `outputs/main_pilot_index.json`。旧版 summary/manifest 保留用于 traceability，但不作为主文报告结果。
 
@@ -37,7 +39,7 @@ LLM 智能体的核心能力来自“语言模型 + 工具 + 环境”的闭环�
 1. **问题定义。** 定义 schema-valid、non-instructional 的 tool-output spoofing，并将其与间接提示注入、工具幻觉、恶意工具选择和恶意工具实现区分开。
 2. **Benchmark overlay 协议。** 提出在已有高价值 agent/tool-use benchmark 上叠加 observation-spoofing overlay 的协议，避免主要依赖自建 toy benchmark。
 3. **防御基线与指标。** 系统化比较 naive、schema-only、prompt-filter、repeat-same-tool、metadata-only、read-back、independent authority、combined policy 和 privileged oracle upper bound，并定义 ASR、accepted false state、false authorization acceptance、unsafe assessment escalation、clean utility、over-refusal、verification rate 与 tool-call cost。
-4. **Pilot/full-overlay 证据与实验路线。** 在 ToolSandbox、AgentDojo 和授权/来源伪造轴上完成小规模真实模型 pilot；AgentDojo 已完成 97-task full overlay，ToolSandbox full overlay 正在远端运行。本文展示弱基线与独立验证基线的差异，并明确后续 multi-model、CI/statistical test 和 autonomous-loop 对照实验设计。
+4. **Full-overlay 证据、统计和边界。** AgentDojo 已完成 97-task/1552-cell full overlay，并通过 full-run prompt-leakage audit、Wilson CI、paired exact tests 和 clean-utility funnel 诊断；ToolSandbox 12384-cell full overlay 正在远端运行。当前结果表明 schema-only/repeat/metadata 不是充分防御，split-channel read-back 是强 candidate defense；同时本文明确限制在 trace-final-decision overlay，不把结果误称为 autonomous full agent benchmark。
 
 ## 2 背景与相关工作
 
@@ -68,6 +70,8 @@ PoisonedRAG 证明少量污染文档即可显著影响 RAG 输出 [19]；SafeRAG
 | MCP/恶意工具 [5-8] | 工具协议、元数据、实现、返回 | 恶意 server、工具投毒、工具选择偏置 | 本文聚焦被选中工具的 schema-valid 结果真伪 |
 | 不可信工具反馈 [9] | trajectory 中的 tool feedback | hidden trigger / feedback poisoning | 本文收窄到 field-level semantic falsehood 和可复现 paired truth |
 | RAG poisoning [19,20] | 检索语料和来源 | 知识污染、伪证据 | 本文把 retrieval 作为多 surface 中的一类工具 |
+
+换言之，本文的“更好”不体现在自建一个更大的 benchmark，而体现在 **因果隔离更干净**：现有 benchmark 通常把工具选择、任务规划、环境执行、提示注入和反馈污染混在一个 trajectory 里；本文固定任务和 hidden oracle，仅改变 visible observation，因而能回答一个更窄但更可审计的问题：当返回值完全 schema-valid 且不含攻击指令时，模型是否仍会把虚假事实当作世界状态？这一设计也使防御比较更公平，因为 naive、schema-only、repeat、metadata、read-back 和 independent authority 都在同一 task pair 上比较，而不是跨任务或跨 benchmark 分布比较。
 
 ## 3 Threat Model
 
@@ -363,7 +367,7 @@ Read-back baseline 的部署假设是 split-channel：攻击者可以伪造 prim
 
 最终论文应至少完成：
 
-1. **现有 benchmark full overlay。** AgentDojo full overlay 已完成并汇总；ToolSandbox full overlay 正在远端云主机运行。当前 ToolSandbox full run 为 `1032 tasks x 2 modes x 6 profiles x 1 model = 12384` cells，截至 2026-06-09 00:00 CST 已生成 5567 cells，5 个 remote shards 存活。分层切片只作为预算或审稿附录的敏感性分析，不再替代用户要求的 full benchmark run。
+1. **现有 benchmark full overlay。** AgentDojo full overlay 已完成并汇总；ToolSandbox full overlay 正在远端云主机运行。当前 ToolSandbox full run 为 `1032 tasks x 2 modes x 6 profiles x 1 model = 12384` cells，截至 2026-06-09 00:10 CST 已生成 6272 cells，5 个 remote shards 存活。分层切片只作为预算或审稿附录的敏感性分析，不再替代用户要求的 full benchmark run。
 2. **30-45 paired scenarios。** 每个 scenario 保持 same task/same hidden truth，只改变 visible observation，并覆盖 API、MCP、browser、shell、RAG、authorization 等 surface。
 3. **2-3 个模型。** 至少比较一个强闭源模型、一个较小闭源/路由模型、一个开源或可本地复现模型。
 4. **Defense × generator matrix。** 每个 task 至少包含 naive、schema-only、prompt-filter、repeat、read-back/authority、combined；generator 至少包含 static、random、template plausible、optimized。
@@ -392,7 +396,7 @@ Read-back baseline 的部署假设是 split-channel：攻击者可以伪造 prim
 
 | Requirement | 当前状态 | 投稿前证据门槛 |
 | --- | --- | --- |
-| Existing benchmark substrate | AgentDojo full overlay 已完成；ToolSandbox full overlay 远端 5-shard 运行中，5567/12384 cells as of 2026-06-09 00:00 CST | 至少两个现有 substrate 的 merged full result、CI 与 leakage audit |
+| Existing benchmark substrate | AgentDojo full overlay 已完成；ToolSandbox full overlay 远端 5-shard 运行中，6272/12384 cells as of 2026-06-09 00:10 CST | 至少两个现有 substrate 的 merged full result、CI 与 leakage audit |
 | Model coverage | 主要为 `gpt-5.4-mini` | 至少 2 个模型，最好 3 个 |
 | Agent-loop boundary | 当前是 trace-final-decision pilot | 主文标题/贡献/限制明确边界；若要称 full agent benchmark，需补 autonomous loop |
 | Scoring contract | 已有 read-back scoring ablation | 主实验前固定 exact-primary 与 restricted projection 规则 |
@@ -511,15 +515,15 @@ Canonical planned artifacts：
 - source manifest: `outputs/toolsandbox_full_manifest.json`
 - model: `gpt-5.4-mini`
 
-Current remote state as of 2026-06-09 00:00 CST:
+Current remote state as of 2026-06-09 00:10 CST:
 
 | Item | Status |
 | --- | --- |
 | Expected cells | 12384 |
-| Generated traces | 5567 |
-| Progress | 44.9% |
+| Generated traces | 6272 |
+| Progress | 50.6% |
 | Active shards | 5 `ts_full_stable_*` screens |
-| Monitor | `full_monitor`, configured to merge shards and compute CI after completion |
+| Monitor | `full_monitor`, configured to merge shards, compute CI, run prompt-leakage audit, and generate paired stats after completion |
 | Resume policy | reuse only complete real `model_chat_completion` traces; rerun empty, malformed, missing-final, API-error, or non-executed traces |
 
 本文当前不把该 run 写入结果表，直到所有 shard 结束并完成 merged summary、
@@ -583,26 +587,25 @@ Run flags: `completed_cells=1552/1552`, `real_model_run=true`, `real_tool_execut
 | privileged independent validator | 0/97 | 0/97 | 20/97 | 194/194 | 0 | 上界信号；不能当部署防御 |
 | combined policy | 0/97 | 0/97 | 13/97 | 194/194 | 1 | 安全但 utility 仍未调好 |
 
-Paired statistics over the same 97 tasks use exact McNemar/binomial sign tests
-against the naive baseline, with Holm correction within each metric family.
-For spoofed attack success, read-back, privileged independent, and combined
-policy each reduce ASR from 28/97 to 0/97
-(`comparison_minus_reference=-0.289`, Holm-adjusted
-`p=5.22e-08`). Repeat-same-tool reduces ASR from 28/97 to 15/97
-(`comparison_minus_reference=-0.134`, Holm-adjusted `p=0.0070`) but remains
-unsafe. Schema-only is not distinguishable from naive on this run
-(31/97 vs 28/97, Holm-adjusted `p=0.678`) and should be described as a weak
-format baseline, not a defense.
+配对统计以同一 97 个任务为单位，把每个防御 profile 与 naive baseline 做
+exact McNemar/binomial sign test，并在同一 metric family 内做 Holm 校正。
+在 spoofed attack success 上，read-back、privileged independent 和 combined
+policy 都把 ASR 从 28/97 降到 0/97
+（`comparison_minus_reference=-0.289`，Holm-adjusted `p=5.22e-08`）。
+repeat-same-tool 从 28/97 降到 15/97
+（`comparison_minus_reference=-0.134`，Holm-adjusted `p=0.0070`），但仍然
+不安全。schema-only 在该 run 中与 naive 没有显著差异
+（31/97 vs 28/97，Holm-adjusted `p=0.678`），因此只能作为弱格式基线，
+不能称为有效防御。
 
-Clean-utility funnel diagnostics explain why AgentDojo cannot yet be the sole
-defense-effectiveness evidence. Under truthful mode, naive commits on 79/97
-cells but reaches clean utility on only 17/97; read-back commits on 91/97 cells,
-has 2 API/parse errors, reaches semantic clean utility on 42/97, exact-primary
-utility on 12/97, and uses restricted semantic projection in 32 cells
-(30 semantic-only utility cells). Thus AgentDojo full supports the existence of
-the spoofing failure mode and the read-back candidate defense, but it also
-shows that the adapter/scoring contract and task-answer format need additional
-clean-utility work.
+Clean-utility funnel 解释了为什么 AgentDojo 还不能单独作为防御有效性的
+最终证据。在 truthful mode 下，naive 在 79/97 个 cells 上做出 commit，但
+clean utility 只有 17/97；read-back 在 91/97 个 cells 上做出 commit，有 2
+个 API/parse errors，semantic clean utility 为 42/97，exact-primary utility
+为 12/97，并在 32 个 cells 中使用 restricted semantic projection（其中 30
+个是 semantic-only utility cells）。因此 AgentDojo full run 支持 spoofing
+failure mode 的存在和 read-back 作为 candidate defense 的价值，但也说明
+adapter/scoring contract 与任务答案格式仍需要进一步 clean-utility 修复。
 
 结论：AgentDojo full run 确认了该方向有实验证据价值：naive/schema-only/repeat/metadata 在 full 97-task substrate 上仍有非零 ASR，而 read-back/independent/combined 将 spoofed ASR 压到 0/97。与此同时，AgentDojo truthful clean utility 普遍偏低，说明当前 AgentDojo adapter/scoring/task difficulty 仍会限制防御有效性主张。最稳妥的论文表述是：AgentDojo full run 支持“schema-valid false observation 是真实 failure mode”和“read-back 是强 candidate defense”，但不应单独作为 full agent defense effectiveness 的最终证明。
 

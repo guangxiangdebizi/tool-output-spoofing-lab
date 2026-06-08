@@ -17,9 +17,10 @@ Remote run shape:
 
 - ToolSandbox: `configs/experiments/toolsandbox_model_full.json`, full
   `outputs/toolsandbox_full_manifest.json`, currently running as 5 stable task
-  shards on the remote cloud host. As of 2026-06-09 00:00 CST, the trace
-  directory contained 5567/12384 expected cells; `full_monitor` records progress
-  and will merge shards after all `ts_full_stable_*` screens exit.
+  shards on the remote cloud host. As of 2026-06-09 00:10 CST, the trace
+  directory contained 6272/12384 expected cells; `full_monitor` records progress
+  and will merge shards after all `ts_full_stable_*` screens exit, then run CI,
+  prompt-leakage audit, and paired-statistics diagnostics.
 - AgentDojo: `configs/experiments/agentdojo_model_full.json`, full
   `outputs/agentdojo_full_manifest.json`, completed 1552/1552 cells and pushed
   merged summary/manifest/CI artifacts.
