@@ -28,20 +28,7 @@
       "source_summary": "outputs/agentdojo_model_full_summary.json"
     }
   ],
-  "index_version": "2026-06-08.agentdojo-full-overlay",
-  "pilots": [
-    {
-      "cells": 72,
-      "config": "configs/experiments/toolsandbox_model_pilot_small.json",
-      "manifest": "outputs/toolsandbox_model_pilot_real_72_semantic_manifest.json",
-      "model": "gpt-5.4-mini",
-      "name": "ToolSandbox 72-cell semantic-normalized benchmark pilot",
-      "role": "largest current result-bearing pilot on an existing stateful tool-use benchmark substrate",
-      "status": "expanded_real_model_pilot_not_10_15_percent_slice",
-      "summary": "outputs/toolsandbox_model_pilot_real_72_semantic_summary.json",
-      "tasks": 6,
-      "trace_dir": "traces/toolsandbox_model_pilot_real_72_semantic"
-    },
+  "full_overlays": [
     {
       "cells": 1552,
       "ci": "outputs/agentdojo_model_full_ci.json",
@@ -55,6 +42,34 @@
       "summary": "outputs/agentdojo_model_full_summary.json",
       "tasks": 97,
       "trace_dir": "traces/agentdojo_model_full (remote run host)"
+    },
+    {
+      "cells": 12384,
+      "ci": "outputs/toolsandbox_model_full_ci.json",
+      "config": "configs/experiments/toolsandbox_model_full.json",
+      "manifest": "outputs/toolsandbox_model_full_manifest.json",
+      "model": "gpt-5.4-mini",
+      "name": "ToolSandbox 12384-cell full-overlay run",
+      "role": "second existing-benchmark full-overlay run; currently running on the remote cloud host and not yet a result artifact",
+      "status": "running_remote_not_merged",
+      "summary": "outputs/toolsandbox_model_full_summary.json",
+      "tasks": 1032,
+      "trace_dir": "traces/toolsandbox_model_full (remote run host)"
+    }
+  ],
+  "index_version": "2026-06-09.full-overlay-separated",
+  "pilots": [
+    {
+      "cells": 72,
+      "config": "configs/experiments/toolsandbox_model_pilot_small.json",
+      "manifest": "outputs/toolsandbox_model_pilot_real_72_semantic_manifest.json",
+      "model": "gpt-5.4-mini",
+      "name": "ToolSandbox 72-cell semantic-normalized benchmark pilot",
+      "role": "largest current result-bearing pilot on an existing stateful tool-use benchmark substrate",
+      "status": "expanded_real_model_pilot_not_10_15_percent_slice",
+      "summary": "outputs/toolsandbox_model_pilot_real_72_semantic_summary.json",
+      "tasks": 6,
+      "trace_dir": "traces/toolsandbox_model_pilot_real_72_semantic"
     },
     {
       "cells": 64,

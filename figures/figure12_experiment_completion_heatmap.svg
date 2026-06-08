@@ -23,7 +23,7 @@
   </defs>
   <rect x="0" y="0" width="1000" height="455" fill="#ffffff"/>
 <text x="40" y="36" class="title">Experiment matrix completion heatmap</text>
-<text x="40" y="58" class="subtitle">Status snapshot for the first-model gpt-5.4-mini matrix; ToolSandbox full run was 6272/12384 cells at 2026-06-09 00:10 CST.</text>
+<text x="40" y="58" class="subtitle">Status snapshot for the first-model gpt-5.4-mini matrix; ToolSandbox full run was 7703/12384 trace files at 2026-06-09 00:30 CST.</text>
 <text x="234" y="84" text-anchor="middle" class="label">real exec</text>
 <text x="364" y="84" text-anchor="middle" class="label">full overlay</text>
 <text x="494" y="84" text-anchor="middle" class="label">leakage audit</text>

@@ -12,7 +12,7 @@
 
 本文的核心优势不是替代 AgentDojo、ToolSandbox 等 benchmark，而是把它们已有的任务、环境和 oracle 变成一个更干净的 observation-integrity 测试床：同一任务、同一 hidden truth、同一 oracle，只改变模型可见观察。这样可以把 schema-valid factual falsehood 与 prompt injection、工具选择错误、任务规划失败和后端状态变化解耦。AgentDojo full-overlay 的当前结果已经体现这一点：naive baseline 在 28/97 个 spoofed tasks 上接受假状态，schema-only 在 31/97 上接受假状态，而 read-back、independent validator 和 combined policy 均为 0/97；对同一 97 个任务做 paired exact McNemar/binomial test 后，read-back 相对 naive 的 ASR 降幅为 -0.289，Holm-adjusted `p=5.22e-08`。这说明本文要测的 failure mode 不是纯理论假设，而是能在现有 benchmark substrate 上稳定复现的模型决策风险。
 
-本文所有 pilot 表采用的 canonical artifact 固定在 `outputs/main_pilot_index.json`。旧版 summary/manifest 保留用于 traceability，但不作为主文报告结果。
+本文所有 full-overlay 与 pilot 表采用的 canonical artifact 固定在 `outputs/main_pilot_index.json`，其中 `full_overlays` 与 `pilots` 分开记录，避免把已完成 full run、远端 running gate 和 local/pilot 证据混写。旧版 summary/manifest 保留用于 traceability，但不作为主文报告结果。
 
 **关键词：** LLM agents；tool use；agent security；tool-output spoofing；observation integrity；prompt injection；benchmark overlay；authorization provenance
 
@@ -448,6 +448,17 @@ leakage audit、CI 和 paired stats 已完成；ToolSandbox full overlay 正在�
 完成后 monitor 会自动生成 merge/CI/audit/stats；multi-model 与 autonomous-loop
 仍是 CCF-A full-paper claim 前的缺口。该图防止把 pilot、running full run 和
 planned work 混写成同一级证据。
+
+![Figure 13: per-substrate overlay instantiation](../figures/figure13_per_substrate_overlay_instantiation.svg)
+
+**图 13：Per-substrate overlay instantiation and evidence status。** 该图把
+AgentDojo 与 ToolSandbox 的具体接入路径分开：AgentDojo 已完成
+official task、ground-truth tool plan、real tool execution、visible
+observation substitution、8-profile final decision 与 full artifact gate；
+ToolSandbox 仍处于远端 running gate，需等待 shard summaries、merged
+summary/manifest、CI、prompt-leakage audit 和 paired stats 后才能进入主结果表。
+底部 post-processing gate 对应仓库脚本 `scripts/postprocess_full_model_run.sh`，
+使远端 monitor 逻辑可在 artifact review 中复现。
 
 ### 8.2 主实验计划
 

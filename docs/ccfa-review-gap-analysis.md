@@ -69,7 +69,7 @@ not a claim that the listed gaps are solved.
 | End-to-end evaluation harness dataflow | Covered by `figures/figure10_end_to_end_harness_dataflow.svg`; keep this as the camera-ready deterministic vector version. |
 | Current pilot vs full agent-loop gap | Covered by `figures/figure9_pilot_vs_agent_loop_gap.png`; should be redrawn as vector before final submission if image text artifacts remain. |
 | Validator independence graph | Covered by `figures/figure8_validator_independence_graph.png`; should be redrawn as vector before final submission if image text artifacts remain. |
-| Per-substrate overlay instantiation | Show which parts are implemented for ToolSandbox/AgentDojo and which remain planned for tau/Web/SWE/RAG. |
+| Per-substrate overlay instantiation | Covered by `figures/figure13_per_substrate_overlay_instantiation.svg`; update ToolSandbox status after merge. |
 | Scoring pipeline and projection boundary | Covered by `figures/figure11_scoring_projection_boundary.svg`; still need to keep the scoring contract frozen before final multi-model runs. |
 | Defense policy lattice | Order baselines by evidence strength, deployability, hidden access, and cost. |
 | Experimental matrix completion heatmap | Covered by `figures/figure12_experiment_completion_heatmap.svg`; update the ToolSandbox status after the remote run finishes. |
@@ -125,6 +125,10 @@ alive and the trace directory contains 7703 files, but shard summaries do not
 exist yet because the five shard screens are still running. The main paper
 should therefore continue to report ToolSandbox as an in-progress gate, not as
 a result.
+
+The reproducible post-processing command now lives in
+`scripts/postprocess_full_model_run.sh`, so the paper should refer to that
+script instead of relying on an opaque remote-only monitor.
 
 ## Required experiments and tables
 

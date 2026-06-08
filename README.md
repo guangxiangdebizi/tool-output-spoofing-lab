@@ -26,6 +26,7 @@ Additional paper figures are available in:
 - `figures/figure10_end_to_end_harness_dataflow.svg`
 - `figures/figure11_scoring_projection_boundary.svg`
 - `figures/figure12_experiment_completion_heatmap.svg`
+- `figures/figure13_per_substrate_overlay_instantiation.svg`
 
 One important axis is authorization/provenance spoofing: a tool may falsely
 report that a sandbox asset is owned, in scope, or backed by nginx/banner,
@@ -114,8 +115,20 @@ PYTHONPATH=src:. python3 scripts/run_agentdojo_model_pilot.py \
 ```
 
 `outputs/agentdojo_model_full_*.json` is the first completed full-overlay run.
-ToolSandbox full results are generated on the remote benchmark host and merged
-with `scripts/merge_model_shards.py`.
+ToolSandbox full results are generated on the remote benchmark host and then
+post-processed with:
+
+```bash
+scripts/postprocess_full_model_run.sh \
+  --summary-glob 'outputs/toolsandbox_model_full_shard*_summary.json' \
+  --manifest-glob 'outputs/toolsandbox_model_full_shard*_manifest.json' \
+  --summary-out outputs/toolsandbox_model_full_summary.json \
+  --manifest-out outputs/toolsandbox_model_full_manifest.json \
+  --ci-out outputs/toolsandbox_model_full_ci.json \
+  --leakage-out outputs/prompt_leakage_audit_toolsandbox_full_gpt54.json \
+  --stats-out outputs/toolsandbox_model_full_stats.json \
+  --reference-profile toolsandbox_exec_naive
+```
 
 ## Current paper direction
 

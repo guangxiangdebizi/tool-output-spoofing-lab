@@ -131,7 +131,7 @@ def figure12() -> str:
     }
     body = [
         '<text x="40" y="36" class="title">Experiment matrix completion heatmap</text>',
-        '<text x="40" y="58" class="subtitle">Status snapshot for the first-model gpt-5.4-mini matrix; ToolSandbox full run was 6272/12384 cells at 2026-06-09 00:10 CST.</text>',
+        '<text x="40" y="58" class="subtitle">Status snapshot for the first-model gpt-5.4-mini matrix; ToolSandbox full run was 7703/12384 trace files at 2026-06-09 00:30 CST.</text>',
     ]
     x0, y0 = 175, 95
     for i, col in enumerate(cols):
@@ -152,11 +152,54 @@ def figure12() -> str:
     return svg_wrap(1000, 455, "\n".join(body))
 
 
+def figure13() -> str:
+    body = [
+        '<text x="40" y="36" class="title">Per-substrate overlay instantiation and evidence status</text>',
+        '<text x="40" y="58" class="subtitle">The overlay reuses each official benchmark substrate but evaluates only trace-final decisions, not autonomous full agent loops.</text>',
+        '<text x="45" y="92" class="label">AgentDojo full overlay: completed evidence chain</text>',
+        rect(45, 115, 160, 90, "blue", "Official tasks", ["97 user tasks", "suite labels", "hidden goals"]),
+        rect(245, 115, 175, 90, "green", "Scripted tool plan", ["official GT plan", "real tool call", "not autonomous"]),
+        rect(460, 115, 185, 90, "yellow", "Observation overlay", ["truthful/spoofed", "schema-valid false", "no PI payload"]),
+        rect(685, 115, 190, 90, "purple", "8 profiles", ["naive/schema/filter", "repeat/metadata", "read-back/authority"]),
+        rect(915, 115, 175, 90, "green", "Artifacts done", ["1552 summary", "leakage audit", "CI + paired stats"]),
+        arrow(205, 160, 245, 160),
+        arrow(420, 160, 460, 160),
+        arrow(645, 160, 685, 160),
+        arrow(875, 160, 915, 160),
+        '<path d="M 225 100 L 1110 100 L 1110 220 L 225 220 Z" fill="none" stroke="#7d3c98" stroke-width="1.2" stroke-dasharray="5 4"/>',
+        '<text x="235" y="97" class="tiny">model-visible trace-final-decision boundary</text>',
+        '<text x="45" y="270" class="label">ToolSandbox full overlay: running gate</text>',
+        rect(45, 295, 160, 95, "blue", "Official scenarios", ["1032 tasks", "stateful tools", "milestone oracle"]),
+        rect(245, 295, 175, 95, "green", "Real execution", ["ToolSandbox calls", "semantic adapter", "hidden raw state"]),
+        rect(460, 295, 185, 95, "yellow", "Observation overlay", ["truthful/spoofed", "semantic fields", "primary channel"]),
+        rect(685, 295, 190, 95, "purple", "6 profiles", ["naive/schema", "repeat/metadata", "read-back/authority"]),
+        rect(915, 295, 175, 95, "yellow", "Remote running", ["12384 planned", "5 shards", "merge/audit/stats pending"]),
+        arrow(205, 342, 245, 342),
+        arrow(420, 342, 460, 342),
+        arrow(645, 342, 685, 342),
+        arrow(875, 342, 915, 342),
+        '<path d="M 225 275 L 1110 275 L 1110 410 L 225 410 Z" fill="none" stroke="#7d3c98" stroke-width="1.2" stroke-dasharray="5 4"/>',
+        '<text x="235" y="272" class="tiny">model-visible trace-final-decision boundary</text>',
+        '<text x="45" y="455" class="label">Post-processing gate for any full-overlay substrate</text>',
+        rect(45, 475, 185, 88, "gray", "Shard outputs", ["summary shards", "manifest shards", "trace dirs"]),
+        rect(270, 475, 185, 88, "green", "Merge + CI", ["merged summary", "merged manifest", "Wilson intervals"]),
+        rect(495, 475, 185, 88, "green", "Leakage audit", ["no hidden oracle", "no mode labels", "all cells checked"]),
+        rect(720, 475, 185, 88, "green", "Paired stats", ["McNemar/Holm", "OR dual denom", "contract diagnostics"]),
+        rect(945, 475, 185, 88, "red", "Main table gate", ["only after all pass", "separate upper bounds", "report API/errors"]),
+        arrow(230, 519, 270, 519),
+        arrow(455, 519, 495, 519),
+        arrow(680, 519, 720, 519),
+        arrow(905, 519, 945, 519),
+    ]
+    return svg_wrap(1180, 600, "\n".join(body))
+
+
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "figure10_end_to_end_harness_dataflow.svg").write_text(figure10(), encoding="utf-8")
     (OUT / "figure11_scoring_projection_boundary.svg").write_text(figure11(), encoding="utf-8")
     (OUT / "figure12_experiment_completion_heatmap.svg").write_text(figure12(), encoding="utf-8")
+    (OUT / "figure13_per_substrate_overlay_instantiation.svg").write_text(figure13(), encoding="utf-8")
     print("wrote camera-ready SVG figures")
 
 

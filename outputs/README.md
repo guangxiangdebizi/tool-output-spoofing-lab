@@ -9,7 +9,8 @@ reported tables.
 
 Canonical manuscript artifacts that are intentionally kept in git:
 
-- `main_pilot_index.json`: current pilot result index for the Chinese draft.
+- `main_pilot_index.json`: current manuscript result index. It separates
+  completed/running `full_overlays` from smaller `pilots`.
 - `toolsandbox_full_manifest.json`: full ToolSandbox overlay sampling manifest
   copied from the remote benchmark host.
 - `agentdojo_full_manifest.json`: full AgentDojo overlay sampling manifest

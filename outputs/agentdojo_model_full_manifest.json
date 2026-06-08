@@ -1,10 +1,10 @@
 {
   "autonomous_tool_selection": false,
   "benchmark_version": "v1.2.2",
-  "completed_cells": 784,
+  "completed_cells": 1552,
   "config": "configs/experiments/agentdojo_model_full.json",
   "dry_run": false,
-  "expected_cells_without_limit": 784,
+  "expected_cells_without_limit": 1552,
   "full_agent_loop_interception": false,
   "full_scenario_run": false,
   "limit_cells": null,
