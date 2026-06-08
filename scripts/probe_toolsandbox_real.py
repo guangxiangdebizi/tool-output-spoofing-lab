@@ -20,6 +20,11 @@ def main() -> None:
     )
     parser.add_argument("--limit", type=int, default=12)
     parser.add_argument(
+        "--stratified",
+        action="store_true",
+        help="Select a deterministic multi-label stratified slice instead of the named bring-up seed.",
+    )
+    parser.add_argument(
         "--output",
         default="outputs/toolsandbox_real_manifest.json",
         help="Output manifest path. outputs/ is ignored by git.",
@@ -30,6 +35,7 @@ def main() -> None:
         toolsandbox_path=args.toolsandbox_path,
         task_names=args.tasks,
         limit=args.limit,
+        stratified=args.stratified,
     )
     write_manifest(manifest, args.output)
     print(args.output)

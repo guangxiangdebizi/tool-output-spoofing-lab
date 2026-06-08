@@ -131,17 +131,139 @@ def select_task_names(
     return selected
 
 
+def scenario_metadata(name: str, scenario: Any) -> dict[str, Any]:
+    categories = [_enum_value(category) for category in scenario.categories]
+    tool_allow_list = list(scenario.starting_context.tool_allow_list)
+    mutating_keywords = ("add_", "modify_", "remove_", "send_", "set_", "turn_on", "turn_off", "_off")
+    read_only = not any(str(tool).startswith(mutating_keywords) for tool in tool_allow_list)
+    return {
+        "task_id": name,
+        "categories": categories,
+        "tool_allow_count": len(tool_allow_list),
+        "single_turn": "SINGLE_USER_TURN" in categories,
+        "multi_turn": "MULTIPLE_USER_TURN" in categories,
+        "single_tool": "SINGLE_TOOL_CALL" in categories,
+        "multi_tool": "MULTIPLE_TOOL_CALL" in categories,
+        "insufficient_information": "INSUFFICIENT_INFORMATION" in categories,
+        "distraction": any("DISTRACTION_TOOLS" in category for category in categories),
+        "state_dependency": "STATE_DEPENDENCY" in categories,
+        "canonicalization": "CANONICALIZATION" in categories,
+        "read_only_by_allow_list": read_only,
+    }
+
+
+def _task_score(metadata: dict[str, Any]) -> tuple[int, int, str]:
+    priority = 0
+    if metadata["task_id"] in DEFAULT_TASKS:
+        priority -= 1000
+    priority += int(metadata["tool_allow_count"])
+    priority += 3 if metadata["multi_tool"] else 0
+    priority += 2 if metadata["multi_turn"] else 0
+    priority += 2 if metadata["state_dependency"] else 0
+    priority += 1 if metadata["insufficient_information"] else 0
+    return (priority, metadata["tool_allow_count"], metadata["task_id"])
+
+
+def select_stratified_task_names(
+    scenarios: dict[str, Any],
+    *,
+    target_count: int,
+) -> tuple[list[str], dict[str, Any]]:
+    if target_count <= 0:
+        return [], {"target_count": target_count, "strata": {}}
+    metadata = {name: scenario_metadata(name, scenario) for name, scenario in scenarios.items()}
+    strata: dict[str, list[str]] = {
+        "single_turn": [name for name, item in metadata.items() if item["single_turn"]],
+        "multi_turn": [name for name, item in metadata.items() if item["multi_turn"]],
+        "single_tool": [name for name, item in metadata.items() if item["single_tool"]],
+        "multi_tool": [name for name, item in metadata.items() if item["multi_tool"]],
+        "insufficient_information": [name for name, item in metadata.items() if item["insufficient_information"]],
+        "distraction": [name for name, item in metadata.items() if item["distraction"]],
+        "no_distraction": [name for name, item in metadata.items() if not item["distraction"]],
+        "state_dependency": [name for name, item in metadata.items() if item["state_dependency"]],
+        "canonicalization": [name for name, item in metadata.items() if item["canonicalization"]],
+        "read_only": [name for name, item in metadata.items() if item["read_only_by_allow_list"]],
+        "mutation": [name for name, item in metadata.items() if not item["read_only_by_allow_list"]],
+    }
+    quotas = {
+        key: min(len(names), max(1, round(target_count * len(names) / len(scenarios))))
+        for key, names in strata.items()
+        if names
+    }
+    selected: list[str] = []
+    selected_set: set[str] = set()
+    candidate_lists = {
+        key: sorted(names, key=lambda name: _task_score(metadata[name]))
+        for key, names in strata.items()
+        if names
+    }
+    selected_by_stratum = {key: 0 for key in candidate_lists}
+    cursors = {key: 0 for key in candidate_lists}
+    stratum_order = sorted(candidate_lists, key=lambda item: (-quotas.get(item, 0), item))
+    while len(selected) < target_count:
+        progress = False
+        for key in stratum_order:
+            if selected_by_stratum[key] >= quotas.get(key, 0):
+                continue
+            candidates = candidate_lists[key]
+            while cursors[key] < len(candidates) and candidates[cursors[key]] in selected_set:
+                cursors[key] += 1
+            if cursors[key] >= len(candidates):
+                continue
+            name = candidates[cursors[key]]
+            selected.append(name)
+            selected_set.add(name)
+            selected_by_stratum[key] += 1
+            progress = True
+            if len(selected) >= target_count:
+                break
+        if not progress:
+            break
+    if len(selected) < target_count:
+        for name in sorted(scenarios, key=lambda name: _task_score(metadata[name])):
+            if name in selected_set:
+                continue
+            selected.append(name)
+            selected_set.add(name)
+            if len(selected) >= target_count:
+                break
+    counts = {
+        key: {
+            "available": len(names),
+            "selected": sum(1 for name in selected if name in set(names)),
+            "quota": quotas.get(key, 0),
+        }
+        for key, names in strata.items()
+    }
+    return selected, {
+        "target_count": target_count,
+        "available_count": len(scenarios),
+        "selected_count": len(selected),
+        "selection_policy": "deterministic multi-label stratified slice over ToolSandbox scenario categories",
+        "strata": counts,
+    }
+
+
 def build_manifest(
     *,
     toolsandbox_path: str | Path | None = None,
     task_names: list[str] | None = None,
     limit: int | None = 12,
+    stratified: bool = False,
 ) -> dict[str, Any]:
     scenarios = load_real_scenarios(toolsandbox_path)
-    selected = select_task_names(list(scenarios), task_names, limit=limit)
+    stratification = None
+    if stratified and task_names:
+        raise ValueError("--stratified cannot be combined with explicit --tasks")
+    if stratified:
+        target_count = limit or max(1, round(len(scenarios) * 0.10))
+        selected, stratification = select_stratified_task_names(scenarios, target_count=target_count)
+    else:
+        selected = select_task_names(list(scenarios), task_names, limit=limit)
     tasks = []
     for name in selected:
         scenario = scenarios[name]
+        metadata = scenario_metadata(name, scenario)
         tasks.append(
             {
                 "task_id": name,
@@ -150,12 +272,22 @@ def build_manifest(
                 "manifest_only": True,
                 "tool_allow_list": scenario.starting_context.tool_allow_list,
                 "tool_deny_list": scenario.starting_context.tool_deny_list,
-                "categories": [_enum_value(category) for category in scenario.categories],
+                "categories": metadata["categories"],
+                "sampling_metadata": metadata,
                 "max_messages": scenario.max_messages,
                 "starting_state_preview": summarize_starting_state(scenario),
                 "milestone_oracle": summarize_milestones(scenario),
             }
         )
+    selected_fraction = len(tasks) / float(len(scenarios)) if scenarios else None
+    strict_quota_satisfied = bool(
+        stratification
+        and all(
+            item["selected"] >= item["quota"]
+            for item in stratification["strata"].values()
+            if item["quota"] > 0
+        )
+    )
     return {
         "substrate": "ToolSandbox",
         "source_repo": "https://github.com/apple/ToolSandbox",
@@ -163,7 +295,19 @@ def build_manifest(
         "real_benchmark_run": False,
         "total_available_scenarios": len(scenarios),
         "selected_count": len(tasks),
-        "selection_policy": "named default overlay candidates, capped by --limit",
+        "selected_fraction": selected_fraction,
+        "target_10_percent_stratified_manifest": bool(
+            stratified and selected_fraction is not None and 0.10 <= selected_fraction <= 0.15
+        ),
+        "executed_10_15_percent_slice": False,
+        "strict_quota_satisfied": strict_quota_satisfied,
+        "representative_10_15_percent_slice": False,
+        "selection_policy": (
+            "deterministic multi-label coverage manifest over ToolSandbox categories"
+            if stratified
+            else "named default overlay candidates, capped by --limit"
+        ),
+        "stratification": stratification,
         "tasks": tasks,
     }
 

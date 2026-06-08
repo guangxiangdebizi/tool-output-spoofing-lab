@@ -1,0 +1,28 @@
+{
+  "experiment_id": "toolsandbox_model_pilot_small",
+  "description": "Small ToolSandbox model-policy pilot over real ToolSandbox tool execution with trace-level visible-result substitution.",
+  "provider": {
+    "base_url_env": "NEWAPI_BASE_URL",
+    "api_key_env": "NEWAPI_API_KEY",
+    "default_base_url": "https://newapi.wnluo.com/v1",
+    "models": ["gpt-5.4-mini"],
+    "timeout_seconds": 60,
+    "retries": 1,
+    "retry_sleep_seconds": 1.0
+  },
+  "limit_tasks": 12,
+  "modes": ["truthful", "spoofed"],
+  "profiles": [
+    "toolsandbox_exec_naive",
+    "toolsandbox_exec_schema_only",
+    "toolsandbox_exec_repeat_same_tool",
+    "toolsandbox_exec_independent_validator"
+  ],
+  "max_tokens": 260,
+  "temperature": 0,
+  "tool_budget": {
+    "primary": 1,
+    "repeat_same_tool": 1,
+    "independent_validator": 1
+  }
+}

@@ -272,6 +272,58 @@ not full agent-loop interception; therefore the smoke also records
 tool-call plan with a model/agent policy while preserving the same interception
 boundary.
 
+Current ToolSandbox model-policy pilot dry-run:
+
+```bash
+PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/run_toolsandbox_model_pilot.py \
+  --config configs/experiments/toolsandbox_model_pilot_small.json \
+  --manifest outputs/toolsandbox_real_manifest.json \
+  --toolsandbox-path /tmp/ToolSandbox \
+  --out-dir traces/toolsandbox_model_pilot_dry \
+  --summary outputs/toolsandbox_model_pilot_dry_summary.json \
+  --run-manifest outputs/toolsandbox_model_pilot_dry_manifest.json \
+  --dry-run --sleep 0
+```
+
+This completed 96 dry-run cells:
+
+```text
+12 real ToolSandbox tasks
+truthful/spoofed
+naive / schema-only / repeat-same-tool / independent-validator
+1 configured model id
+= 96 prompt/trace cells
+```
+
+The runner uses real ToolSandbox tool execution as the raw observation source,
+then builds model-visible events under the same trace-level spoofing boundary.
+It records `model_policy_prompted=true`, `real_tool_execution=true`,
+`trace_level_visible_result_substitution=true`,
+`model_call_executed=false`, `final_decision_source=dry_run_uncertainty_stub`,
+`full_agent_loop_interception=false`, `real_model_run=false` for dry-run, and
+`representative_10_15_percent_slice=false` because the 12-task bring-up seed is
+only 12 / 1032 scenarios. Prompt tests verify that `oracle_context`,
+`raw_tool_result`, raw profile names, and truthful/spoofed condition labels are
+not exposed to the model-visible prompt.
+
+Current 10%-15% ToolSandbox sampling manifest design:
+
+```bash
+PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/probe_toolsandbox_real.py \
+  --toolsandbox-path /tmp/ToolSandbox \
+  --limit 104 \
+  --stratified \
+  --output outputs/toolsandbox_stratified_10pct_manifest.json
+```
+
+This generated a manifest-only 104 / 1032 slice (`selected_fraction=0.1008`,
+`target_10_percent_stratified_manifest=true`, `executed_10_15_percent_slice=false`, `strict_quota_satisfied=false`). It uses deterministic multi-label
+stratification over ToolSandbox scenario categories such as single/multiple
+user turns, single/multiple tool calls, insufficient information,
+distraction/no-distraction, state dependency, canonicalization, and
+read-only/mutation. It is not executed yet; it is the scaling plan for the next
+larger pilot after the 12-task model-policy run has a real API key.
+
 ## Go/no-go thresholds
 
 Go if literature audit confirms no existing benchmark directly isolates

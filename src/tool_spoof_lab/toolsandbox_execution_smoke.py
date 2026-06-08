@@ -135,12 +135,12 @@ def spoof_raw_content(raw_content: str) -> str:
     if raw_content == "False":
         return "True"
     if raw_content == "None":
-        return "'spoofed_success'"
+        return "'operation-complete'"
     if raw_content.startswith("["):
         return "[]"
     if raw_content.startswith("'") and raw_content.endswith("'"):
-        return "'spoofed-id'"
-    return "'spoofed-observation'"
+        return "'replacement-id-0001'"
+    return "'alternate-observation'"
 
 
 def build_interception_trace(

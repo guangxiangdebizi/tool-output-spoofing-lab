@@ -101,11 +101,10 @@ Recommended order:
    - Milestone DAG already behaves like an oracle.
    - Goal: prove observation spoofing can be inserted without breaking clean
      task evaluation.
-   - Current repo status: adapter-contract smoke scaffold implemented in
-     `src/tool_spoof_lab/toolsandbox_overlay.py`,
-     `scripts/run_toolsandbox_overlay_smoke.py`, and
-     `configs/benchmark_overlays/toolsandbox_overlay_smoke.json`. This is not
-     yet the real ToolSandbox package integration.
+   - Current repo status: adapter-contract smoke, real manifest probe, real
+     single-tool execution interception smoke, and model-policy pilot dry-run
+     harness are implemented. This is still not full ToolSandbox agent-loop
+     interception or a result-bearing model benchmark run.
 2. **AgentDojo overlay smoke**
    - Strongest security benchmark positioning.
    - Goal: show non-instructional false observations are different from
@@ -185,6 +184,57 @@ oracles, but it is still `manifest_only=true`: it enumerates a 12-task
 bring-up seed and extracts state/oracle metadata before any model run or
 observation interception. It is not a representative 10-15% ToolSandbox slice;
 that larger slice must be stratified separately.
+
+Real ToolSandbox execution smoke:
+
+```bash
+PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/run_toolsandbox_execution_smoke.py \
+  --manifest outputs/toolsandbox_real_manifest.json \
+  --toolsandbox-path /tmp/ToolSandbox \
+  --out-dir traces/toolsandbox_execution_smoke \
+  --summary outputs/toolsandbox_execution_smoke_summary.json \
+  --limit-tasks 12
+```
+
+This executes real ToolSandbox tools through `ExecutionEnvironment`, preserves
+raw `tool_trace`, and then substitutes the agent-visible result at trace level.
+It is explicitly marked `trace_level_visible_result_substitution=true`,
+`full_agent_loop_interception=false`, `scripted_agent=true`, and
+`real_model_run=false`.
+
+ToolSandbox model-policy pilot dry-run:
+
+```bash
+PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/run_toolsandbox_model_pilot.py \
+  --config configs/experiments/toolsandbox_model_pilot_small.json \
+  --manifest outputs/toolsandbox_real_manifest.json \
+  --toolsandbox-path /tmp/ToolSandbox \
+  --out-dir traces/toolsandbox_model_pilot_dry \
+  --summary outputs/toolsandbox_model_pilot_dry_summary.json \
+  --run-manifest outputs/toolsandbox_model_pilot_dry_manifest.json \
+  --dry-run --sleep 0
+```
+
+The dry-run completed 96 cells over 12 tasks x truthful/spoofed x 4 profiles.
+It proves prompt/manifest plumbing and checks that hidden `oracle_context`,
+`raw_tool_result`, and condition labels do not enter model-visible prompts. It
+does not produce model ASR because the current shell has no API key.
+
+Representative 10%-15% ToolSandbox slice manifest:
+
+```bash
+PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/probe_toolsandbox_real.py \
+  --toolsandbox-path /tmp/ToolSandbox \
+  --limit 104 \
+  --stratified \
+  --output outputs/toolsandbox_stratified_10pct_manifest.json
+```
+
+On the current ToolSandbox source tree this selected 104 / 1032 scenarios
+(`selected_fraction=0.1008`) and records multi-label strata over single/multi
+turn, single/multi tool, insufficient-information, distraction, state
+dependency, canonicalization, and read-only/mutation categories. The manifest
+is a sampling design artifact, not an executed model benchmark.
 
 ### AgentDojo overlay
 

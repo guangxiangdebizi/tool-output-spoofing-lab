@@ -72,6 +72,8 @@ PYTHONPATH=src:. /usr/bin/python3.11 scripts/run_toolsandbox_overlay_smoke.py --
 PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/probe_toolsandbox_real.py --toolsandbox-path /tmp/ToolSandbox --limit 12 --output outputs/toolsandbox_real_manifest.json
 PYTHONPATH=src:. /usr/bin/python3.11 scripts/run_toolsandbox_real_bringup.py --manifest outputs/toolsandbox_real_manifest.json --out-dir traces/toolsandbox_real_bringup --summary outputs/toolsandbox_real_bringup_summary.json
 PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/run_toolsandbox_execution_smoke.py --manifest outputs/toolsandbox_real_manifest.json --toolsandbox-path /tmp/ToolSandbox --out-dir traces/toolsandbox_execution_smoke --summary outputs/toolsandbox_execution_smoke_summary.json --limit-tasks 12
+PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/run_toolsandbox_model_pilot.py --config configs/experiments/toolsandbox_model_pilot_small.json --manifest outputs/toolsandbox_real_manifest.json --toolsandbox-path /tmp/ToolSandbox --out-dir traces/toolsandbox_model_pilot_dry --summary outputs/toolsandbox_model_pilot_dry_summary.json --run-manifest outputs/toolsandbox_model_pilot_dry_manifest.json --dry-run --sleep 0
+PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/probe_toolsandbox_real.py --toolsandbox-path /tmp/ToolSandbox --limit 104 --stratified --output outputs/toolsandbox_stratified_10pct_manifest.json
 PYTHONPATH=src:. /usr/bin/python3.11 -m unittest discover -s tests -v
 ```
 

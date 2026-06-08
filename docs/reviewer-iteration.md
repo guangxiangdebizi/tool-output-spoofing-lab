@@ -554,3 +554,113 @@ records `full_agent_loop_interception=false`.
 Remaining P0: replace the scripted tool-call plan with a real model/agent policy
 over the same interception boundary, then run the 12-task × 2-mode × 4-baseline
 pilot as a true model-agent experiment.
+
+## Round 12: reviewer audit, ToolSandbox model-policy dry-run, and 10% manifest
+
+A new reviewer-style subagent audit checked the current benchmark/baseline
+state after the ToolSandbox execution smoke.
+
+### Reviewer decision
+
+**Weak Reject.** The benchmark direction is now correct because it is based on
+existing benchmark substrate + overlay, but the evidence is still engineering
+bring-up rather than USENIX/S&P-grade benchmark evidence.
+
+### Reviewer-confirmed supportable claims
+
+- The main benchmark framing has moved away from self-built toy scenarios and
+  toward ToolSandbox / AgentDojo / tau-bench overlays.
+- Real Apple ToolSandbox scenario definitions are importable; current manifest
+  probe found 1032 available scenarios and selected a 12-task bring-up seed.
+- The same 12 real ToolSandbox task IDs can be compared across truthful/spoofed
+  modes and four baselines.
+- Real ToolSandbox single-tool execution through `ExecutionEnvironment` works,
+  and raw result / tool_trace can be preserved while the trace-level visible
+  observation is substituted.
+- The Chinese draft contains benchmark, baseline, current result, and limitation
+  sections.
+
+### Reviewer reject risks
+
+- 12 / 1032 tasks is not a 10%-15% ToolSandbox run.
+- The 12-task selection is named/default bring-up, not stratified sampling.
+- There is no result-bearing ToolSandbox real-model pilot yet.
+- There is no full ToolSandbox agent loop or full scenario conversation.
+- The independent validator remains oracle-adjacent because it uses raw
+  truthful execution result rather than a deployed independent authority.
+- Only one existing benchmark substrate has been partially integrated.
+
+### Changes after this audit
+
+Added:
+
+- `src/tool_spoof_lab/toolsandbox_model_pilot.py`
+- `scripts/run_toolsandbox_model_pilot.py`
+- `configs/experiments/toolsandbox_model_pilot_small.json`
+
+Dry-run command:
+
+```bash
+PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/run_toolsandbox_model_pilot.py \
+  --config configs/experiments/toolsandbox_model_pilot_small.json \
+  --manifest outputs/toolsandbox_real_manifest.json \
+  --toolsandbox-path /tmp/ToolSandbox \
+  --out-dir traces/toolsandbox_model_pilot_dry \
+  --summary outputs/toolsandbox_model_pilot_dry_summary.json \
+  --run-manifest outputs/toolsandbox_model_pilot_dry_manifest.json \
+  --dry-run --sleep 0
+```
+
+Result:
+
+- `completed_cells=96`
+- `expected_cells_without_limit=96`
+- `selected_task_count=12`
+- `selected_fraction=0.0116`
+- `real_tool_execution=true`
+- `trace_level_visible_result_substitution=true`
+- `model_policy_prompted=true`
+- `model_call_executed=false`
+- `final_decision_source=dry_run_uncertainty_stub`
+- `full_agent_loop_interception=false`
+- `real_model_run=false`
+- `representative_10_15_percent_slice=false`
+
+The dry-run does not produce model ASR because the shell has no
+`NEWAPI_API_KEY`, but it now exercises the ToolSandbox-specific model prompt,
+manifest, and trace path. Tests verify that model-visible prompts do not leak
+`oracle_context`, `raw_tool_result`, raw profile names, or truthful/spoofed
+condition labels.
+
+Also added stratified ToolSandbox manifest selection:
+
+```bash
+PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/probe_toolsandbox_real.py \
+  --toolsandbox-path /tmp/ToolSandbox \
+  --limit 104 \
+  --stratified \
+  --output outputs/toolsandbox_stratified_10pct_manifest.json
+```
+
+Result:
+
+- `selected_count=104`
+- `total_available_scenarios=1032`
+- `selected_fraction=0.1008`
+- `target_10_percent_stratified_manifest=true`, `executed_10_15_percent_slice=false`, `strict_quota_satisfied=false`
+- strata recorded over single/multiple user turn, single/multiple tool call,
+  insufficient information, distraction/no-distraction, state dependency,
+  canonicalization, and read-only/mutation.
+
+This manifest is not executed yet; it is the scaling design for the next
+larger ToolSandbox pilot after API/model access is available and the scripted
+tool-call map is expanded.
+
+Remaining P0:
+
+1. run the 96-cell ToolSandbox model-policy pilot with a real API key;
+2. expand from 12-task bring-up to the 104-task stratified manifest;
+3. implement a non-oracle independent validator service;
+4. integrate AgentDojo or tau-bench as a second existing benchmark substrate;
+5. add confidence intervals, cost/latency accounting, and close-work
+   crosswalks.

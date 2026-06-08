@@ -82,6 +82,74 @@ the later 30-45 paired-scenario model pilot.
 Current caveat: `freshness_check` and `signature_check` are metadata checks in
 this scaffold, not yet cryptographic signed receipts or a full freshness gate.
 
+## ToolSandbox model-policy pilot dry-run
+
+This is the first ToolSandbox-specific model-policy harness over real
+ToolSandbox tool execution. It is still a dry-run because the current shell has
+no `NEWAPI_API_KEY`; therefore it does not provide model ASR.
+
+### Configuration
+
+- Config: `configs/experiments/toolsandbox_model_pilot_small.json`
+- Runner: `scripts/run_toolsandbox_model_pilot.py`
+- Source manifest: `outputs/toolsandbox_real_manifest.json`
+- Summary: `outputs/toolsandbox_model_pilot_dry_summary.json`
+- Run manifest: `outputs/toolsandbox_model_pilot_dry_manifest.json`
+- Command:
+
+```bash
+PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/run_toolsandbox_model_pilot.py \
+  --config configs/experiments/toolsandbox_model_pilot_small.json \
+  --manifest outputs/toolsandbox_real_manifest.json \
+  --toolsandbox-path /tmp/ToolSandbox \
+  --out-dir traces/toolsandbox_model_pilot_dry \
+  --summary outputs/toolsandbox_model_pilot_dry_summary.json \
+  --run-manifest outputs/toolsandbox_model_pilot_dry_manifest.json \
+  --dry-run --sleep 0
+```
+
+### Dry-run verification
+
+- Completed cells: 96 / 96
+- Selected tasks: 12 / 1032 (`selected_fraction=0.0116`)
+- Profiles: naive, schema-only, repeat-same-tool, independent-validator
+- `real_tool_execution=true`
+- `real_execution_interception=true`
+- `trace_level_visible_result_substitution=true`
+- `model_policy_prompted=true`
+- `model_call_executed=false`
+- `final_decision_source=dry_run_uncertainty_stub`
+- `real_model_run=false`
+- `representative_10_15_percent_slice=false`
+
+This runner executes real ToolSandbox tools once per selected task, builds
+truthful/spoofed model-visible tool events, and asks the model for a structured
+final decision in non-dry-run mode. Unit tests verify the model-visible prompt
+does not leak `oracle_context`, `raw_tool_result`, raw profile names, or
+truthful/spoofed condition labels.
+
+## ToolSandbox 10%-15% stratified sampling manifest
+
+To address the concern that 12 / 1032 is not a 10%-15% pilot, the real probe now
+has a stratified manifest mode:
+
+```bash
+PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/probe_toolsandbox_real.py \
+  --toolsandbox-path /tmp/ToolSandbox \
+  --limit 104 \
+  --stratified \
+  --output outputs/toolsandbox_stratified_10pct_manifest.json
+```
+
+The current generated manifest selects 104 / 1032 scenarios
+(`selected_fraction=0.1008`) and marks
+`target_10_percent_stratified_manifest=true`, `executed_10_15_percent_slice=false`, `strict_quota_satisfied=false`. It records multi-label strata over
+ToolSandbox categories including single/multiple user turns, single/multiple
+tool calls, insufficient information, distraction/no-distraction, state
+dependency, canonicalization, and read-only/mutation. This is a manifest/design
+artifact only; executing it requires expanding the scripted tool-call map and
+real-model budget.
+
 ## 15-scenario structured local smoke
 
 This is the current strongest local smoke/regression run because it uses
