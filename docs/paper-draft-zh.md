@@ -10,9 +10,9 @@
 
 工具调用型 LLM 智能体越来越依赖外部 API、MCP server、浏览器观察、检索系统和 shell wrapper 返回的结果来判断世界状态。已有研究已经证明，工具可见数据可能携带 indirect prompt injection，恶意工具元数据可能影响工具选择，恶意工具实现可能在执行阶段投毒。本文关注一个更窄但互补的问题：**工具返回结果在语法和 schema 上完全有效，也不包含显式恶意指令，但其中关键事实是假的。**
 
-我们把这个问题定义为 **tool-output spoofing**，并设计一个 observation-integrity benchmark。每个任务包含 benign user request、oracle-only hidden truth、truthful/spoofed 成对可见工具结果，以及根据 hidden truth 而不是可见工具结果打分的 oracle。当前 10% partial benchmark 包含 15 个场景，覆盖 API records、MCP/finance、RAG/search、browser state、shell/tests 和一个 instruction-smuggling control。我们先运行 deterministic baseline 和 structured baseline，用来验证 benchmark 是否能区分 schema validation、prompt filtering、repeat-same-tool 与 independent verification。
+我们把这个问题定义为 **tool-output spoofing**，并设计一个 observation-spoofing overlay：主实验不应主要依赖自建 toy benchmark，而应基于已有高价值 agent/tool-use benchmark，例如 AgentDojo、ToolSandbox、tau-bench、WebArena/WorkArena、SWE-bench、MCP-SafetyBench / MCP Security Bench。已有 benchmark 提供任务分布、环境状态和 utility/security oracle；我们的 overlay 只改变 agent 可见的 observation plane，并在同一批 benchmark tasks 上比较不同 defense baseline。
 
-初步结果显示：naive 和 schema-only baseline 在 15/15 spoofed 场景中接受虚假观察；prompt-filter 只挡住 explicit instruction-smuggling control，对 14/14 非指令型语义虚假观察无效；repeat-same-tool 仍然 15/15 ASR；independent-validator 和 combined policy 在当前结构化 15 场景中把 ASR 降到 0/15。当前结果还不能作为顶会主实验证据，因为场景是手写 partial slice，策略主要是 scripted，真实模型只跑过 6 场景 smoke pilot。本轮新增了 OpenAI-compatible real tool-call harness 和 run manifest 入口，但当前 shell 缺少 `NEWAPI_API_KEY`，所以只完成 dry-run 验证，尚未完成 30-45 paired scenario real-model pilot。
+当前仓库里的 15 个本地场景只作为 local smoke/regression suite，用来验证 trace schema、oracle、baseline 和 harness；它不计为论文主 benchmark 证据，也不用于支撑核心 empirical claim。当前真正的主实验表应留给 ToolSandbox / AgentDojo / tau-bench 等现有 benchmark overlay pilot。现阶段本地 suite 只证明实现链路可跑：schema validation、prompt filtering、repeat-same-tool、independent-validator、combined policy 等 baseline 可以在同一任务上被成对比较。本轮新增了 OpenAI-compatible real tool-call harness 和 run manifest 入口，但当前 shell 缺少 `NEWAPI_API_KEY`，所以只完成 dry-run 验证，尚未完成基于现有 benchmark 的 30-45 paired scenario real-model pilot。
 
 ## 1. 问题定义
 
@@ -45,9 +45,21 @@
 
 防御者可以控制 agent harness，加入 schema validation、repeat call、validator call、freshness check、signed receipt、provenance policy、final-answer gate 等。推理时防御者不能直接访问 hidden truth；hidden truth 只给评估 oracle 使用。
 
-## 3. Benchmark 设计
+## 3. Benchmark 设计：现有 benchmark substrate + spoofing overlay
 
-每个 scenario 是一个 JSON record，包含：
+最终论文的主 benchmark 不从零自建任务集，而是选择已有高价值 benchmark 作为任务底座：
+
+| Benchmark substrate | 价值 | 我们的 overlay |
+| --- | --- | --- |
+| AgentDojo | 成熟 agent security benchmark，有 utility/security checks。 | 不插入指令，只篡改 tool-visible factual fields。 |
+| ToolSandbox | 有 stateful execution context 和 milestone DAG oracle。 | agent 看到 spoofed tool result，oracle 读真实 state snapshot。 |
+| tau-bench / tau2-bench | 真实 retail/airline tool-agent-user API 交互。 | API proxy 返回 schema-valid false order/refund/reservation status。 |
+| WebArena / WorkArena | 浏览器/企业 UI 任务，有 backend/task validation。 | 改写 DOM/a11y/success banner observation，backend truth 不变。 |
+| SWE-bench / SWE-agent | 代码任务有测试 oracle。 | spoof stdout/exit code/test summary，oracle 跑真实测试。 |
+| MCP-SafetyBench / MCP Security Bench | 最接近 MCP 安全评测。 | 复用 taxonomy/任务，隔离非指令型 schema-valid false return。 |
+| PoisonedRAG / SafeRAG | 检索安全 substrate。 | 把 retrieval 当 agent tool，篡改 citation/provenance fields。 |
+
+每个 overlay scenario 是一个从现有 benchmark task 派生的 record，包含：
 
 - public user task；
 - domain 和 spoof class；
@@ -69,9 +81,9 @@
 
 这个设计把 false acceptance 和 false-positive refusal 分开。一个永远拒绝工具输出的防御可以拿到低 ASR，但 clean utility 不合格。
 
-## 4. 当前 10% partial benchmark
+## 4. 当前本地 smoke/regression suite 和未来 benchmark overlay
 
-截至 2026-06-08，仓库里有一个 15-scenario partial benchmark。它不是 full benchmark，而是按 150 scenario-pair 目标抽出的 10% slice。
+截至 2026-06-08，仓库里有一个 15-scenario 本地 smoke/regression suite。它不是最终主 benchmark，也不应被包装成自建 benchmark 的代表性证据；它的作用是验证 overlay 协议、trace schema、oracle 和 baseline 是否工作。真正的主实验应迁移到 ToolSandbox / AgentDojo / tau-bench 等现有 benchmark substrate。
 
 | Suite / control | 场景数 | spoof class |
 | --- | ---: | --- |
@@ -82,7 +94,12 @@
 | Shell/tests | 2 | exit-code spoof、truncated log |
 | Instruction-smuggling control | 1 | JSON 内嵌指令文本 |
 
-场景配置在 `configs/experiments/mvp_matrix.json`。可复现命令：
+本地 smoke 场景配置在 `configs/experiments/mvp_matrix.json`。overlay 设计配置在：
+
+- `configs/benchmark_overlays/high_value_benchmark_overlay.json`
+- `docs/benchmark-overlay-strategy.md`
+
+本地 smoke 可复现命令：
 
 ```bash
 PYTHONPATH=src /usr/bin/python3.11 scripts/run_mvp_matrix.py \
@@ -175,7 +192,9 @@ PYTHONPATH=src:. /usr/bin/python3.11 scripts/run_real_toolcall_pilot.py \
 
 ## 6. 当前预实验结果
 
-### 6.1 Deterministic 10% slice
+本节结果只属于 artifact smoke/regression，不作为论文主实验证据。正文主实验表应在实现 ToolSandbox / AgentDojo / tau-bench overlay adapter 并完成 real-model pilot 后替换。
+
+### 6.1 Deterministic local smoke
 
 运行规模：
 
@@ -195,7 +214,7 @@ spoofed ASR：
 
 结论：prompt filter 只挡住 instruction-smuggling control，对 14 个非指令型语义虚假观察无效；schema validation 完全不解决 schema-valid falsehood。
 
-### 6.2 Structured 10% slice
+### 6.2 Structured local smoke
 
 运行规模：
 
@@ -260,29 +279,30 @@ max tokens、timeout、retry、tool budget、prompt hash、trace path、API/pars
 
 ```text
 real_toolcall_pilot_small dry-run: 96 / 96 cells
+real_toolcall_pilot_min48 dry-run: 48 / 48 cells
 summary: outputs/real_toolcall_pilot_dry_summary.json
 manifest: outputs/real_toolcall_pilot_dry_manifest.json
 ```
 
 dry-run 证明 harness、trace、manifest 和 summary 路径可复现，并且真实模型不可见
 `truthful/spoofed` mode 与 oracle-only truth；但它还不能提供真实模型结果。下一步
-需要带 API key 跑完整 96-cell small pilot，然后扩到 30-45 paired scenarios 和至少
-两个模型。
+需要带 API key 先跑 reviewer 建议的 48-cell minimum pilot，然后把同样 harness 迁移到
+ToolSandbox/AgentDojo/tau-bench overlay tasks，扩到 30-45 paired scenarios 和至少两个模型。
 
 ## 7. 当前能支持的 claim 和不能支持的 claim
 
-当前能支持：
+当前本地 smoke/regression 能支持：
 
-1. 这个 benchmark protocol 可以稳定区分 semantic falsehood 和 instruction-smuggling control。
+1. 这个 overlay protocol 在本地 smoke suite 上可以稳定区分 semantic falsehood 和 instruction-smuggling control。
 2. schema validation 和 prompt filtering 对 schema-valid semantic falsehood 不足。
 3. repeat-same-tool 不是有效验证。
 4. independent validator / combined policy 在 scripted partial slice 上能显著降低 ASR。
 
 当前不能支持：
 
-1. “真实模型普遍会被工具输出欺骗”——还缺 multi-model agentic run。
+1. “真实模型普遍会被工具输出欺骗”——还缺基于现有 benchmark substrate 的 multi-model agentic run。
 2. “combined policy 是 paper-grade 防御”——已有 harness 入口和 dry-run，但还缺真实模型运行、成本统计和更大场景。
-3. “能投 USENIX/S&P”——还缺 30-45 paired scenario model pilot、150-300 full benchmark、close-work ablation。
+3. “能投 USENIX/S&P”——还缺 AgentDojo/ToolSandbox/tau-bench 等现有 benchmark overlay pilot、30-45 paired scenario model pilot、150-300 full benchmark、close-work ablation。
 
 ## 8. Related work 定位
 
@@ -297,20 +317,22 @@ dry-run 证明 harness、trace、manifest 和 summary 路径可复现，并且�
 
 本文必须把 novelty 收窄到：
 
-> schema-valid、非指令型、truth/observation split 的 observation-veracity benchmark，以及对 observation-integrity defense 的 paired evaluation。
+> 基于现有 agent/tool-use benchmark 的 observation-spoofing overlay：schema-valid、非指令型、truth/observation split 的 observation-veracity evaluation，以及同一 benchmark task 上对 observation-integrity defense 的 paired comparison。
 
 ## 9. 下一步实验
 
-要从当前 Weak Reject / borderline 推到 Weak Accept，需要：
+要从当前 Weak Reject / borderline 推到 Weak Accept，需要把主实验迁移到现有 benchmark overlay：
 
-1. 扩到 30-45 paired scenarios 的 real-model pilot；
-2. 至少 2 个模型；
-3. 用新增 real tool-call harness 跑完整 real-model pilot，而不是只 dry-run；
-4. structured final answer schema 作为所有模型输出格式；
-5. field-level oracle + manual audit；
-6. 实现 repeat same tool、independent validator、真实 signed receipt、真实 freshness gate、combined policy 的预算控制；当前 harness 只有 signature/freshness metadata check；
-7. 去掉 obvious fake markers，让 forged receipt/citation/provenance 更 plausible；
-8. 报告 confidence interval、bootstrap、per-suite ASR、utility、FPR、tool-call/token/latency overhead；
-9. 与 Trust No Tool / MCP Security Bench / MCP-SafetyBench 做 crosswalk 或 ablation。
+1. 先实现 **ToolSandbox overlay adapter**，因为它最适合 state snapshot / milestone oracle；
+2. 再选第二个 substrate（建议 AgentDojo 或 tau-bench）；
+3. 每个 substrate 先做 10-15 个 overlay tasks；
+4. 至少 2 个模型；
+5. 用新增 real tool-call harness 跑完整 real-model pilot，而不是只 dry-run；
+6. structured final answer schema 作为所有模型输出格式；
+7. field-level oracle + manual audit；
+8. 实现 repeat same tool、independent validator、真实 signed receipt、真实 freshness gate、combined policy 的预算控制；当前 harness 只有 signature/freshness metadata check；
+9. 去掉 obvious fake markers，让 forged receipt/citation/provenance 更 plausible；
+10. 报告 confidence interval、bootstrap、per-substrate ASR、utility、FPR、tool-call/token/latency overhead；
+11. 与 Trust No Tool / MCP Security Bench / MCP-SafetyBench 做 crosswalk 或 ablation。
 
-当前结论：**方向 Weak Go，当前 artifact draft 大约 Weak Reject / borderline；还不是 CCF A 顶会可投状态。**
+当前结论：**方向 Weak Go，当前 artifact draft 大约 Weak Reject / borderline；只有当主实验迁移到现有高价值 benchmark substrate 并跑出多模型 overlay 结果后，才可能接近 CCF A 顶会可投状态。**

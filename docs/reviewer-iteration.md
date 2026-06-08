@@ -110,8 +110,8 @@ was still underpowered:
 
 ### Changes made after Round 2 critique
 
-- Expanded the local partial benchmark from 6 to 15 scenarios, matching a 10%
-  slice of a 150-scenario-pair benchmark target.
+- Expanded the local smoke suite from 6 to 15 scenarios. This was later
+  explicitly downgraded from benchmark evidence to regression/smoke coverage.
 - Added nine new scenario records:
   - `api_fabricated_entity`
   - `api_schema_valid_false_value`
@@ -131,15 +131,15 @@ was still underpowered:
   - provenance/corroboration policy ASR: 0/15 spoofed cases.
   - cross-tool verifier ASR: 0/15 spoofed cases.
 - Reclassified the earlier `gpt-5.4-mini` run as a six-scenario real-model
-  smoke pilot rather than the 10% benchmark slice.
+  smoke pilot rather than benchmark evidence.
 - Added `configs/experiments/partial_pilot_newapi_smoke6.json` to preserve the
   old smoke-pilot configuration separately from the new 15-scenario pilot
   config.
 - Updated `docs/paper-draft.md` to include concrete benchmark counts,
   baseline access assumptions, pilot result tables, and the remaining
   limitations.
-- Updated `docs/partial-pilot-results.md` with the deterministic 10% slice and
-  explicit non-paper-grade limitations.
+- Updated `docs/partial-pilot-results.md` with deterministic local smoke results
+  and explicit non-paper-grade limitations.
 
 ### Remaining blockers before a reviewer could move above Reject
 
@@ -167,7 +167,7 @@ did not measure clean utility/FPR, the following changes were made:
   `visible_tool_result`, `repeat_tool_call`, `validator_call`,
   `freshness_check`, and `structured_final` events.
 - Added structured tests in `tests/test_smoke.py`.
-- Ran the 15-scenario structured partial benchmark:
+- Ran the 15-scenario structured local smoke suite:
   - 15 scenarios x 2 modes x 6 structured profiles = 180 cells.
   - naive ASR: 15/15; clean utility: 15/15.
   - schema-only ASR: 15/15; clean utility: 15/15.
@@ -199,7 +199,7 @@ IEEE S&P / CCS submission today.**
 The reviewer explicitly confirmed that the Chinese draft now clearly includes:
 
 - benchmark definition;
-- 15-scenario 10% slice;
+- 15-scenario local smoke suite;
 - baseline design;
 - deterministic 150-cell results;
 - structured 180-cell results;
@@ -207,7 +207,7 @@ The reviewer explicitly confirmed that the Chinese draft now clearly includes:
 - honest claim boundaries.
 
 The reviewer also confirmed that the structured oracle and 180-cell structured
-partial benchmark materially address part of the prior P0 list:
+local smoke run materially address part of the prior P0 list:
 
 - field-level decisive fields;
 - structured final-answer scoring;
@@ -317,3 +317,47 @@ Confirmed fixes:
 The targeted reviewer reported no remaining P0 in this fix list. The next-stage
 P0 remains unchanged: run a real-model 48/96-cell pilot, then scale to 30-45
 paired scenarios and at least two models.
+
+## Round 7: benchmark-substrate correction
+
+User feedback identified a major positioning issue: the main benchmark should
+not be primarily self-created toy scenarios. A more valuable CCF-A-style design
+should build on existing high-value benchmarks and compare different baselines
+on the same tasks.
+
+Resulting strategy change:
+
+- The 15-scenario local suite is now explicitly labeled a smoke suite.
+- The main benchmark is reframed as an **observation-spoofing overlay** for
+  existing agent/tool-use benchmarks.
+- Added `docs/benchmark-overlay-strategy.md`.
+- Added `configs/benchmark_overlays/high_value_benchmark_overlay.json`.
+- Updated the Chinese draft, English draft, experiment plan, novelty audit, and
+  README to reflect this shift.
+
+Priority substrates:
+
+1. ToolSandbox: deterministic execution context and milestone oracle.
+2. AgentDojo: strong security benchmark positioning.
+3. tau-bench / tau2-bench: realistic retail/airline tool-calling API tasks.
+4. WebArena/WorkArena, SWE-bench/SWE-agent, MCP-SafetyBench/MSB, and RAG
+   security benchmarks as second-wave overlays or close-work comparisons.
+
+Remaining P0 after this correction:
+
+1. implement at least one real overlay adapter, preferably ToolSandbox first;
+2. run a small existing-benchmark overlay pilot;
+3. then run the real-model 48/96-cell pilot on benchmark-derived tasks rather
+   than only local smoke scenarios.
+
+Environment note from this run:
+
+- cwd: `/root/tool-output-spoofing-lab`
+- hostname: `iZ6we8fiuw0w22z1nbjy18Z`
+- user: `root`
+- OS: Alibaba Cloud Linux 3.2104
+- virtualization: KVM
+
+This appears to be a remote Alibaba Cloud VM rather than a local laptop. The
+current shell did not expose `NEWAPI_API_KEY` or `OPENAI_API_KEY`, so result-
+bearing API experiments were not run in this turn.

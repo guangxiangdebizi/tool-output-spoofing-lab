@@ -27,9 +27,11 @@ The intended research question is narrow:
 
 ```text
 configs/
+  benchmark_overlays/
   experiments/       Experiment matrices and model/tool settings.
   scenarios/         Scenario definitions consumed by mock tools.
 docs/
+  benchmark-overlay-strategy.md
   concept.md         Research framing and non-goals.
   threat-model.md    Assets, attackers, trust boundaries, attack classes.
   engineering-plan.md
@@ -77,10 +79,10 @@ this host.
 The strongest narrowed claim is not "tool outputs are untrusted" in general;
 that is already covered by nearby work. The current paper direction is:
 
-> Benchmarking schema-valid but semantically false tool observations with
-> paired hidden-truth/visible-observation traces and observation-integrity
-> defenses.
+> Adding an observation-spoofing overlay to existing agent/tool-use benchmarks:
+> schema-valid but semantically false tool observations with paired
+> hidden-truth/visible-observation traces and observation-integrity defenses.
 
 Start with `docs/paper-draft-zh.md`, `docs/paper-draft.md`,
-`docs/partial-pilot-results.md`, `docs/novelty-audit.md`, and
-`docs/venue-strategy.md`.
+`docs/benchmark-overlay-strategy.md`, `docs/partial-pilot-results.md`,
+`docs/novelty-audit.md`, and `docs/venue-strategy.md`.

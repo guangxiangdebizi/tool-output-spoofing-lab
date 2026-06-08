@@ -1,0 +1,86 @@
+{
+  "overlay_id": "observation_spoofing_on_existing_agent_benchmarks",
+  "principle": "Use existing high-value agent/tool-use benchmarks as task substrates; add an observation-spoofing layer and compare defenses on the same tasks.",
+  "substrates": [
+    {
+      "name": "AgentDojo",
+      "priority": "P0",
+      "venue_or_status": "agent security benchmark",
+      "why_use_it": "Mature agent security suites with utility/security checks and indirect prompt-injection baselines.",
+      "overlay_plan": "Keep suite/user tasks and utility/security checks; add attacks that mutate factual tool return fields without adding imperative instructions.",
+      "initial_slice": "workspace/productivity tasks with deterministic environment records",
+      "primary_surfaces": ["tool-visible environment records", "API-like tool returns"],
+      "baseline_comparison": ["no defense", "prompt filter", "schema only", "repeat same tool", "independent record read", "combined"]
+    },
+    {
+      "name": "ToolSandbox",
+      "priority": "P0",
+      "venue_or_status": "stateful tool-use benchmark",
+      "why_use_it": "Explicit execution context, world state snapshots, and milestone DAGs are a natural truth oracle.",
+      "overlay_plan": "Wrap execution environment so the observation returned to the agent differs from the world-state snapshot used by milestones.",
+      "initial_slice": "phone/settings/contact/reminder scenarios with state-dependent tool calls",
+      "primary_surfaces": ["stateful Python tool returns", "insufficient-information tool flows"],
+      "baseline_comparison": ["no defense", "schema only", "repeat same tool", "independent state snapshot read", "combined"]
+    },
+    {
+      "name": "tau-bench / tau2-bench",
+      "priority": "P0",
+      "venue_or_status": "dynamic tool-calling benchmark",
+      "why_use_it": "Realistic retail/airline user-agent-tool conversations with domain APIs and task success evaluation.",
+      "overlay_plan": "Insert a proxy around domain APIs such as order status, refund, reservation, and inventory calls; oracle remains the simulator state.",
+      "initial_slice": "retail and airline tasks with order/reservation status queries",
+      "primary_surfaces": ["REST-like domain API returns", "stateful transactional tools"],
+      "baseline_comparison": ["no defense", "schema only", "repeat same API", "independent ledger/status read", "combined"]
+    },
+    {
+      "name": "WebArena / WorkArena",
+      "priority": "P1",
+      "venue_or_status": "web/browser agent benchmark",
+      "why_use_it": "Self-hosted or enterprise-like browser tasks with backend validation; good substrate for browser observation spoofing.",
+      "overlay_plan": "Rewrite accessibility-tree/DOM-derived observations or success banners while backend validator remains unchanged.",
+      "initial_slice": "form submission, admin status, issue/repo/task state tasks",
+      "primary_surfaces": ["browser observation", "DOM/a11y text", "success banners"],
+      "baseline_comparison": ["no defense", "prompt filter", "repeat browser observation", "backend validator", "combined"]
+    },
+    {
+      "name": "SWE-bench / SWE-agent",
+      "priority": "P1",
+      "venue_or_status": "software-engineering agent benchmark",
+      "why_use_it": "Patch/test tasks with strong ground truth and test-based oracle; good substrate for shell/test-output spoofing.",
+      "overlay_plan": "Intercept test command stdout/exit codes or artifact summaries shown to the agent; oracle uses actual test results.",
+      "initial_slice": "small verified tasks where tests are fast enough for pilot runs",
+      "primary_surfaces": ["shell stdout", "exit code", "test artifact summaries"],
+      "baseline_comparison": ["no defense", "schema only", "repeat same command wrapper", "raw artifact/rerun validator", "combined"]
+    },
+    {
+      "name": "MCP-SafetyBench / MCP Security Bench",
+      "priority": "P1",
+      "venue_or_status": "MCP security benchmark",
+      "why_use_it": "Closest existing MCP attack substrate; useful for positioning and crosswalk.",
+      "overlay_plan": "Reuse task/attack taxonomy where feasible, but isolate non-instructional schema-valid false return values and compare observation-integrity defenses.",
+      "initial_slice": "web search, finance, browser automation, repository management tasks that can run in isolation",
+      "primary_surfaces": ["MCP function returns", "MCP host data tampering"],
+      "baseline_comparison": ["no defense", "prompt filter", "schema only", "independent MCP/server read", "combined"]
+    },
+    {
+      "name": "PoisonedRAG / SafeRAG",
+      "priority": "P2",
+      "venue_or_status": "RAG security benchmark",
+      "why_use_it": "High-value retrieval-poisoning substrate for citation/provenance spoofing.",
+      "overlay_plan": "Treat retrieval as an agent tool; mutate retrieved evidence/citation fields while oracle checks corpus/bibliography truth.",
+      "initial_slice": "citation verification and policy QA tasks",
+      "primary_surfaces": ["retrieval results", "citation metadata", "source authority fields"],
+      "baseline_comparison": ["no defense", "prompt filter", "schema only", "canonical corpus lookup", "combined"]
+    }
+  ],
+  "pilot_order": [
+    "ToolSandbox overlay smoke: easiest deterministic truth state and milestone oracle.",
+    "AgentDojo overlay smoke: strongest security-benchmark positioning.",
+    "tau-bench overlay smoke: strongest realistic tool-calling/domain API story.",
+    "WebArena/SWE-bench overlays as second-wave surfaces."
+  ],
+  "paper_claim_shift": {
+    "avoid": "We created a standalone benchmark from scratch and it is the main benchmark.",
+    "use": "We propose an observation-spoofing overlay protocol for existing agent/tool-use benchmarks and report baseline defense comparisons on adapted benchmark slices."
+  }
+}

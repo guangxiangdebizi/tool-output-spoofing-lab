@@ -19,17 +19,20 @@ tools can create hidden-trigger risks. This paper studies a narrower and
 complementary failure mode: the tool result is syntactically valid and contains
 no explicit adversarial instruction, but its decisive factual claim is false.
 
-We introduce Tool Output Spoofing, a benchmark methodology for evaluating
-whether agents accept, propagate, verify, or reject schema-valid false
-observations. Each task has a benign user request, a hidden immutable truth
-state, paired truthful and spoofed visible tool results, and an oracle that
-scores the agent's final answer or mocked action against the hidden truth
-rather than the agent-visible observation. The benchmark covers REST-style APIs,
-MCP returns, retrieval/search evidence, browser-state observations, shell/test
-output, and approval summaries. We evaluate generic prompt-injection defenses,
-schema validation, repeated calls, provenance/freshness checks, independent
-cross-tool corroboration, signed receipts, and combined policies under fixed
-tool-call and token budgets.
+We introduce Tool Output Spoofing as an observation-spoofing overlay for
+existing agent/tool-use benchmarks. Rather than relying on a standalone toy
+benchmark, the intended paper-grade evaluation keeps existing benchmark tasks,
+environment state, and utility/security oracles, then mutates only the
+agent-visible observation plane. Each adapted task has a benign user request, a
+hidden immutable truth state inherited from the benchmark or environment,
+paired truthful and spoofed visible tool results, and an oracle that scores the
+agent's final answer or mocked action against hidden truth rather than the
+agent-visible observation. Candidate substrates include AgentDojo,
+ToolSandbox, tau-bench, WebArena/WorkArena, SWE-bench/SWE-agent, MCP-SafetyBench
+/ MCP Security Bench, and RAG security benchmarks. We evaluate generic
+prompt-injection defenses, schema validation, repeated calls,
+provenance/freshness checks, independent cross-tool corroboration, signed
+receipts, and combined policies under fixed tool-call and token budgets.
 
 Our central hypothesis is that prompt-centric defenses provide limited
 protection against non-instructional false observations, while provenance and
@@ -93,12 +96,13 @@ This paper aims to make four contributions.
 1. **Threat definition.** We define tool-output spoofing as schema-valid false
    observations at the tool-result trust boundary, separate from prompt
    injection, metadata poisoning, malicious tool code, and tool hallucination.
-2. **Benchmark protocol.** We introduce a paired truthful/spoofed protocol with
-   immutable hidden truth, visible observation traces, deterministic local mock
-   tools, and field-level oracle scoring.
-3. **Multi-surface suite.** We design a suite spanning REST/API records, MCP
-   responses, RAG/search evidence, browser observations, shell/test output, and
-   human-approval summaries.
+2. **Benchmark overlay protocol.** We introduce a paired truthful/spoofed
+   protocol that adapts existing agent/tool-use benchmarks by separating hidden
+   truth from visible observations and adding field-level oracle scoring.
+3. **Multi-substrate plan.** We target existing high-value substrates spanning
+   agent-security suites, stateful tool-use benchmarks, retail/airline API
+   simulators, browser-agent benchmarks, software-engineering agents, MCP
+   security benchmarks, and RAG security benchmarks.
 4. **Defense evaluation.** We compare prompt-centric defenses against
    observation-integrity defenses: freshness, request binding, provenance,
    signed receipts, independent cross-tool reads, contradiction handling, and
@@ -213,9 +217,12 @@ For each user task, we run at least four paired conditions:
 This design makes false acceptance and false rejection separable. A defense that
 rejects all tool outputs has low attack success but unacceptable utility.
 
-### 4.3 Suites
+### 4.3 Local smoke surfaces and target benchmark substrates
 
-The first full benchmark should contain five suites.
+The local smoke suite currently covers five tool surfaces. These surfaces are
+useful for regression testing, but the paper-grade benchmark should adapt
+existing substrates such as AgentDojo, ToolSandbox, tau-bench, WebArena,
+WorkArena, SWE-bench, and MCP security benchmarks.
 
 | Suite | Decisive false observation | Oracle |
 | --- | --- | --- |
@@ -225,16 +232,16 @@ The first full benchmark should contain five suites.
 | Browser form | success banner, DOM/a11y text, submitted target | backend state validator |
 | Shell/tests | exit code, stdout, artifact path, log truncation | independent process/raw artifact check |
 
-The current repository includes a 15-scenario deterministic partial benchmark
-covering five tool surfaces plus one instruction-smuggling control. The planned
-paper version should expand to at least 150-300 scenario pairs before
-submission.
+The current repository includes a 15-scenario deterministic local smoke suite
+covering five tool surfaces plus one instruction-smuggling control. It should
+not be presented as the main benchmark.
 
-### 4.4 Current 10% partial benchmark slice
+### 4.4 Current local smoke suite and benchmark-overlay plan
 
-As of 2026-06-08, the repository includes a 15-scenario partial benchmark slice.
-This is intentionally not the full benchmark; it is a stratified pilot
-corresponding to 10% of a 150-scenario-pair target.
+As of 2026-06-08, the repository includes a 15-scenario local smoke suite. This
+is intentionally not the main paper benchmark. It exists to test trace schema,
+oracle scoring, baseline behavior, and the real-tool harness before adapting
+existing benchmark substrates.
 
 | Suite / control | Pilot scenarios | Spoof classes represented |
 | --- | ---: | --- |
@@ -245,7 +252,7 @@ corresponding to 10% of a 150-scenario-pair target.
 | Shell/tests | 2 | exit-code spoof, truncated log |
 | Instruction-smuggling control | 1 | embedded instruction in JSON |
 
-The pilot scenarios are listed in `configs/experiments/mvp_matrix.json`. Each
+The smoke scenarios are listed in `configs/experiments/mvp_matrix.json`. Each
 scenario keeps the user task fixed across truthful and spoofed modes, stores
 hidden truth in an oracle-only row, and exposes only the selected visible tool
 result to the agent profile. Generated traces are excluded from version control
@@ -257,9 +264,12 @@ PYTHONPATH=src /usr/bin/python3.11 scripts/run_mvp_matrix.py \
   --out-dir traces/mvp_15scenario_partial
 ```
 
-This slice is adequate for checking whether the benchmark mechanics and
-baseline contrasts produce signal. It is not adequate for final submission
-claims about model populations or real deployed agents.
+This slice is adequate for checking whether the overlay mechanics and baseline
+contrasts produce signal. It is not adequate for final submission claims about
+model populations or real deployed agents. The main evaluation should move to
+existing benchmark substrates. The overlay plan is recorded in
+`docs/benchmark-overlay-strategy.md` and
+`configs/benchmark_overlays/high_value_benchmark_overlay.json`.
 
 ### 4.5 Agent profiles
 
@@ -568,7 +578,7 @@ Implemented locally:
 
 - concept, threat model, attack taxonomy, novelty audit;
 - literature matrix and deep-reading notes;
-- deterministic scenario configs for a 15-scenario 10% partial benchmark slice
+- deterministic scenario configs for a 15-scenario local smoke/regression suite
   across API, MCP, RAG/search, browser, shell, and an instruction-smuggling
   control;
 - trace runner, oracle, deterministic baseline matrix, and six-scenario
@@ -577,8 +587,10 @@ Implemented locally:
 
 Still required before a serious top-tier submission:
 
-- expand to at least 150-300 paired scenario records, with 30-45 paired
-  scenarios as the next model-based pilot;
+- implement existing-benchmark overlay adapters, starting with ToolSandbox and
+  then AgentDojo or tau-bench;
+- expand to at least 30-45 paired benchmark-derived overlay scenarios for the
+  next model-based pilot;
 - add real agent adapters and actual tool-call harnesses rather than direct
   observation-in-context prompts;
 - implement provenance, signed receipt, freshness, repeat-same-tool, and

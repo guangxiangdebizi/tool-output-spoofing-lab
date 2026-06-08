@@ -2,21 +2,24 @@
 
 Run date: 2026-06-08 Asia/Shanghai.
 
-This is a **partial pilot**, not a full benchmark. It intentionally runs a
-small slice of the planned benchmark to check whether the experimental design
-produces useful signal before scaling.
+This is a **local smoke / partial pilot**, not the final paper benchmark. It
+intentionally runs a small local suite to check whether the overlay trace
+format, oracle, and baselines work before adapting existing high-value
+benchmarks such as AgentDojo, ToolSandbox, tau-bench, WebArena/WorkArena,
+SWE-bench, and MCP security benchmarks.
 
 There are now three pilot tiers:
 
-1. a 15-scenario structured baseline slice, which is the strongest current
+1. a 15-scenario structured baseline smoke slice, which is the strongest current
    local pilot because it adds field-level scoring and explicit validator
    events;
-2. a 15-scenario deterministic baseline slice, which is approximately 10% of a
-   150-scenario-pair benchmark target; and
+2. a 15-scenario deterministic baseline smoke slice; and
 3. an earlier six-scenario real-model smoke pilot, kept only as preliminary
-   signal until the 15-scenario real-model slice is run.
+   signal until existing benchmark overlays are run.
 
-The six-scenario model run must not be treated as a paper-grade result.
+None of these local runs should be treated as paper-grade benchmark evidence.
+The main benchmark strategy is now documented in
+`docs/benchmark-overlay-strategy.md`.
 
 ## Real tool-call harness dry-run
 
@@ -45,6 +48,11 @@ PYTHONPATH=src:. /usr/bin/python3.11 scripts/run_real_toolcall_pilot.py \
 
 - Expected cells without limit: 96
 - Completed dry-run cells: 96
+- Reviewer-recommended minimum config:
+  `configs/experiments/real_toolcall_pilot_min48.json`
+  - 8 local smoke scenarios x 2 modes x 3 profiles
+  - profiles: naive, repeat-same-tool, independent-validator
+  - dry-run completed: 48 / 48 cells
 - The manifest records config hash, model, temperature, max tokens, timeout,
   retry policy, tool budget, prompt hash, trace path, and tool events.
 - Model-visible traces exclude `oracle_context` and `truth_result`.
@@ -74,11 +82,11 @@ the later 30-45 paired-scenario model pilot.
 Current caveat: `freshness_check` and `signature_check` are metadata checks in
 this scaffold, not yet cryptographic signed receipts or a full freshness gate.
 
-## 15-scenario structured 10% slice
+## 15-scenario structured local smoke
 
-This is the current strongest local pilot because it uses structured final
-answers, field-level scoring, explicit validator events, and utility/FPR
-metrics.
+This is the current strongest local smoke/regression run because it uses
+structured final answers, field-level scoring, explicit validator events, and
+utility/FPR metrics. It is not counted as main benchmark evidence.
 
 ### Configuration
 
@@ -127,7 +135,7 @@ Interpretation:
   incurs higher tool-event overhead and remains a scripted policy rather than a
   real model agent.
 
-## 15-scenario deterministic 10% slice
+## 15-scenario deterministic local smoke
 
 ### Configuration
 
@@ -280,27 +288,29 @@ The pilot supports the narrowed paper direction:
 ## Limitations
 
 - The real-model run was only 24 attempted cells and one model.
-- The deterministic 15-scenario run is a useful 10% benchmark slice, but its
-  baselines are policy stubs rather than full agentic tool-call harnesses.
+- The deterministic 15-scenario run is a local smoke/regression suite, not
+  main benchmark evidence.
 - The current oracle uses keyword criteria; it is useful for a pilot but needs a
   stronger structured judge and manual audit for paper-grade claims.
 - One API timeout occurred; larger runs need retry/backoff and run manifests.
-- The scenarios are hand-written MVP fixtures, not yet a 150-300 case benchmark.
+- The scenarios are hand-written MVP fixtures; the main benchmark must be
+  adapted from existing substrates such as ToolSandbox, AgentDojo, and
+  tau-bench.
 - The verification prompt is a prompt policy, not a full system defense. The
   next experiment should implement actual independent validator calls and
   budget-controlled evidence access.
 
 ## Next pilot
 
-Run a second partial benchmark before any full-scale run:
+Run the next pilot on existing benchmark substrates before any full-scale run:
 
-1. Expand each suite to 10-20 scenarios.
-2. Sample 10%-15% of the planned final benchmark, stratified by suite and
-   spoof class.
-3. Add at least one more model.
-4. Add real defense actions:
+1. Implement the ToolSandbox overlay adapter first.
+2. Add AgentDojo or tau-bench as the second substrate.
+3. Run 10-15 overlay tasks per substrate.
+4. Add at least one more model.
+5. Add real defense actions:
    - repeat same tool;
    - independent validator;
-   - signed receipt/freshness gate;
+   - signed receipt/freshness gate when implemented, otherwise metadata checks;
    - combined policy.
-5. Report clean utility and false-positive refusal on truthful cases.
+6. Report clean utility and false-positive refusal on truthful cases.

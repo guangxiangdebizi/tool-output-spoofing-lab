@@ -43,6 +43,14 @@ def call_chat_completion(
         try:
             with urllib.request.urlopen(request, timeout=timeout_seconds) as response:
                 return json.loads(response.read().decode("utf-8"))
+        except urllib.error.HTTPError as exc:
+            try:
+                body = exc.read().decode("utf-8", errors="replace")
+            except Exception:
+                body = ""
+            last_error = RuntimeError(f"HTTP {exc.code}: {body[:1000]}")
+            if attempt < retries:
+                time.sleep(retry_sleep_seconds)
         except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
             last_error = exc
             if attempt < retries:
@@ -53,3 +61,11 @@ def call_chat_completion(
 
 def response_text(response: dict[str, Any]) -> str:
     return str(response["choices"][0]["message"]["content"])
+
+
+def response_metadata(response: dict[str, Any]) -> dict[str, Any]:
+    usage = response.get("usage")
+    return {
+        "response_id": response.get("id"),
+        "usage": usage if isinstance(usage, dict) else {},
+    }

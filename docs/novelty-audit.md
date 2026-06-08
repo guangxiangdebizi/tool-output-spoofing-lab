@@ -42,10 +42,11 @@ So the broad claim "nobody has studied malicious tool outputs" is blocked.
 
 The more defensible project is:
 
-> A deterministic, local, multi-surface benchmark for **schema-valid but
-> semantically fabricated tool observations**, with paired truthful/spoofed
-> traces, an immutable truth oracle, and defense baselines focused on
-> provenance, receipts, freshness, and independent corroboration.
+> An observation-spoofing overlay protocol for existing high-value
+> agent/tool-use benchmarks, evaluating **schema-valid but semantically
+> fabricated tool observations** with paired truthful/spoofed traces,
+> benchmark-native truth oracles, and defense baselines focused on provenance,
+> receipts, freshness, and independent corroboration.
 
 This is narrower than existing prompt-injection benchmarks and distinct from
 malicious-tool-code generation.
@@ -54,9 +55,10 @@ One-sentence paper positioning:
 
 > Existing work shows that untrusted tool data can inject instructions,
 > malicious tools/MCP servers can compromise agents, and untrusted tool feedback
-> can create trajectory-conditioned risk. We isolate a complementary failure
-> mode: agents accepting **schema-valid false observations** as ground truth
-> when the output contains no explicit instruction.
+> can create trajectory-conditioned risk. We add a reusable overlay to existing
+> agent/tool-use benchmarks that isolates a complementary failure mode: agents
+> accepting **schema-valid false observations** as ground truth when the output
+> contains no explicit instruction.
 
 ## Most important close work
 
@@ -111,9 +113,9 @@ Do not claim:
 
 Potentially viable after deeper reading:
 
-1. **Observation-veracity benchmark**: first benchmark that treats the
-   truthfulness of tool observations as an independent experimental variable
-   across REST/MCP/RAG/browser/shell surfaces.
+1. **Observation-veracity overlay**: a reusable protocol that treats the
+   truthfulness of tool observations as an independent experimental variable on
+   top of existing agent/tool-use benchmarks.
 2. **Paired truth/spoof protocol**: every task has matched truthful and spoofed
    traces, with identical user intent and an immutable hidden truth plane.
 3. **Schema-valid semantic lies**: focus on outputs that pass schema validation
@@ -155,13 +157,14 @@ that exact combination.
 
 ## Immediate next experiment shape
 
-Build the MVP around five small local suites:
+Use the current five small local suites only as smoke tests, then migrate the
+first paper-grade measurement to existing benchmark substrates:
 
-1. `api_records`: fabricated entity, stale state, schema-valid false value.
-2. `mcp_finance`: parameter poisoning, return injection, rug pull.
-3. `rag_search`: retrieval poisoning, conflicting sources, forged citation.
-4. `browser_form`: fake success banner / DOM-state mismatch.
-5. `shell_tests`: exit-code/stdout spoofing against a tiny repo.
+1. ToolSandbox overlay for deterministic state snapshot / milestone oracle.
+2. AgentDojo overlay for strong security benchmark positioning.
+3. tau-bench / tau2 overlay for realistic retail/airline API status spoofing.
+4. WebArena/WorkArena overlay for browser observation spoofing.
+5. SWE-bench/SWE-agent overlay for shell/test-output spoofing.
 
 The first paper-ready measurement should compare:
 

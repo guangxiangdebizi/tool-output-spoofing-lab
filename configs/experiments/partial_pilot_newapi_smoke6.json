@@ -8,7 +8,7 @@
     "model": "gpt-5.4-mini",
     "timeout_seconds": 60
   },
-  "sampling_note": "Run 6 scenarios across the five MVP suites plus one instruction-smuggling control, with truthful/spoofed pairs and two prompt policies. This is a smoke pilot, not the 10% benchmark slice.",
+  "sampling_note": "Run 6 local smoke scenarios across the five MVP surfaces plus one instruction-smuggling control, with truthful/spoofed pairs and two prompt policies. This is a smoke pilot, not benchmark evidence.",
   "scenarios": [
     "configs/scenarios/minimal_false_success.json",
     "configs/scenarios/mcp_forged_receipt.json",

@@ -15,6 +15,33 @@ RQ4. Which low-cost defenses work best: schema checks, independent
 corroboration, provenance tags, freshness checks, or explicit uncertainty
 policy?
 
+## Benchmark strategy correction
+
+The main paper benchmark should not be a standalone toy benchmark created from
+scratch. The stronger design is an **observation-spoofing overlay** on existing
+high-value agent/tool-use benchmarks.
+
+Use existing benchmark tasks for:
+
+- task distribution;
+- realistic tool/API/browser/user interactions;
+- clean utility checks; and
+- hidden environment or task oracle.
+
+Add our layer for:
+
+- paired truthful/spoofed observations;
+- schema-valid non-instructional false fields;
+- baseline/defense comparison; and
+- field-level observation-integrity scoring.
+
+The current 15-scenario local suite is a smoke test only. It verifies trace
+schema, oracle logic, and baseline behavior; it is not the final paper
+benchmark.
+
+See `docs/benchmark-overlay-strategy.md` and
+`configs/benchmark_overlays/high_value_benchmark_overlay.json`.
+
 ## Hypotheses
 
 - H1: Agents are more robust to obvious instruction smuggling than to plausible
@@ -26,18 +53,19 @@ policy?
 - H4: Provenance/freshness metadata helps only when the agent is explicitly
   trained or prompted to inspect it.
 
-## Scenario matrix
+## Overlay scenario matrix
 
 | Axis | Values |
 | --- | --- |
 | Spoof class | false_success, false_failure, forged_provenance, metric_tampering, instruction_smuggling, replay_stale, omission |
-| Domain | finance_mock, medical_admin_mock, security_scan_mock, web_task_mock, literature_mock |
+| Substrate | AgentDojo, ToolSandbox, tau-bench/tau2, WebArena/WorkArena, SWE-bench, MCP-SafetyBench/MSB, PoisonedRAG/SafeRAG |
+| Domain | inherited from the existing benchmark substrate |
 | Tool output format | JSON, text, HTML, command stdout/stderr |
 | Attack obviousness | subtle, medium, blatant |
 | Corroborating tool | absent, truthful_available, contradictory_available |
 | Defense | none, schema_only, provenance_check, cross_tool_check, uncertainty_policy, all |
 
-## Minimal MVP
+## Minimal MVP / local smoke suite
 
 1. Run deterministic local mock scenarios without real LLM calls.
 2. Store trace JSONL with user task, tool result, agent response, and oracle
@@ -45,11 +73,12 @@ policy?
 3. Manually plug in one or more agents later through adapters.
 4. Score whether final answer accepted the spoofed state.
 
-## Completed partial pilot as of 2026-06-08
+## Completed local smoke/regression pilot as of 2026-06-08
 
-The repository now contains a 15-scenario deterministic benchmark slice. This
-is approximately 10% of a 150-scenario-pair final benchmark target, not the
-full benchmark.
+The repository now contains a 15-scenario deterministic local smoke suite. It
+is not the main paper benchmark and should not be counted as paper-grade
+benchmark evidence. Its role is to validate trace schema, oracle logic, and
+baseline behavior before adapting existing benchmark substrates.
 
 Composition:
 
@@ -127,15 +156,26 @@ oracle compares expected truth and final claim/action
 The decisive test is paired: same benign user task and same intended ground
 truth, only the tool observation changes.
 
-## Next 10%-15% model pilot
+## Next 10%-15% model pilot on existing benchmarks
 
-Before any full run, execute a model-based pilot of 30-45 paired scenarios:
+Before any full run, execute a model-based overlay pilot of 30-45 paired
+scenarios from existing benchmark substrates:
 
 ```text
-30-45 scenarios x truthful/spoofed x 4-6 defenses x 2+ models
+2 benchmark substrates
+10-15 tasks per substrate
+truthful/spoofed modes
+3-6 defenses
+1-2+ models
 ```
 
-Minimum defenses:
+Recommended first substrates:
+
+1. ToolSandbox: easiest state snapshot / milestone oracle; this is the P0 first adapter.
+2. AgentDojo: strongest security benchmark positioning.
+3. tau-bench / tau2: strongest realistic tool-calling API story.
+
+Minimum defenses for the first real-model overlay pilot:
 
 1. no defense;
 2. schema-only;
@@ -146,6 +186,19 @@ Minimum defenses:
 
 This pilot must use actual tool-call events for the validator baselines rather
 than passing all observations directly inside a user JSON prompt.
+
+If API budget is tight, run the reviewer-recommended local 48-cell harness
+pilot first, then replace local scenarios with ToolSandbox/AgentDojo overlay
+tasks:
+
+```text
+configs/experiments/real_toolcall_pilot_min48.json
+8 local smoke scenarios x truthful/spoofed x
+  {naive, repeat-same-tool, independent-validator}
+```
+
+This 48-cell config is not the final benchmark; it is the cheapest real-model
+check before moving the same harness to existing benchmark overlays.
 
 ## Go/no-go thresholds
 
