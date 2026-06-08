@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+venv/
+outputs/*
+!outputs/README.md
+traces/*.tmp
+traces/*.trace.jsonl
+papers/**/*.pdf
+papers/**/*.part

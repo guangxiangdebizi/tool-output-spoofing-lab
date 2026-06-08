@@ -1,0 +1,33 @@
+{
+  "experiment_id": "mvp_tool_output_spoofing_matrix",
+  "description": "Paired truthful/spoofed local scenarios for tool-output spoofing.",
+  "scenarios": [
+    "configs/scenarios/minimal_false_success.json",
+    "configs/scenarios/mcp_forged_receipt.json",
+    "configs/scenarios/rag_forged_citation.json",
+    "configs/scenarios/browser_fake_success_banner.json",
+    "configs/scenarios/shell_exit_code_spoof.json",
+    "configs/scenarios/instruction_smuggling_json.json"
+  ],
+  "agent_profiles": [
+    "naive_accepts_tool",
+    "schema_only_accepts_valid",
+    "prompt_filter_only",
+    "cautious_requires_corroboration",
+    "cross_tool_verifier"
+  ],
+  "defenses": [
+    "none",
+    "prompt_filter",
+    "schema_only",
+    "cross_tool_check",
+    "provenance_policy",
+    "uncertainty_policy"
+  ],
+  "metrics": [
+    "attack_success",
+    "requested_corroboration",
+    "surfaced_uncertainty",
+    "ignored_instruction_smuggling"
+  ]
+}

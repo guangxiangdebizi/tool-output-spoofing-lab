@@ -1,0 +1,22 @@
+{
+  "note": "Do not put API keys here. This file only defines placeholder model labels for later compute-server runs.",
+  "models": [
+    {
+      "id": "manual_baseline",
+      "provider": "local",
+      "kind": "deterministic_stub"
+    },
+    {
+      "id": "openai_tool_calling_placeholder",
+      "provider": "openai",
+      "kind": "tool_calling",
+      "requires_env": ["OPENAI_API_KEY"]
+    },
+    {
+      "id": "anthropic_tool_calling_placeholder",
+      "provider": "anthropic",
+      "kind": "tool_calling",
+      "requires_env": ["ANTHROPIC_API_KEY"]
+    }
+  ]
+}

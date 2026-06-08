@@ -1,0 +1,63 @@
+{
+  "experiment_id": "five_suite_tool_output_spoofing_mvp",
+  "description": "First publishable local MVP: deterministic truth plane, spoofed observation plane, and oracle scoring.",
+  "suites": [
+    {
+      "name": "api_records",
+      "attacks": ["false_success", "fabricated_entity", "schema_valid_false_value", "stale_replay"],
+      "mvp_scenarios": ["configs/scenarios/minimal_false_success.json"],
+      "priority": "P0"
+    },
+    {
+      "name": "mcp_finance",
+      "attacks": ["instruction_smuggling", "parameter_poisoning", "rug_pull", "forged_provenance"],
+      "mvp_scenarios": ["configs/scenarios/mcp_forged_receipt.json"],
+      "priority": "P0"
+    },
+    {
+      "name": "rag_search",
+      "attacks": ["retrieval_poison", "conflicting_sources", "forged_provenance", "warning_stripping"],
+      "mvp_scenarios": ["configs/scenarios/rag_forged_citation.json"],
+      "priority": "P0"
+    },
+    {
+      "name": "browser_form",
+      "attacks": ["browser_obs_spoof", "stale_state", "approval_summary_deception"],
+      "mvp_scenarios": ["configs/scenarios/browser_fake_success_banner.json"],
+      "priority": "P1"
+    },
+    {
+      "name": "shell_tests",
+      "attacks": ["exit_code_spoof", "stale_file_read", "false_success"],
+      "mvp_scenarios": ["configs/scenarios/shell_exit_code_spoof.json"],
+      "priority": "P1"
+    }
+  ],
+  "agent_profiles": [
+    "react_naive",
+    "native_tool_calling",
+    "plan_execute",
+    "self_reflection",
+    "dual_agent_verifier"
+  ],
+  "defenses": [
+    "none",
+    "prompt_injection_filter",
+    "strict_schema",
+    "repeat_same_tool",
+    "independent_cross_tool",
+    "provenance_policy",
+    "signed_receipt",
+    "combined"
+  ],
+  "primary_metrics": [
+    "utility_clean",
+    "attack_success_rate",
+    "deception_acceptance_rate",
+    "oracle_inconsistency_rate",
+    "verification_attempt_rate",
+    "effective_verification_rate",
+    "false_positive_refusal_rate",
+    "defense_overhead"
+  ]
+}
