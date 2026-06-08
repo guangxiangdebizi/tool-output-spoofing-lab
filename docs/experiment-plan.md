@@ -285,14 +285,15 @@ PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/run_toolsandbox_
   --dry-run --sleep 0
 ```
 
-This completed 96 dry-run cells:
+This completed 120 dry-run cells:
 
 ```text
 12 real ToolSandbox tasks
 truthful/spoofed
-naive / schema-only / repeat-same-tool / independent-validator
+naive / schema-only / repeat-same-tool /
+metadata-only validator / privileged independent-validator upper bound
 1 configured model id
-= 96 prompt/trace cells
+= 120 prompt/trace cells
 ```
 
 The runner uses real ToolSandbox tool execution as the raw observation source,
@@ -305,6 +306,12 @@ It records `model_policy_prompted=true`, `real_tool_execution=true`,
 only 12 / 1032 scenarios. Prompt tests verify that `oracle_context`,
 `raw_tool_result`, raw profile names, and truthful/spoofed condition labels are
 not exposed to the model-visible prompt.
+
+The validator baselines are now separated into a non-privileged metadata-only
+check and a privileged upper-bound validator. The former records
+`verification_source=metadata_only` and `content_verified=false`; the latter
+uses the raw truthful ToolSandbox execution result and must be reported only as
+an upper-bound ablation until replaced by a deployable independent authority.
 
 Current 10%-15% ToolSandbox sampling manifest design:
 

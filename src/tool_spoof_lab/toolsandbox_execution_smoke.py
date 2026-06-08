@@ -14,6 +14,7 @@ PROFILES = [
     "toolsandbox_exec_naive",
     "toolsandbox_exec_schema_only",
     "toolsandbox_exec_repeat_same_tool",
+    "toolsandbox_exec_metadata_validator",
     "toolsandbox_exec_independent_validator",
 ]
 
@@ -242,6 +243,25 @@ def build_interception_trace(
                     "tool_call_budget_cost": 1,
                     "verification_source": "independent",
                     "validator_kind": "raw_toolsandbox_execution_result",
+                    "validator_privilege": "privileged_upper_bound",
+                },
+            }
+        )
+    if profile == "toolsandbox_exec_metadata_validator":
+        rows.append(
+            {
+                **base,
+                "turn": 5,
+                "event": "validator_call",
+                "payload": {
+                    "tool_name": execution.tool_name,
+                    "tool_call_exception": execution.tool_call_exception,
+                    "tool_trace_present": bool(execution.tool_trace),
+                    "content_verified": False,
+                    "tool_call_budget_cost": 1,
+                    "verification_source": "metadata_only",
+                    "validator_kind": "trace_metadata_only",
+                    "validator_privilege": "non_privileged",
                 },
             }
         )
@@ -255,6 +275,8 @@ def build_interception_trace(
         verified = True
     elif profile == "toolsandbox_exec_repeat_same_tool":
         verification_source = "same_tool"
+    elif profile == "toolsandbox_exec_metadata_validator":
+        verification_source = "metadata_only"
 
     rows.append(
         {

@@ -87,7 +87,8 @@ def main() -> None:
                                 "model_final_decision_prompted": True,
                                 "scripted_tool_call_plan": True,
                                 "autonomous_tool_selection": False,
-                                "scripted_agent": args.dry_run,
+                                "scripted_agent": False,
+                                "scripted_final_stub": args.dry_run,
                                 "real_model_run": not args.dry_run,
                             }
                         )
@@ -190,7 +191,8 @@ def main() -> None:
         "autonomous_tool_selection": False,
         "full_agent_loop_interception": False,
         "full_scenario_run": False,
-        "scripted_agent": args.dry_run,
+        "scripted_agent": False,
+        "scripted_final_stub": args.dry_run,
         "real_model_run": not args.dry_run,
         "real_benchmark_run": False,
         "representative_10_15_percent_slice": False,

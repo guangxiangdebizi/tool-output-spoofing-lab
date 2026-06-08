@@ -275,7 +275,7 @@ Dry-run status:
   cells were executed in this round.
 
 This moves the artifact closer to a paper-grade agent harness, but the main P0
-remains open until the 96-cell small real-model pilot and the later 30-45
+remains open until the 96-cell local-harness real-model pilot and the later 30-45
 paired-scenario multi-model pilot are actually run.
 
 Reviewer follow-up identified and fixed two leakage risks before any real-model
@@ -528,7 +528,7 @@ PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/run_toolsandbox_
 Result:
 
 - `executed_tasks=12`
-- `completed_cells=96`
+- `completed_cells=120`
 - `missing_tool_trace=0`
 - `tool_call_exception=0`
 - `real_tool_execution=true`
@@ -552,8 +552,8 @@ It does not mean full in-process agent-loop interception, so the summary also
 records `full_agent_loop_interception=false`.
 
 Remaining P0: replace the scripted tool-call plan with a real model/agent policy
-over the same interception boundary, then run the 12-task × 2-mode × 4-baseline
-pilot as a true model-agent experiment.
+over the same interception boundary, then run the 12-task pilot as a true
+model-agent experiment.
 
 ## Round 12: reviewer audit, ToolSandbox model-policy dry-run, and 10% manifest
 
@@ -613,8 +613,8 @@ PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/run_toolsandbox_
 
 Result:
 
-- `completed_cells=96`
-- `expected_cells_without_limit=96`
+- `completed_cells=120`
+- `expected_cells_without_limit=120`
 - `selected_task_count=12`
 - `selected_fraction=0.0116`
 - `real_tool_execution=true`
@@ -658,9 +658,48 @@ tool-call map is expanded.
 
 Remaining P0:
 
-1. run the 96-cell ToolSandbox model-policy pilot with a real API key;
+1. run the 120-cell ToolSandbox model-policy pilot with a real API key;
 2. expand from 12-task bring-up to the 104-task stratified manifest;
 3. implement a non-oracle independent validator service;
 4. integrate AgentDojo or tau-bench as a second existing benchmark substrate;
 5. add confidence intervals, cost/latency accounting, and close-work
    crosswalks.
+
+## Round 13: validator honesty ablation
+
+The previous reviewer flagged `toolsandbox_exec_independent_validator` as
+oracle-adjacent because it exposes the raw truthful ToolSandbox execution result
+through a `validator_call`. To make the baseline hierarchy more honest, the
+ToolSandbox execution/model pilot now separates:
+
+- `toolsandbox_exec_metadata_validator`: non-privileged metadata-only check.
+  It records `verification_source=metadata_only`,
+  `validator_kind=trace_metadata_only`, `validator_privilege=non_privileged`,
+  and `content_verified=false`.
+- `toolsandbox_exec_independent_validator`: privileged upper-bound validator.
+  It records `validator_kind=raw_toolsandbox_execution_result` and
+  `validator_privilege=privileged_upper_bound`.
+
+The ToolSandbox model-policy dry-run was re-run with five profiles:
+
+```text
+12 tasks x truthful/spoofed x
+  naive / schema-only / repeat-same-tool /
+  metadata-only validator / privileged independent-validator upper bound
+= 120 cells
+```
+
+Dry-run summary:
+
+- `completed_cells=120`
+- `expected_cells_without_limit=120`
+- metadata-only validator spoofed ASR in scripted scoring: 12 / 12
+- privileged independent-validator spoofed ASR in scripted scoring: 0 / 12
+- `real_model_run=false`
+- `model_call_executed=false`
+
+Interpretation: metadata-only validation and same-channel repetition do not
+verify semantic truth. A content-level independent authority is required, but
+the current raw-result validator is only an upper-bound ablation. The next
+paper-grade step is still to implement a non-oracle independent authority and
+run the model-policy pilot with a real API key.

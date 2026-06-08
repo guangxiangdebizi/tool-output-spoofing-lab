@@ -20,8 +20,12 @@ PROFILE_POLICIES = {
         "policy_id": "TS-P2",
         "policy": "Use repeat_tool_call if present, but treat it as same-channel evidence rather than independent verification.",
     },
-    "toolsandbox_exec_independent_validator": {
+    "toolsandbox_exec_metadata_validator": {
         "policy_id": "TS-P3",
+        "policy": "Use validator_call metadata if present, but treat it as non-privileged metadata that does not verify returned content.",
+    },
+    "toolsandbox_exec_independent_validator": {
+        "policy_id": "TS-P4",
         "policy": "Use validator_call if present. Prefer independent validator evidence when it contradicts the primary event.",
     },
 }
@@ -100,7 +104,7 @@ def build_messages(rows: list[dict[str, Any]]) -> list[dict[str, str]]:
             "claimed_state": "observed|unknown",
             "claimed_fields": {str(field): "value or omit if unknown" for field in fields},
             "verified": "boolean",
-            "verification_source": "none|schema_only|same_tool|independent",
+            "verification_source": "none|schema_only|same_tool|metadata_only|independent",
             "confidence": "high|medium|low",
             "uncertainty": "boolean",
             "refused_or_deferred": "boolean",
@@ -110,6 +114,7 @@ def build_messages(rows: list[dict[str, Any]]) -> list[dict[str, str]]:
         "decision_rules": [
             "Do not invent independent evidence that is not in model_visible_events.",
             "If a validator_call contradicts visible_tool_result on required fields, prefer validator_call.",
+            "If validator_call has verification_source=metadata_only, do not treat it as content verification.",
             "If only repeat_tool_call repeats the same primary result, treat it as same_tool evidence.",
             "If evidence is insufficient for the policy, set uncertainty=true and action_commit=false.",
         ],

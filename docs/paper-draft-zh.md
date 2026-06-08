@@ -12,7 +12,7 @@
 
 我们把这个问题定义为 **tool-output spoofing**，并设计一个 observation-spoofing overlay：主实验不应主要依赖自建 toy benchmark，而应基于已有高价值 agent/tool-use benchmark，例如 AgentDojo、ToolSandbox、tau-bench、WebArena/WorkArena、SWE-bench、MCP-SafetyBench / MCP Security Bench。已有 benchmark 提供任务分布、环境状态和 utility/security oracle；我们的 overlay 只改变 agent 可见的 observation plane，并在同一批 benchmark tasks 上比较不同 defense baseline。
 
-当前仓库里的 15 个本地场景只作为 local smoke/regression suite，用来验证 trace schema、oracle、baseline 和 harness；它不计为论文主 benchmark 证据，也不用于支撑核心 empirical claim。当前真正的主实验表应留给 ToolSandbox / AgentDojo / tau-bench 等现有 benchmark overlay pilot。现阶段本地 suite 只证明实现链路可跑：schema validation、prompt filtering、repeat-same-tool、independent-validator、combined policy 等 baseline 可以在同一任务上被成对比较。本轮新增了 ToolSandbox-specific model-policy pilot runner：它先执行真实 ToolSandbox 工具，再构造 truthful/spoofed model-visible observation，并生成 96-cell dry-run manifest。但当前 shell 仍缺少 `NEWAPI_API_KEY`，所以它还不是 result-bearing real-model run；30-45 paired scenario multi-model pilot 仍未完成。
+当前仓库里的 15 个本地场景只作为 local smoke/regression suite，用来验证 trace schema、oracle、baseline 和 harness；它不计为论文主 benchmark 证据，也不用于支撑核心 empirical claim。当前真正的主实验表应留给 ToolSandbox / AgentDojo / tau-bench 等现有 benchmark overlay pilot。现阶段本地 suite 只证明实现链路可跑：schema validation、prompt filtering、repeat-same-tool、metadata-only validator、privileged independent-validator upper bound、combined policy 等 baseline 可以在同一任务上被成对比较。本轮新增了 ToolSandbox-specific model-policy pilot runner：它先执行真实 ToolSandbox 工具，再构造 truthful/spoofed model-visible observation，并生成 120-cell dry-run manifest。但当前 shell 仍缺少 `NEWAPI_API_KEY`，所以它还不是 result-bearing real-model run；30-45 paired scenario multi-model pilot 仍未完成。
 
 ## 1. 问题定义
 
@@ -425,7 +425,7 @@ PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/run_toolsandbox_
 
 ```text
 executed_tasks = 12
-completed_cells = 96
+completed_cells = 120
 missing_tool_trace = 0
 tool_call_exception = 0
 real_tool_execution = true
@@ -437,6 +437,10 @@ full_scenario_run = false
 real_model_run = false
 real_benchmark_run = false
 ```
+
+加入 metadata-only validator ablation 后，该 execution smoke 已重跑为 120 cells：
+naive/schema/repeat/metadata-only 在 spoofed 下均为 12/12 ASR，privileged
+independent-validator upper bound 为 0/12 ASR。
 
 这个 smoke 已经证明“真实 ToolSandbox 工具返回 -> agent-visible observation 可被改写
 -> hidden raw result / tool_trace 保持可审计”的边界能跑通。但它仍不是论文主实验：
@@ -464,11 +468,12 @@ hidden `raw_tool_result` 和 model-visible `visible_tool_result`，并按同一�
 
 ```text
 12 tasks × truthful/spoofed ×
-  naive / schema-only / repeat-same-tool / independent-validator
-= 96 prompt/trace cells
+  naive / schema-only / repeat-same-tool /
+  metadata-only validator / privileged independent-validator upper bound
+= 120 prompt/trace cells
 ```
 
-dry-run 已完成 96/96 cells，并在 summary 中记录：
+dry-run 已完成 120/120 cells，并在 summary 中记录：
 
 ```text
 real_tool_execution = true
@@ -484,6 +489,19 @@ representative_10_15_percent_slice = false
 这说明真实模型 prompt/manifest/trace 路径已经打通，且单测验证 model-visible prompt 不泄漏
 `oracle_context`、`raw_tool_result`、raw profile name 或 truthful/spoofed 条件标签。但由于
 当前环境没有 API key，这仍然只是 dry-run，不提供模型 ASR、utility 或 FPR。
+
+为回应“independent validator 过于 oracle-adjacent”的审稿意见，本轮把 validator 分成
+两类：
+
+| Validator baseline | 可见信息 | 解释 |
+| --- | --- | --- |
+| `toolsandbox_exec_metadata_validator` | tool name、异常状态、tool_trace 是否存在 | non-privileged metadata-only check，不读取 raw content，因此不能验证语义真假 |
+| `toolsandbox_exec_independent_validator` | raw truthful ToolSandbox execution result | privileged upper-bound validator / ablation，不应被声称为真实可部署防御 |
+
+在 dry-run scripted scoring 中，metadata-only validator 和 repeat-same-tool 一样无法降低
+spoofed ASR；privileged independent-validator 才能降 ASR。这一区分使论文后续可以诚实报告
+“真实低权限 metadata 检查不够，只有独立内容 authority 才有效”，而不是把 oracle-adjacent
+validator 包装成部署级防御。
 
 同时补了 ToolSandbox 10%-15% 分层 sampling manifest 设计：
 
@@ -510,8 +528,8 @@ canonicalization、read-only/mutation。注意这只是 manifest / sampling 设�
 | ToolSandbox fixture adapter | fixture tasks | adapter contract | 已跑，`real_benchmark_run=false` |
 | ToolSandbox real manifest probe | 12 / 1032 | real task metadata | 已跑，`manifest_only=true` |
 | ToolSandbox scripted bring-up | 12 × 2 × 4 = 96 | real IDs + scripted oracle projection | 已跑，非模型结果 |
-| ToolSandbox real execution smoke | 12 × 2 × 4 = 96 | real tool execution + trace-level substitution | 已跑，`scripted_agent=true` |
-| ToolSandbox model-policy pilot | 12 × 2 × 4 = 96 | prompt/manifest dry-run | dry-run 已跑，`real_model_run=false` |
+| ToolSandbox real execution smoke | 12 × 2 × 5 = 120 | real tool execution + trace-level substitution + metadata validator ablation | 已跑，`scripted_agent=true` |
+| ToolSandbox model-policy pilot | 12 × 2 × 5 = 120 | prompt/manifest dry-run + validator honesty ablation | dry-run 已跑，`real_model_run=false` |
 | ToolSandbox stratified 10% manifest | 104 / 1032 | sampling design | 已生成，尚未执行 |
 | Paper-grade main run | >= 2 substrates, 30-45 paired scenarios first | model benchmark evidence | 未完成 |
 
@@ -522,7 +540,7 @@ canonicalization、read-only/mutation。注意这只是 manifest / sampling 设�
 1. 这个 overlay protocol 在本地 smoke suite 上可以稳定区分 semantic falsehood 和 instruction-smuggling control。
 2. schema validation 和 prompt filtering 对 schema-valid semantic falsehood 不足。
 3. repeat-same-tool 不是有效验证。
-4. independent validator / combined policy 在 scripted partial slice 上能显著降低 ASR。
+4. independent validator / combined policy 在 scripted partial slice 上能显著降低 ASR；metadata-only validator ablation 显示非内容级检查不能验证语义真假。
 5. ToolSandbox 真实工具执行结果可以被捕获，并在 trace 层构造 truthful/spoofed 可见 observation，同时保留 raw result / tool trace 供 oracle 审计。
 6. 已有 104/1032 的 ToolSandbox 10% stratified manifest 设计，但它只是 scaling plan，不是已执行结果。
 

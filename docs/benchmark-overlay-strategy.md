@@ -215,10 +215,13 @@ PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/run_toolsandbox_
   --dry-run --sleep 0
 ```
 
-The dry-run completed 96 cells over 12 tasks x truthful/spoofed x 4 profiles.
+The dry-run completed 120 cells over 12 tasks x truthful/spoofed x 5 profiles.
 It proves prompt/manifest plumbing and checks that hidden `oracle_context`,
 `raw_tool_result`, and condition labels do not enter model-visible prompts. It
 does not produce model ASR because the current shell has no API key.
+The fifth profile is a non-privileged metadata-only validator ablation; the
+privileged independent validator is explicitly treated as an upper bound rather
+than a deployable defense.
 
 Representative 10%-15% ToolSandbox slice manifest:
 

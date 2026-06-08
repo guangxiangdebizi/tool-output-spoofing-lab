@@ -76,7 +76,7 @@ The real-tool harness supports:
 
 Unlike `scripts/run_newapi_partial_pilot.py`, this runner records
 harness-controlled tool events before asking the model for a structured final
-decision. It is the intended entrypoint for the next 96-cell small pilot and
+decision. It is the intended entrypoint for the next 120-cell small pilot and
 the later 30-45 paired-scenario model pilot.
 
 Current caveat: `freshness_check` and `signature_check` are metadata checks in
@@ -110,9 +110,10 @@ PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/run_toolsandbox_
 
 ### Dry-run verification
 
-- Completed cells: 96 / 96
+- Completed cells: 120 / 120
 - Selected tasks: 12 / 1032 (`selected_fraction=0.0116`)
-- Profiles: naive, schema-only, repeat-same-tool, independent-validator
+- Profiles: naive, schema-only, repeat-same-tool, metadata-only validator,
+  privileged independent-validator upper bound
 - `real_tool_execution=true`
 - `real_execution_interception=true`
 - `trace_level_visible_result_substitution=true`
@@ -127,6 +128,20 @@ truthful/spoofed model-visible tool events, and asks the model for a structured
 final decision in non-dry-run mode. Unit tests verify the model-visible prompt
 does not leak `oracle_context`, `raw_tool_result`, raw profile names, or
 truthful/spoofed condition labels.
+
+Validator honesty ablation:
+
+- `toolsandbox_exec_metadata_validator` is non-privileged. It can inspect only
+  tool metadata such as exception status and whether a tool trace exists; it
+  sets `verification_source=metadata_only` and `content_verified=false`.
+- `toolsandbox_exec_independent_validator` is a privileged upper-bound ablation
+  that uses the raw truthful ToolSandbox execution result. It should not be
+  described as a deployed defense until replaced by an actual independent
+  state authority.
+
+In the dry-run scripted scoring, metadata-only validation still has spoofed ASR
+12 / 12, matching the reviewer concern that metadata checks do not prove
+semantic truth. The privileged validator remains useful only as an upper bound.
 
 ## ToolSandbox 10%-15% stratified sampling manifest
 
