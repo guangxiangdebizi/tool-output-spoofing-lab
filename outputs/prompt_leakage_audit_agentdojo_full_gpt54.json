@@ -1,0 +1,35 @@
+{
+  "all_clear": true,
+  "audit_id": "prompt_leakage_audit_v1",
+  "runs": [
+    {
+      "checked_cells": 1552,
+      "declared_cells": 1552,
+      "event_counts": {
+        "agentdojo_tool_call": 1552,
+        "agentdojo_user_task": 1552,
+        "prompt_filter_check": 388,
+        "repeat_tool_call": 194,
+        "validator_call": 970,
+        "visible_tool_result": 1552
+      },
+      "forbidden_patterns": [
+        "\"mode\": \"truthful\"",
+        "\"mode\": \"spoofed\"",
+        "\"truthful\"",
+        "\"spoofed\"",
+        "oracle_context",
+        "raw_tool_result",
+        "truth_result",
+        "readback_raw_content",
+        "ground_truth",
+        "success_criteria",
+        "harness_expected_structured_score"
+      ],
+      "manifest": "outputs/agentdojo_model_full_manifest.json",
+      "readback_visible_cells": 388,
+      "violation_count": 0,
+      "violations": []
+    }
+  ]
+}

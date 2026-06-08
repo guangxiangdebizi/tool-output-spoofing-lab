@@ -35,6 +35,7 @@ outputs/*
 !outputs/authorization_control_slice_real_summary.json
 !outputs/authorization_control_slice_real_manifest.json
 !outputs/prompt_leakage_audit_expanded_gpt54.json
+!outputs/prompt_leakage_audit_agentdojo_full_gpt54.json
 !outputs/readback_scoring_ablation.json
 traces/*.tmp
 traces/*.trace.jsonl

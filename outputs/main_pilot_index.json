@@ -1,6 +1,15 @@
 {
   "audits": [
     {
+      "artifact": "outputs/prompt_leakage_audit_agentdojo_full_gpt54.json",
+      "checked_cells": 1552,
+      "name": "AgentDojo full-overlay model-visible prompt leakage audit",
+      "role": "checks that hidden oracle, mode labels, raw results, ground-truth metadata, and expected scores are absent from reconstructed prompts for the completed 1552-cell full-overlay run",
+      "script": "scripts/audit_prompt_leakage.py",
+      "status": "all_clear",
+      "violations": 0
+    },
+    {
       "artifact": "outputs/prompt_leakage_audit_expanded_gpt54.json",
       "checked_cells": 184,
       "name": "Expanded pilot model-visible prompt leakage audit",

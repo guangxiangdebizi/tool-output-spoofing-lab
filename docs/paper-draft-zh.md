@@ -449,12 +449,13 @@ PYTHONPATH=src:. python3 scripts/audit_prompt_leakage.py \
 
 Canonical artifact：
 
+- full AgentDojo audit: `outputs/prompt_leakage_audit_agentdojo_full_gpt54.json`
 - audit: `outputs/prompt_leakage_audit_expanded_gpt54.json`
 - script: `scripts/audit_prompt_leakage.py`
 
-当前审计覆盖三个 result-bearing pilot：ToolSandbox 72 cells、AgentDojo 64 cells、local multi-surface 48 cells，共 184 个 model-decision cells。审计结果为 `all_clear=true`，0 个 forbidden hidden-oracle/mode/ground-truth pattern 出现在模型可见 prompt 中。审计同时记录 read-back validator 的实际可见 cell 数：ToolSandbox 12 cells、AgentDojo 16 cells、local independent-validator 0 read-back cells。
+当前 full-result 审计覆盖 AgentDojo 1552-cell full overlay：1552/1552 cells checked，`all_clear=true`，0 个 forbidden hidden-oracle/mode/ground-truth pattern 出现在模型可见 prompt 中；其中 read-back validator 可见 cell 数为 388。扩展 pilot 审计覆盖 ToolSandbox 72 cells、AgentDojo 64 cells、local multi-surface 48 cells，共 184 个 model-decision cells，同样为 `all_clear=true`，0 个 forbidden pattern。扩展 pilot 审计同时记录 read-back validator 的实际可见 cell 数：ToolSandbox 12 cells、AgentDojo 16 cells、local independent-validator 0 read-back cells。
 
-这一步不提升样本量，也不替代真实 benchmark 执行；它只证明当前 pilot 的核心因果边界成立：hidden truth 和 scoring oracle 没有通过 prompt 泄漏给模型。
+这一步不提升样本量，也不替代真实 benchmark 执行；它只证明当前 pilot/full-overlay 的核心因果边界成立：hidden truth 和 scoring oracle 没有通过 prompt 泄漏给模型。ToolSandbox full run 完成后必须执行同样的 full-run audit，才能进入主结果表。
 
 ### 9.1 ToolSandbox 72-cell semantic-normalized pilot
 
@@ -563,6 +564,7 @@ Canonical artifacts：
 - summary: `outputs/agentdojo_model_full_summary.json`
 - manifest: `outputs/agentdojo_model_full_manifest.json`
 - CI summary: `outputs/agentdojo_model_full_ci.json`
+- prompt-leakage audit: `outputs/prompt_leakage_audit_agentdojo_full_gpt54.json`
 - trace directory: `traces/agentdojo_model_full` on the remote run host
 - config: `configs/experiments/agentdojo_model_full.json`
 - model: `gpt-5.4-mini`
