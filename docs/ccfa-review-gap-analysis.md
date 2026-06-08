@@ -151,18 +151,26 @@ errors, and final attempted denominators when the merged result is available.
 
 - Define tool-output spoofing with state `s`, truthful observation `y`, spoofed
   observation `y_tilde`, schema `K`, model-visible prompt `v`, model decision
-  `d`, and oracle `O`.
+  `d`, and oracle `O`. Covered in `docs/paper-draft-zh.md` Section 3.1; final
+  English version should preserve the same symbols.
 - Define schema-valid, semantic falsehood, non-instructional payload, and
-  field-level edit.
+  field-level edit. Mostly covered; still needs a concise final-paper glossary.
 - Formalize attacker control: primary-only, validator-aware, stale replay,
-  binding mismatch, provenance forgery, and adaptive generator budget.
+  binding mismatch, provenance forgery, and adaptive generator budget. Section
+  3.2 now covers primary-only, validator-aware, failure-domain cases, and
+  adaptive-generator budget; stale replay/binding/provenance remain examples in
+  the threat model.
 - Formalize deployable vs privileged defenses.
 - State read-back validity assumptions: primary and read-back channels must not
-  share the same compromised failure domain.
-- Give deterministic accepted-false-state scoring rules.
+  share the same compromised failure domain. Covered in Section 3.2 with
+  \(P(F_v=1\mid F_p=1)\ll 1\).
+- Give deterministic accepted-false-state scoring rules. Covered by the
+  commit/hedge/reject/irrelevant rubric in Section 3.1.
 - Define authorization evidence ladder monotonicity and verified-positive
   controls.
-- Formalize API/parse error handling and denominator policy.
+- Formalize API/parse error handling and denominator policy. Partly covered in
+  Section 7 and CI/stats artifacts; final tables should include an explicit
+  denominator footnote.
 
 ## Top reject reasons to preempt
 
