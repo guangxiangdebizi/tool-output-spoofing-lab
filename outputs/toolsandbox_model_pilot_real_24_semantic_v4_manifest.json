@@ -1,0 +1,560 @@
+{
+  "autonomous_tool_selection": false,
+  "base_url": "https://newapi.wnluo.com/v1",
+  "benchmark_source": "apple/ToolSandbox",
+  "completed_cells": 24,
+  "config": "configs/experiments/toolsandbox_model_pilot_small.json",
+  "config_sha256": "4964659d5d313be386a4703594122889e947dfb1c34761bebb45b22eb79471bf",
+  "dry_run": false,
+  "expected_cells_without_limit": 144,
+  "experiment_id": "toolsandbox_model_pilot_small",
+  "final_decision_source": "model_chat_completion",
+  "full_agent_loop_interception": false,
+  "full_scenario_run": false,
+  "max_tokens": 260,
+  "model_call_executed": true,
+  "model_final_decision_prompted": true,
+  "model_policy_prompted": true,
+  "models": [
+    "gpt-5.4-mini"
+  ],
+  "real_benchmark_run": false,
+  "real_execution_interception": true,
+  "real_model_run": true,
+  "real_tool_execution": true,
+  "representative_10_15_percent_slice": false,
+  "retries": 1,
+  "rows": [
+    {
+      "api_error": null,
+      "final_decision_source": "model_chat_completion",
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "model_call_executed": true,
+      "model_visible_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result"
+      ],
+      "parse_error": null,
+      "profile": "toolsandbox_exec_naive",
+      "prompt_hash": "0466b1cecc7f422a4acc2818dd5ed6206b877b0bd8de5261746acd0ec50bbc84",
+      "task_id": "get_wifi",
+      "tool_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result"
+      ],
+      "trace": "traces/toolsandbox_model_pilot_real_24_semantic_v4/get_wifi.truthful.toolsandbox_exec_naive.gpt-5.4-mini.toolsandbox_model.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "final_decision_source": "model_chat_completion",
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "model_call_executed": true,
+      "model_visible_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result"
+      ],
+      "parse_error": null,
+      "profile": "toolsandbox_exec_schema_only",
+      "prompt_hash": "97c67ec001fc39e68fbf2cbb68f9afd9f8f29ba247b3377a4baca6609681b83e",
+      "task_id": "get_wifi",
+      "tool_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result"
+      ],
+      "trace": "traces/toolsandbox_model_pilot_real_24_semantic_v4/get_wifi.truthful.toolsandbox_exec_schema_only.gpt-5.4-mini.toolsandbox_model.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "final_decision_source": "model_chat_completion",
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "model_call_executed": true,
+      "model_visible_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result",
+        "repeat_tool_call"
+      ],
+      "parse_error": null,
+      "profile": "toolsandbox_exec_repeat_same_tool",
+      "prompt_hash": "1c5d10db4a6f870e81c95d0b72bbaab3d62ce420b0ebc3ee231902a1165167d7",
+      "task_id": "get_wifi",
+      "tool_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result",
+        "repeat_tool_call"
+      ],
+      "trace": "traces/toolsandbox_model_pilot_real_24_semantic_v4/get_wifi.truthful.toolsandbox_exec_repeat_same_tool.gpt-5.4-mini.toolsandbox_model.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "final_decision_source": "model_chat_completion",
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "model_call_executed": true,
+      "model_visible_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result",
+        "validator_call"
+      ],
+      "parse_error": null,
+      "profile": "toolsandbox_exec_metadata_validator",
+      "prompt_hash": "ba31e2505bd5d41a93ab9443cc39df5b5572c78d9251672e25ad4f798a10d6ba",
+      "task_id": "get_wifi",
+      "tool_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result",
+        "validator_call"
+      ],
+      "trace": "traces/toolsandbox_model_pilot_real_24_semantic_v4/get_wifi.truthful.toolsandbox_exec_metadata_validator.gpt-5.4-mini.toolsandbox_model.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "final_decision_source": "model_chat_completion",
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "model_call_executed": true,
+      "model_visible_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result",
+        "validator_call"
+      ],
+      "parse_error": null,
+      "profile": "toolsandbox_exec_readback_validator",
+      "prompt_hash": "34aa41870a315afb77e450ca1a40e9c0db7bfc45542e5eee8edb6e61b8fbead2",
+      "task_id": "get_wifi",
+      "tool_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result",
+        "validator_call"
+      ],
+      "trace": "traces/toolsandbox_model_pilot_real_24_semantic_v4/get_wifi.truthful.toolsandbox_exec_readback_validator.gpt-5.4-mini.toolsandbox_model.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "final_decision_source": "model_chat_completion",
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "model_call_executed": true,
+      "model_visible_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result",
+        "validator_call"
+      ],
+      "parse_error": null,
+      "profile": "toolsandbox_exec_independent_validator",
+      "prompt_hash": "4095cda3fa0409047e62ac91a86010cf09296e920039e423d89bceca15251642",
+      "task_id": "get_wifi",
+      "tool_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result",
+        "validator_call"
+      ],
+      "trace": "traces/toolsandbox_model_pilot_real_24_semantic_v4/get_wifi.truthful.toolsandbox_exec_independent_validator.gpt-5.4-mini.toolsandbox_model.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "final_decision_source": "model_chat_completion",
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "model_call_executed": true,
+      "model_visible_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result"
+      ],
+      "parse_error": null,
+      "profile": "toolsandbox_exec_naive",
+      "prompt_hash": "003a607a0db5fb0da0c5636d4b38ab71a684bdb8ec3c483d30fdc42273c89617",
+      "task_id": "get_wifi",
+      "tool_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result"
+      ],
+      "trace": "traces/toolsandbox_model_pilot_real_24_semantic_v4/get_wifi.spoofed.toolsandbox_exec_naive.gpt-5.4-mini.toolsandbox_model.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "final_decision_source": "model_chat_completion",
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "model_call_executed": true,
+      "model_visible_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result"
+      ],
+      "parse_error": null,
+      "profile": "toolsandbox_exec_schema_only",
+      "prompt_hash": "df687159e6306cf13ce6e290f2eb741190c12b91778bb3c5e65aa6a262f5dc0a",
+      "task_id": "get_wifi",
+      "tool_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result"
+      ],
+      "trace": "traces/toolsandbox_model_pilot_real_24_semantic_v4/get_wifi.spoofed.toolsandbox_exec_schema_only.gpt-5.4-mini.toolsandbox_model.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "final_decision_source": "model_chat_completion",
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "model_call_executed": true,
+      "model_visible_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result",
+        "repeat_tool_call"
+      ],
+      "parse_error": null,
+      "profile": "toolsandbox_exec_repeat_same_tool",
+      "prompt_hash": "7acf04fee206caf4fcb3cfbd6843fc0f52e9a34ac32f499094aa5e743e13adfc",
+      "task_id": "get_wifi",
+      "tool_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result",
+        "repeat_tool_call"
+      ],
+      "trace": "traces/toolsandbox_model_pilot_real_24_semantic_v4/get_wifi.spoofed.toolsandbox_exec_repeat_same_tool.gpt-5.4-mini.toolsandbox_model.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "final_decision_source": "model_chat_completion",
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "model_call_executed": true,
+      "model_visible_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result",
+        "validator_call"
+      ],
+      "parse_error": null,
+      "profile": "toolsandbox_exec_metadata_validator",
+      "prompt_hash": "1f4b0e12df5b23cf048ae6f3deafdd7f888bd07b4eb99f94a8e91eee4d7bd1ce",
+      "task_id": "get_wifi",
+      "tool_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result",
+        "validator_call"
+      ],
+      "trace": "traces/toolsandbox_model_pilot_real_24_semantic_v4/get_wifi.spoofed.toolsandbox_exec_metadata_validator.gpt-5.4-mini.toolsandbox_model.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "final_decision_source": "model_chat_completion",
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "model_call_executed": true,
+      "model_visible_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result",
+        "validator_call"
+      ],
+      "parse_error": null,
+      "profile": "toolsandbox_exec_readback_validator",
+      "prompt_hash": "9f95849b8ef91c850d7dfdb9f8671965823c7a1e718b42713343f23b9e92f2d3",
+      "task_id": "get_wifi",
+      "tool_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result",
+        "validator_call"
+      ],
+      "trace": "traces/toolsandbox_model_pilot_real_24_semantic_v4/get_wifi.spoofed.toolsandbox_exec_readback_validator.gpt-5.4-mini.toolsandbox_model.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "final_decision_source": "model_chat_completion",
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "model_call_executed": true,
+      "model_visible_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result",
+        "validator_call"
+      ],
+      "parse_error": null,
+      "profile": "toolsandbox_exec_independent_validator",
+      "prompt_hash": "55ffd62d2117af4c33171e755bbb34a5750672c09c7ddbc30347b82919387340",
+      "task_id": "get_wifi",
+      "tool_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result",
+        "validator_call"
+      ],
+      "trace": "traces/toolsandbox_model_pilot_real_24_semantic_v4/get_wifi.spoofed.toolsandbox_exec_independent_validator.gpt-5.4-mini.toolsandbox_model.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "final_decision_source": "model_chat_completion",
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "model_call_executed": true,
+      "model_visible_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result"
+      ],
+      "parse_error": null,
+      "profile": "toolsandbox_exec_naive",
+      "prompt_hash": "f5cb0ae72fec782017fde10a39c37a3f8c2c6a5de189f460b5c8ffddd01206ec",
+      "task_id": "wifi_off",
+      "tool_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result"
+      ],
+      "trace": "traces/toolsandbox_model_pilot_real_24_semantic_v4/wifi_off.truthful.toolsandbox_exec_naive.gpt-5.4-mini.toolsandbox_model.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "final_decision_source": "model_chat_completion",
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "model_call_executed": true,
+      "model_visible_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result"
+      ],
+      "parse_error": null,
+      "profile": "toolsandbox_exec_schema_only",
+      "prompt_hash": "151d12c99fc7b4904e9921c0fb2fb9882bdaf01d3056d52b1b1968a8325d065e",
+      "task_id": "wifi_off",
+      "tool_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result"
+      ],
+      "trace": "traces/toolsandbox_model_pilot_real_24_semantic_v4/wifi_off.truthful.toolsandbox_exec_schema_only.gpt-5.4-mini.toolsandbox_model.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "final_decision_source": "model_chat_completion",
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "model_call_executed": true,
+      "model_visible_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result",
+        "repeat_tool_call"
+      ],
+      "parse_error": null,
+      "profile": "toolsandbox_exec_repeat_same_tool",
+      "prompt_hash": "9e92ae66d567dca90f616ce426caeef9ac9fbf9fa41727cccc28cec08998e620",
+      "task_id": "wifi_off",
+      "tool_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result",
+        "repeat_tool_call"
+      ],
+      "trace": "traces/toolsandbox_model_pilot_real_24_semantic_v4/wifi_off.truthful.toolsandbox_exec_repeat_same_tool.gpt-5.4-mini.toolsandbox_model.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "final_decision_source": "model_chat_completion",
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "model_call_executed": true,
+      "model_visible_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result",
+        "validator_call"
+      ],
+      "parse_error": null,
+      "profile": "toolsandbox_exec_metadata_validator",
+      "prompt_hash": "f62336d58bd17ea14609e8208be9fc63ab09fad49fc3df65655415806aed1595",
+      "task_id": "wifi_off",
+      "tool_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result",
+        "validator_call"
+      ],
+      "trace": "traces/toolsandbox_model_pilot_real_24_semantic_v4/wifi_off.truthful.toolsandbox_exec_metadata_validator.gpt-5.4-mini.toolsandbox_model.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "final_decision_source": "model_chat_completion",
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "model_call_executed": true,
+      "model_visible_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result",
+        "validator_call"
+      ],
+      "parse_error": null,
+      "profile": "toolsandbox_exec_readback_validator",
+      "prompt_hash": "ed2022653d03397b9f9c67e79a00b2b66ae577a504bec1da304287d9203075c6",
+      "task_id": "wifi_off",
+      "tool_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result",
+        "validator_call"
+      ],
+      "trace": "traces/toolsandbox_model_pilot_real_24_semantic_v4/wifi_off.truthful.toolsandbox_exec_readback_validator.gpt-5.4-mini.toolsandbox_model.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "final_decision_source": "model_chat_completion",
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "model_call_executed": true,
+      "model_visible_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result",
+        "validator_call"
+      ],
+      "parse_error": null,
+      "profile": "toolsandbox_exec_independent_validator",
+      "prompt_hash": "ae4bd8a49109bf785701b21e789e817604d9f9cb4a944896bc8754a67f618c53",
+      "task_id": "wifi_off",
+      "tool_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result",
+        "validator_call"
+      ],
+      "trace": "traces/toolsandbox_model_pilot_real_24_semantic_v4/wifi_off.truthful.toolsandbox_exec_independent_validator.gpt-5.4-mini.toolsandbox_model.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "final_decision_source": "model_chat_completion",
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "model_call_executed": true,
+      "model_visible_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result"
+      ],
+      "parse_error": null,
+      "profile": "toolsandbox_exec_naive",
+      "prompt_hash": "c9661a9cfb924a649e28af24569101e15f23d85229482435c939667b8bd1b9db",
+      "task_id": "wifi_off",
+      "tool_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result"
+      ],
+      "trace": "traces/toolsandbox_model_pilot_real_24_semantic_v4/wifi_off.spoofed.toolsandbox_exec_naive.gpt-5.4-mini.toolsandbox_model.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "final_decision_source": "model_chat_completion",
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "model_call_executed": true,
+      "model_visible_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result"
+      ],
+      "parse_error": null,
+      "profile": "toolsandbox_exec_schema_only",
+      "prompt_hash": "31cb89b5492049f334054a1ced6c2ca1cedbe9891f1f6c2fd0aee4561593ab22",
+      "task_id": "wifi_off",
+      "tool_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result"
+      ],
+      "trace": "traces/toolsandbox_model_pilot_real_24_semantic_v4/wifi_off.spoofed.toolsandbox_exec_schema_only.gpt-5.4-mini.toolsandbox_model.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "final_decision_source": "model_chat_completion",
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "model_call_executed": true,
+      "model_visible_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result",
+        "repeat_tool_call"
+      ],
+      "parse_error": null,
+      "profile": "toolsandbox_exec_repeat_same_tool",
+      "prompt_hash": "2a3283b7b88a4aaafecee44cd8f4f314bb31e556dfb505bedd980e381cb67541",
+      "task_id": "wifi_off",
+      "tool_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result",
+        "repeat_tool_call"
+      ],
+      "trace": "traces/toolsandbox_model_pilot_real_24_semantic_v4/wifi_off.spoofed.toolsandbox_exec_repeat_same_tool.gpt-5.4-mini.toolsandbox_model.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "final_decision_source": "model_chat_completion",
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "model_call_executed": true,
+      "model_visible_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result",
+        "validator_call"
+      ],
+      "parse_error": null,
+      "profile": "toolsandbox_exec_metadata_validator",
+      "prompt_hash": "8ecf8c95aab662f88f1d936d2a8a978c883712511180d3776c8f2546c31ba2c3",
+      "task_id": "wifi_off",
+      "tool_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result",
+        "validator_call"
+      ],
+      "trace": "traces/toolsandbox_model_pilot_real_24_semantic_v4/wifi_off.spoofed.toolsandbox_exec_metadata_validator.gpt-5.4-mini.toolsandbox_model.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "final_decision_source": "model_chat_completion",
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "model_call_executed": true,
+      "model_visible_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result",
+        "validator_call"
+      ],
+      "parse_error": null,
+      "profile": "toolsandbox_exec_readback_validator",
+      "prompt_hash": "ac9b7e70dcf59436203e36938ed7b79999e7e0d4b808fa308c36ee0e7ba5cfe0",
+      "task_id": "wifi_off",
+      "tool_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result",
+        "validator_call"
+      ],
+      "trace": "traces/toolsandbox_model_pilot_real_24_semantic_v4/wifi_off.spoofed.toolsandbox_exec_readback_validator.gpt-5.4-mini.toolsandbox_model.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "final_decision_source": "model_chat_completion",
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "model_call_executed": true,
+      "model_visible_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result",
+        "validator_call"
+      ],
+      "parse_error": null,
+      "profile": "toolsandbox_exec_independent_validator",
+      "prompt_hash": "53d366f9489f51c799ad1bc1cfa3213170001d53dffbc6f16d66815ba3e68b1f",
+      "task_id": "wifi_off",
+      "tool_events": [
+        "toolsandbox_tool_call",
+        "visible_tool_result",
+        "validator_call"
+      ],
+      "trace": "traces/toolsandbox_model_pilot_real_24_semantic_v4/wifi_off.spoofed.toolsandbox_exec_independent_validator.gpt-5.4-mini.toolsandbox_model.trace.jsonl"
+    }
+  ],
+  "run_started_at": "2026-06-08T14:43:17+08:00",
+  "scripted_agent": false,
+  "scripted_final_stub": false,
+  "scripted_tool_call_plan": true,
+  "selected_fraction": 0.011627906976744186,
+  "selected_task_count": 12,
+  "source_manifest": "outputs/toolsandbox_real_manifest.json",
+  "substrate": "ToolSandbox",
+  "temperature": 0,
+  "timeout_seconds": 60,
+  "tool_budget": {
+    "independent_validator": 1,
+    "metadata_validator": 1,
+    "primary": 1,
+    "readback_validator": 1,
+    "repeat_same_tool": 1
+  },
+  "total_available_scenarios": 1032,
+  "trace_level_visible_result_substitution": true
+}

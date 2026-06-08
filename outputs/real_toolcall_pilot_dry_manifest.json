@@ -1,0 +1,1377 @@
+{
+  "base_url": "https://newapi.wnluo.com/v1",
+  "completed_cells": 96,
+  "config_sha256": "947883a4855e676a1c14d1827d3bc7b72bdce863a3cd19378e84a26901dbe9db",
+  "dry_run": true,
+  "expected_cells_without_limit": 96,
+  "experiment_id": "real_toolcall_pilot_small",
+  "max_tokens": 260,
+  "models": [
+    "gpt-5.4-mini"
+  ],
+  "retries": 1,
+  "rows": [
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_naive",
+      "prompt_hash": "7b289c22863d86d2e2b21740a95b30549e81a7dec84c6eac0ab4ba8f4a3fcf23",
+      "scenario_id": "minimal_false_success",
+      "tool_events": [
+        "visible_tool_result"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/minimal_false_success.truthful.toolcall_naive.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_schema_only",
+      "prompt_hash": "b42bf5ef94e0a967a8a5bcbd426ab8ee480998a9bc6157ccedebb6dbee005acb",
+      "scenario_id": "minimal_false_success",
+      "tool_events": [
+        "visible_tool_result",
+        "schema_validation"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/minimal_false_success.truthful.toolcall_schema_only.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_prompt_filter",
+      "prompt_hash": "dbc445315db9c5bdd749fb0c9cb01073d1d3ff48021d7ca5a6bc63d255c68d1d",
+      "scenario_id": "minimal_false_success",
+      "tool_events": [
+        "visible_tool_result",
+        "prompt_filter_check"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/minimal_false_success.truthful.toolcall_prompt_filter.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_repeat_same_tool",
+      "prompt_hash": "048e7ee1a237a0681dde3345a04b8eabe5558d02cc226b9e029ba011aee62abf",
+      "scenario_id": "minimal_false_success",
+      "tool_events": [
+        "visible_tool_result",
+        "repeat_tool_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/minimal_false_success.truthful.toolcall_repeat_same_tool.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_independent_validator",
+      "prompt_hash": "45afa9928ded2f413399db3a2b733ab3e8c5e12e659e9abcaa035ecfd69ccbdf",
+      "scenario_id": "minimal_false_success",
+      "tool_events": [
+        "visible_tool_result"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/minimal_false_success.truthful.toolcall_independent_validator.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_combined_policy",
+      "prompt_hash": "c13610d3251c15434e7e043228d74475e704c196c53910f63324edcfe5320602",
+      "scenario_id": "minimal_false_success",
+      "tool_events": [
+        "visible_tool_result",
+        "freshness_check",
+        "signature_check"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/minimal_false_success.truthful.toolcall_combined_policy.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_naive",
+      "prompt_hash": "bd741c4d3850608c0aef2857499cc953314f16456e81937bf8f1bd95b8713d03",
+      "scenario_id": "minimal_false_success",
+      "tool_events": [
+        "visible_tool_result"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/minimal_false_success.spoofed.toolcall_naive.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_schema_only",
+      "prompt_hash": "d711734806c33f1b699092c64ab8493fbf3ec1c79250d07cfd9e4f7106729a07",
+      "scenario_id": "minimal_false_success",
+      "tool_events": [
+        "visible_tool_result",
+        "schema_validation"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/minimal_false_success.spoofed.toolcall_schema_only.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_prompt_filter",
+      "prompt_hash": "d94c185561be923b8d132a92e0213537d25d1e3e4cef521261fae86fca3bfd3f",
+      "scenario_id": "minimal_false_success",
+      "tool_events": [
+        "visible_tool_result",
+        "prompt_filter_check"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/minimal_false_success.spoofed.toolcall_prompt_filter.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_repeat_same_tool",
+      "prompt_hash": "494482edd72c79903b4569adf15267f4deae455a7f56e928977154cffcc4f592",
+      "scenario_id": "minimal_false_success",
+      "tool_events": [
+        "visible_tool_result",
+        "repeat_tool_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/minimal_false_success.spoofed.toolcall_repeat_same_tool.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_independent_validator",
+      "prompt_hash": "e34cac193f049d396d1531273e0ae0a33be26990ffc23f16b63da04e411e2003",
+      "scenario_id": "minimal_false_success",
+      "tool_events": [
+        "visible_tool_result"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/minimal_false_success.spoofed.toolcall_independent_validator.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_combined_policy",
+      "prompt_hash": "b82652b20ebc2fdb76a9a4f2562b1df78055bfa151f490c608301c7d0db4d6f7",
+      "scenario_id": "minimal_false_success",
+      "tool_events": [
+        "visible_tool_result",
+        "freshness_check",
+        "signature_check"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/minimal_false_success.spoofed.toolcall_combined_policy.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_naive",
+      "prompt_hash": "962d26c9d9c25880ef94ba922389299a04560ecfa6ce44ee39771d6e3e440eb9",
+      "scenario_id": "api_fabricated_entity",
+      "tool_events": [
+        "visible_tool_result"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/api_fabricated_entity.truthful.toolcall_naive.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_schema_only",
+      "prompt_hash": "87951a1fd21d06065cf1ce47efd61da650a700a0d168b6921e13ba66ef6431af",
+      "scenario_id": "api_fabricated_entity",
+      "tool_events": [
+        "visible_tool_result",
+        "schema_validation"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/api_fabricated_entity.truthful.toolcall_schema_only.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_prompt_filter",
+      "prompt_hash": "94d45da4895e6d2b7052ded8087475aeb9cd59005c2a9782a8ec194d9e464c30",
+      "scenario_id": "api_fabricated_entity",
+      "tool_events": [
+        "visible_tool_result",
+        "prompt_filter_check"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/api_fabricated_entity.truthful.toolcall_prompt_filter.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_repeat_same_tool",
+      "prompt_hash": "a8b16fac7f832aec67309c9825d5d3d07b4b9d5faf48048810451ab8a1e88244",
+      "scenario_id": "api_fabricated_entity",
+      "tool_events": [
+        "visible_tool_result",
+        "repeat_tool_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/api_fabricated_entity.truthful.toolcall_repeat_same_tool.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_independent_validator",
+      "prompt_hash": "36d2e033e5622f8c2c429631e3b28624e6391b2f6498cdd1de76e036c544bfc3",
+      "scenario_id": "api_fabricated_entity",
+      "tool_events": [
+        "visible_tool_result",
+        "validator_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/api_fabricated_entity.truthful.toolcall_independent_validator.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_combined_policy",
+      "prompt_hash": "3541cbc1e49f08b0b10d08eade42817947d5bd004e06b102dd277ace8683ade1",
+      "scenario_id": "api_fabricated_entity",
+      "tool_events": [
+        "visible_tool_result",
+        "freshness_check",
+        "signature_check",
+        "validator_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/api_fabricated_entity.truthful.toolcall_combined_policy.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_naive",
+      "prompt_hash": "8843b2ffa763178b741bc7fd61bdb79bb9555b19c138df96a7562268fa3ecf1a",
+      "scenario_id": "api_fabricated_entity",
+      "tool_events": [
+        "visible_tool_result"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/api_fabricated_entity.spoofed.toolcall_naive.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_schema_only",
+      "prompt_hash": "645e6ed9b81003c536615af47765b25cf1d9d601ac627e3033509885dcb7bc47",
+      "scenario_id": "api_fabricated_entity",
+      "tool_events": [
+        "visible_tool_result",
+        "schema_validation"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/api_fabricated_entity.spoofed.toolcall_schema_only.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_prompt_filter",
+      "prompt_hash": "2d25be9af785209803398254850f8a1b152a6bb0fc32efad014e3a41367f3461",
+      "scenario_id": "api_fabricated_entity",
+      "tool_events": [
+        "visible_tool_result",
+        "prompt_filter_check"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/api_fabricated_entity.spoofed.toolcall_prompt_filter.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_repeat_same_tool",
+      "prompt_hash": "f1632deb58b8a254f39373941c987eaf4478c09ee8fe9e670c03a26cf5fc328f",
+      "scenario_id": "api_fabricated_entity",
+      "tool_events": [
+        "visible_tool_result",
+        "repeat_tool_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/api_fabricated_entity.spoofed.toolcall_repeat_same_tool.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_independent_validator",
+      "prompt_hash": "4441c68b3b9e4f99796552f7dca53beecf30e525dba3e81a1815b7210e57366a",
+      "scenario_id": "api_fabricated_entity",
+      "tool_events": [
+        "visible_tool_result",
+        "validator_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/api_fabricated_entity.spoofed.toolcall_independent_validator.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_combined_policy",
+      "prompt_hash": "e52ac471253f695ec6b9936d18d1f92c22eda5d02bf8ccb82fd557e02bfdaeb8",
+      "scenario_id": "api_fabricated_entity",
+      "tool_events": [
+        "visible_tool_result",
+        "freshness_check",
+        "signature_check",
+        "validator_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/api_fabricated_entity.spoofed.toolcall_combined_policy.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_naive",
+      "prompt_hash": "70743d94f4d94831b51e843dbd45c55f46d920e9b3c292e1088faacb023605f2",
+      "scenario_id": "api_schema_valid_false_value",
+      "tool_events": [
+        "visible_tool_result"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/api_schema_valid_false_value.truthful.toolcall_naive.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_schema_only",
+      "prompt_hash": "39261147e29600b4bf0978a8a81fd1c833093885c29ca52bba12e3a22fc56b24",
+      "scenario_id": "api_schema_valid_false_value",
+      "tool_events": [
+        "visible_tool_result",
+        "schema_validation"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/api_schema_valid_false_value.truthful.toolcall_schema_only.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_prompt_filter",
+      "prompt_hash": "b27fcedd26d4875c27891f71c88614a015833d58fa3514f9092c085c82f36c3b",
+      "scenario_id": "api_schema_valid_false_value",
+      "tool_events": [
+        "visible_tool_result",
+        "prompt_filter_check"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/api_schema_valid_false_value.truthful.toolcall_prompt_filter.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_repeat_same_tool",
+      "prompt_hash": "e4223beb22fc39b8887c1d1eb2adfb514d6189c36cb4e542f01d8250c2ab05c0",
+      "scenario_id": "api_schema_valid_false_value",
+      "tool_events": [
+        "visible_tool_result",
+        "repeat_tool_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/api_schema_valid_false_value.truthful.toolcall_repeat_same_tool.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_independent_validator",
+      "prompt_hash": "5899edd18f679a8051dbadd9cb38f12295e649f909e268f50d54ebf4eed867a6",
+      "scenario_id": "api_schema_valid_false_value",
+      "tool_events": [
+        "visible_tool_result",
+        "validator_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/api_schema_valid_false_value.truthful.toolcall_independent_validator.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_combined_policy",
+      "prompt_hash": "c42d5a0eeba506b3113404bf53a71dfea44d690e334958a9baaa6b87b62c4206",
+      "scenario_id": "api_schema_valid_false_value",
+      "tool_events": [
+        "visible_tool_result",
+        "freshness_check",
+        "signature_check",
+        "validator_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/api_schema_valid_false_value.truthful.toolcall_combined_policy.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_naive",
+      "prompt_hash": "59139cf4ae990da80b541354808ccada02a1115780c5ff5923a887a7b28732e5",
+      "scenario_id": "api_schema_valid_false_value",
+      "tool_events": [
+        "visible_tool_result"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/api_schema_valid_false_value.spoofed.toolcall_naive.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_schema_only",
+      "prompt_hash": "05eb109bc4b25956648ba4bee2a95fc011294993c78d42ef2cc1118b8bcbabdb",
+      "scenario_id": "api_schema_valid_false_value",
+      "tool_events": [
+        "visible_tool_result",
+        "schema_validation"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/api_schema_valid_false_value.spoofed.toolcall_schema_only.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_prompt_filter",
+      "prompt_hash": "259ce58ea104ae41c87dbf151a35ecd21f9f92075270df7ef35ce8ba7b2dbf34",
+      "scenario_id": "api_schema_valid_false_value",
+      "tool_events": [
+        "visible_tool_result",
+        "prompt_filter_check"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/api_schema_valid_false_value.spoofed.toolcall_prompt_filter.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_repeat_same_tool",
+      "prompt_hash": "720742f588453bdd5b34e1979f3d8472f45520d9d0e82c152f512903ab5b9645",
+      "scenario_id": "api_schema_valid_false_value",
+      "tool_events": [
+        "visible_tool_result",
+        "repeat_tool_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/api_schema_valid_false_value.spoofed.toolcall_repeat_same_tool.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_independent_validator",
+      "prompt_hash": "93c9fdff269306af371c68836d7a0e51f21172179dbe8cc3e5073f5219725495",
+      "scenario_id": "api_schema_valid_false_value",
+      "tool_events": [
+        "visible_tool_result",
+        "validator_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/api_schema_valid_false_value.spoofed.toolcall_independent_validator.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_combined_policy",
+      "prompt_hash": "0e0e328c6d328bc04c68e2e1ee7db0110662b1253fd27f4dfe06f398b94291b4",
+      "scenario_id": "api_schema_valid_false_value",
+      "tool_events": [
+        "visible_tool_result",
+        "freshness_check",
+        "signature_check",
+        "validator_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/api_schema_valid_false_value.spoofed.toolcall_combined_policy.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_naive",
+      "prompt_hash": "56300f36fdf5e2a9a8fe331713cef0e1714da6eaf89c98f4f94ad2faf57eba04",
+      "scenario_id": "mcp_forged_receipt",
+      "tool_events": [
+        "visible_tool_result"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/mcp_forged_receipt.truthful.toolcall_naive.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_schema_only",
+      "prompt_hash": "93e0da715648a12f6094a655f8031579b42c8e0e411ed82eeab15a2663120c26",
+      "scenario_id": "mcp_forged_receipt",
+      "tool_events": [
+        "visible_tool_result",
+        "schema_validation"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/mcp_forged_receipt.truthful.toolcall_schema_only.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_prompt_filter",
+      "prompt_hash": "2b761fe7f3bc3e93201d17943bf58f6cded8321fae75963e6c49fad309d524ef",
+      "scenario_id": "mcp_forged_receipt",
+      "tool_events": [
+        "visible_tool_result",
+        "prompt_filter_check"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/mcp_forged_receipt.truthful.toolcall_prompt_filter.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_repeat_same_tool",
+      "prompt_hash": "2199655f73aeb71f3f00c429b84b98c6bf139e7795e5719f13a0e28b299a7e22",
+      "scenario_id": "mcp_forged_receipt",
+      "tool_events": [
+        "visible_tool_result",
+        "repeat_tool_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/mcp_forged_receipt.truthful.toolcall_repeat_same_tool.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_independent_validator",
+      "prompt_hash": "5bca0e5b69e7e88375b9cfd6812677f779f37e697be02cf7eaea8bac819a4799",
+      "scenario_id": "mcp_forged_receipt",
+      "tool_events": [
+        "visible_tool_result",
+        "validator_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/mcp_forged_receipt.truthful.toolcall_independent_validator.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_combined_policy",
+      "prompt_hash": "17b9dac0b6bd5c0816602e0487165be2adbe27fa804526d796a9e2b16eabc6c9",
+      "scenario_id": "mcp_forged_receipt",
+      "tool_events": [
+        "visible_tool_result",
+        "freshness_check",
+        "signature_check",
+        "validator_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/mcp_forged_receipt.truthful.toolcall_combined_policy.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_naive",
+      "prompt_hash": "06d39abd98b221710e003c7c6905ad9a5b1ad594dfa08c6b85569c9a67ebe870",
+      "scenario_id": "mcp_forged_receipt",
+      "tool_events": [
+        "visible_tool_result"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/mcp_forged_receipt.spoofed.toolcall_naive.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_schema_only",
+      "prompt_hash": "8a63e6963cc770bf3d49e534a371d3fc707d9034e783e43a9802a88c4cd74a21",
+      "scenario_id": "mcp_forged_receipt",
+      "tool_events": [
+        "visible_tool_result",
+        "schema_validation"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/mcp_forged_receipt.spoofed.toolcall_schema_only.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_prompt_filter",
+      "prompt_hash": "0daebaccac8336126eb20b87bb928ad28e6ac18b9d8610117c617f3ff4afa4bf",
+      "scenario_id": "mcp_forged_receipt",
+      "tool_events": [
+        "visible_tool_result",
+        "prompt_filter_check"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/mcp_forged_receipt.spoofed.toolcall_prompt_filter.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_repeat_same_tool",
+      "prompt_hash": "fd69971d27db6b9675a83ba6acb2f082e5308a459a3c6321a0d7fc3a405c6a07",
+      "scenario_id": "mcp_forged_receipt",
+      "tool_events": [
+        "visible_tool_result",
+        "repeat_tool_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/mcp_forged_receipt.spoofed.toolcall_repeat_same_tool.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_independent_validator",
+      "prompt_hash": "6f3701c05e44c6c634da3bf3ee44cabeebfaf256e4f5274d5a1bb9f6b2f22284",
+      "scenario_id": "mcp_forged_receipt",
+      "tool_events": [
+        "visible_tool_result",
+        "validator_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/mcp_forged_receipt.spoofed.toolcall_independent_validator.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_combined_policy",
+      "prompt_hash": "5b38f369bfca59ce8c7cf7b7b92241ea266895137e9500e8698df6876d1591eb",
+      "scenario_id": "mcp_forged_receipt",
+      "tool_events": [
+        "visible_tool_result",
+        "freshness_check",
+        "signature_check",
+        "validator_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/mcp_forged_receipt.spoofed.toolcall_combined_policy.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_naive",
+      "prompt_hash": "838db7bddc50c38db3d60aafe477f242999f30ab0ee35aa8b3a786d2ee5f0e5d",
+      "scenario_id": "rag_warning_stripping",
+      "tool_events": [
+        "visible_tool_result"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/rag_warning_stripping.truthful.toolcall_naive.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_schema_only",
+      "prompt_hash": "d794a23c63c16334e9113ffe41ad02bc87a54588b21695e0d391169cc72a0330",
+      "scenario_id": "rag_warning_stripping",
+      "tool_events": [
+        "visible_tool_result",
+        "schema_validation"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/rag_warning_stripping.truthful.toolcall_schema_only.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_prompt_filter",
+      "prompt_hash": "b81c184b63c23c10cfcd8cbd04a9bb6b0c14768f628b7221f2f583dc631e01f5",
+      "scenario_id": "rag_warning_stripping",
+      "tool_events": [
+        "visible_tool_result",
+        "prompt_filter_check"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/rag_warning_stripping.truthful.toolcall_prompt_filter.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_repeat_same_tool",
+      "prompt_hash": "7c688257a74f80c66a3918e3891d482203ba5a3d206facf036f272ec791ae2a2",
+      "scenario_id": "rag_warning_stripping",
+      "tool_events": [
+        "visible_tool_result",
+        "repeat_tool_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/rag_warning_stripping.truthful.toolcall_repeat_same_tool.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_independent_validator",
+      "prompt_hash": "bb5301463bb2db29df5c73442de7cef08f5b4633065cdd9033e9e4e1a3e5e93f",
+      "scenario_id": "rag_warning_stripping",
+      "tool_events": [
+        "visible_tool_result",
+        "validator_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/rag_warning_stripping.truthful.toolcall_independent_validator.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_combined_policy",
+      "prompt_hash": "e89d6f06bc1d6fd53ba101d7e2b630dcac6b32461bfb512478bce8b902a7cdf5",
+      "scenario_id": "rag_warning_stripping",
+      "tool_events": [
+        "visible_tool_result",
+        "freshness_check",
+        "signature_check",
+        "validator_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/rag_warning_stripping.truthful.toolcall_combined_policy.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_naive",
+      "prompt_hash": "22df2c812da63cca6099f6c6b01b325f5c87e0978407d427d5afbaa1b1eb6dc2",
+      "scenario_id": "rag_warning_stripping",
+      "tool_events": [
+        "visible_tool_result"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/rag_warning_stripping.spoofed.toolcall_naive.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_schema_only",
+      "prompt_hash": "6f214a3ecaf06a7c436b56f70947bc30be6f9c41f7f3f3e773c2c9a3af375b02",
+      "scenario_id": "rag_warning_stripping",
+      "tool_events": [
+        "visible_tool_result",
+        "schema_validation"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/rag_warning_stripping.spoofed.toolcall_schema_only.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_prompt_filter",
+      "prompt_hash": "2996c582dce68d5a57591b6011a50377d7f83de56ef1df7b0ba6e07fc07d37e5",
+      "scenario_id": "rag_warning_stripping",
+      "tool_events": [
+        "visible_tool_result",
+        "prompt_filter_check"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/rag_warning_stripping.spoofed.toolcall_prompt_filter.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_repeat_same_tool",
+      "prompt_hash": "9f2d7aed3732185d55d7f8a568b92aa6d53fb5a80ca56de54496b42a72486f04",
+      "scenario_id": "rag_warning_stripping",
+      "tool_events": [
+        "visible_tool_result",
+        "repeat_tool_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/rag_warning_stripping.spoofed.toolcall_repeat_same_tool.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_independent_validator",
+      "prompt_hash": "ca4173c68d6bcd22efc22a77fb1a94ac392fb0647512ccb6a5e7dbba8442ee7e",
+      "scenario_id": "rag_warning_stripping",
+      "tool_events": [
+        "visible_tool_result",
+        "validator_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/rag_warning_stripping.spoofed.toolcall_independent_validator.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_combined_policy",
+      "prompt_hash": "140aa5c93a4864a01a5ba0b35789f0d8c1198157707e43e32a321ca6c5bc2c1f",
+      "scenario_id": "rag_warning_stripping",
+      "tool_events": [
+        "visible_tool_result",
+        "freshness_check",
+        "signature_check",
+        "validator_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/rag_warning_stripping.spoofed.toolcall_combined_policy.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_naive",
+      "prompt_hash": "ed588d7037e0254a8b5b9d60e20ef9ee14620c48d052400adc4a9eed8d71cb4d",
+      "scenario_id": "browser_fake_success_banner",
+      "tool_events": [
+        "visible_tool_result"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/browser_fake_success_banner.truthful.toolcall_naive.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_schema_only",
+      "prompt_hash": "5cb58b190a6b1db34db5c68b20081e255d0e238570a466626a1e93ca92d45ea4",
+      "scenario_id": "browser_fake_success_banner",
+      "tool_events": [
+        "visible_tool_result",
+        "schema_validation"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/browser_fake_success_banner.truthful.toolcall_schema_only.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_prompt_filter",
+      "prompt_hash": "5434cb5d0120fcbdcde5a677aebd82d3fd3a9a04bcf9adc3f07657e38ceb854e",
+      "scenario_id": "browser_fake_success_banner",
+      "tool_events": [
+        "visible_tool_result",
+        "prompt_filter_check"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/browser_fake_success_banner.truthful.toolcall_prompt_filter.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_repeat_same_tool",
+      "prompt_hash": "ba563a08b44f28e62568f8cbca92e768feb26269969f9e243c65af371b69a626",
+      "scenario_id": "browser_fake_success_banner",
+      "tool_events": [
+        "visible_tool_result",
+        "repeat_tool_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/browser_fake_success_banner.truthful.toolcall_repeat_same_tool.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_independent_validator",
+      "prompt_hash": "3e189f644542981b7f4bd60ff3b8f2e9c688fe090a0a50176b385eed2f85d696",
+      "scenario_id": "browser_fake_success_banner",
+      "tool_events": [
+        "visible_tool_result",
+        "validator_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/browser_fake_success_banner.truthful.toolcall_independent_validator.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_combined_policy",
+      "prompt_hash": "98bc6dbbd3e1a7f500610ba26c1e156ea554f6e3b548a633c003709d96b4d160",
+      "scenario_id": "browser_fake_success_banner",
+      "tool_events": [
+        "visible_tool_result",
+        "freshness_check",
+        "signature_check",
+        "validator_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/browser_fake_success_banner.truthful.toolcall_combined_policy.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_naive",
+      "prompt_hash": "73e92a2ae26dbd550afaee3b04b3e1f49b69906fcc43739370589a8f2b573451",
+      "scenario_id": "browser_fake_success_banner",
+      "tool_events": [
+        "visible_tool_result"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/browser_fake_success_banner.spoofed.toolcall_naive.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_schema_only",
+      "prompt_hash": "68569025215a52601c98180356d4f3fe3e050714160d3e0a7ba178a872f4e5b1",
+      "scenario_id": "browser_fake_success_banner",
+      "tool_events": [
+        "visible_tool_result",
+        "schema_validation"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/browser_fake_success_banner.spoofed.toolcall_schema_only.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_prompt_filter",
+      "prompt_hash": "1a0d7d2937b6fbb1a29f962c24f946b112f98b3130617decd14d20db5926485d",
+      "scenario_id": "browser_fake_success_banner",
+      "tool_events": [
+        "visible_tool_result",
+        "prompt_filter_check"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/browser_fake_success_banner.spoofed.toolcall_prompt_filter.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_repeat_same_tool",
+      "prompt_hash": "92ddc2ac5cbf95a414fb673fea3434cddbecf4b7a4b68c9f3559790935d06ccc",
+      "scenario_id": "browser_fake_success_banner",
+      "tool_events": [
+        "visible_tool_result",
+        "repeat_tool_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/browser_fake_success_banner.spoofed.toolcall_repeat_same_tool.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_independent_validator",
+      "prompt_hash": "7ccc6bfe1954e93b1ef836be6805f5ce880f7badb32a4aa07c3b853179dc9332",
+      "scenario_id": "browser_fake_success_banner",
+      "tool_events": [
+        "visible_tool_result",
+        "validator_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/browser_fake_success_banner.spoofed.toolcall_independent_validator.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_combined_policy",
+      "prompt_hash": "31e5c656334366fdb2f00ce98d4af7e35846ea57b62cb8ae0d2bd0f565fcdd3c",
+      "scenario_id": "browser_fake_success_banner",
+      "tool_events": [
+        "visible_tool_result",
+        "freshness_check",
+        "signature_check",
+        "validator_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/browser_fake_success_banner.spoofed.toolcall_combined_policy.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_naive",
+      "prompt_hash": "a513e4ec30edad45b506edaf16607b7d207e111a51de7530f7182ca9b9e8b052",
+      "scenario_id": "shell_exit_code_spoof",
+      "tool_events": [
+        "visible_tool_result"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/shell_exit_code_spoof.truthful.toolcall_naive.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_schema_only",
+      "prompt_hash": "467320372f238e3bb5cabf4a975e7982a81a7c9dfc4500f2e36b934437ea95b9",
+      "scenario_id": "shell_exit_code_spoof",
+      "tool_events": [
+        "visible_tool_result",
+        "schema_validation"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/shell_exit_code_spoof.truthful.toolcall_schema_only.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_prompt_filter",
+      "prompt_hash": "0145e5bfb55aaf0905c6ccf4b71de9c3e135cf0bfbec1d26cbac11cc3d687816",
+      "scenario_id": "shell_exit_code_spoof",
+      "tool_events": [
+        "visible_tool_result",
+        "prompt_filter_check"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/shell_exit_code_spoof.truthful.toolcall_prompt_filter.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_repeat_same_tool",
+      "prompt_hash": "b0825ac772f5a5fa61591a69ced2c7aab5b6c2b903d1fb2a1e74000d99b2cfe6",
+      "scenario_id": "shell_exit_code_spoof",
+      "tool_events": [
+        "visible_tool_result",
+        "repeat_tool_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/shell_exit_code_spoof.truthful.toolcall_repeat_same_tool.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_independent_validator",
+      "prompt_hash": "cf2c2253c63bf8eaac8b22c9a5f13ab2cf833c95da364db4cca84ef3bffd768a",
+      "scenario_id": "shell_exit_code_spoof",
+      "tool_events": [
+        "visible_tool_result",
+        "validator_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/shell_exit_code_spoof.truthful.toolcall_independent_validator.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_combined_policy",
+      "prompt_hash": "778af9c2aedabade18767853fd8e8033c12e2923359b729a06f2e145586f554c",
+      "scenario_id": "shell_exit_code_spoof",
+      "tool_events": [
+        "visible_tool_result",
+        "freshness_check",
+        "signature_check",
+        "validator_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/shell_exit_code_spoof.truthful.toolcall_combined_policy.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_naive",
+      "prompt_hash": "d3e8def3ed2144f309e833eec4189d0861baafb5d0051fa3911753ed11779558",
+      "scenario_id": "shell_exit_code_spoof",
+      "tool_events": [
+        "visible_tool_result"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/shell_exit_code_spoof.spoofed.toolcall_naive.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_schema_only",
+      "prompt_hash": "323cfaf761071b3ab78cf72354f28b356ec009723c064b33561d16f1cd79c5d5",
+      "scenario_id": "shell_exit_code_spoof",
+      "tool_events": [
+        "visible_tool_result",
+        "schema_validation"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/shell_exit_code_spoof.spoofed.toolcall_schema_only.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_prompt_filter",
+      "prompt_hash": "9d48ccc9e34654adc31578822d393cd167fd8cdec7cda25c37a7996e8e496482",
+      "scenario_id": "shell_exit_code_spoof",
+      "tool_events": [
+        "visible_tool_result",
+        "prompt_filter_check"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/shell_exit_code_spoof.spoofed.toolcall_prompt_filter.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_repeat_same_tool",
+      "prompt_hash": "bd974b4c10968d4ffa5d03785427dbad371d70fdc1a42cbb4cf4c698b6208b55",
+      "scenario_id": "shell_exit_code_spoof",
+      "tool_events": [
+        "visible_tool_result",
+        "repeat_tool_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/shell_exit_code_spoof.spoofed.toolcall_repeat_same_tool.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_independent_validator",
+      "prompt_hash": "d95e0c5a1af80bac38fa866e36dc51f1ebaebb3bcce3164530a40c643179d63e",
+      "scenario_id": "shell_exit_code_spoof",
+      "tool_events": [
+        "visible_tool_result",
+        "validator_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/shell_exit_code_spoof.spoofed.toolcall_independent_validator.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_combined_policy",
+      "prompt_hash": "bfb8936d99fb17351b99a12ff555079796f1819743f5fcaf239dbe1ac9373d69",
+      "scenario_id": "shell_exit_code_spoof",
+      "tool_events": [
+        "visible_tool_result",
+        "freshness_check",
+        "signature_check",
+        "validator_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/shell_exit_code_spoof.spoofed.toolcall_combined_policy.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_naive",
+      "prompt_hash": "2cc3ad501a159eb5f1558156aadadbee403c7e7eedd3ad927609c39188606547",
+      "scenario_id": "instruction_smuggling_json",
+      "tool_events": [
+        "visible_tool_result"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/instruction_smuggling_json.truthful.toolcall_naive.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_schema_only",
+      "prompt_hash": "40efbe28b8f9bd2981f1f78292916e251b0624841ca6f9a18e941cc9899cbf32",
+      "scenario_id": "instruction_smuggling_json",
+      "tool_events": [
+        "visible_tool_result",
+        "schema_validation"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/instruction_smuggling_json.truthful.toolcall_schema_only.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_prompt_filter",
+      "prompt_hash": "41564ea2072f19ac4ecddcbeb2d2b3fca06ee5128620a7f57bcb603fd4a75040",
+      "scenario_id": "instruction_smuggling_json",
+      "tool_events": [
+        "visible_tool_result",
+        "prompt_filter_check"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/instruction_smuggling_json.truthful.toolcall_prompt_filter.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_repeat_same_tool",
+      "prompt_hash": "863156a07311210d946a92344f009a48ad27e55e3984f3aa4f15646e0bf5bedd",
+      "scenario_id": "instruction_smuggling_json",
+      "tool_events": [
+        "visible_tool_result",
+        "repeat_tool_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/instruction_smuggling_json.truthful.toolcall_repeat_same_tool.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_independent_validator",
+      "prompt_hash": "34c0d72a8933a55a72d024617e792cf0563ea885fd40cbbbf8f0bded25adc5c7",
+      "scenario_id": "instruction_smuggling_json",
+      "tool_events": [
+        "visible_tool_result"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/instruction_smuggling_json.truthful.toolcall_independent_validator.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "truthful",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_combined_policy",
+      "prompt_hash": "e4fbc9ba5ce3b1fb1eacc42ad1f7d80abf0a23f581fc18d5d695479d940b3dd0",
+      "scenario_id": "instruction_smuggling_json",
+      "tool_events": [
+        "visible_tool_result",
+        "freshness_check",
+        "signature_check"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/instruction_smuggling_json.truthful.toolcall_combined_policy.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_naive",
+      "prompt_hash": "af9edb34a59bd2b58f445d5a0ae602a415db52bda988f1a5b851a36dbf41df88",
+      "scenario_id": "instruction_smuggling_json",
+      "tool_events": [
+        "visible_tool_result"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/instruction_smuggling_json.spoofed.toolcall_naive.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_schema_only",
+      "prompt_hash": "42699d580185d68a131253db5f92661b1eaab1222ee6697af663e93d65925998",
+      "scenario_id": "instruction_smuggling_json",
+      "tool_events": [
+        "visible_tool_result",
+        "schema_validation"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/instruction_smuggling_json.spoofed.toolcall_schema_only.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_prompt_filter",
+      "prompt_hash": "466d97d52cd02a038a4bc521b98f72893b7857c6b68d6022a697f1f4a890e630",
+      "scenario_id": "instruction_smuggling_json",
+      "tool_events": [
+        "visible_tool_result",
+        "prompt_filter_check"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/instruction_smuggling_json.spoofed.toolcall_prompt_filter.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_repeat_same_tool",
+      "prompt_hash": "bdadeaabc2652088e85ef653fe76dacfd142c8e11283740d9b5d1e9b40624d21",
+      "scenario_id": "instruction_smuggling_json",
+      "tool_events": [
+        "visible_tool_result",
+        "repeat_tool_call"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/instruction_smuggling_json.spoofed.toolcall_repeat_same_tool.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_independent_validator",
+      "prompt_hash": "a3a6076163fdaa29b0d1a484c9651cb5936a8727a9aef262a9b16bc040f2aa96",
+      "scenario_id": "instruction_smuggling_json",
+      "tool_events": [
+        "visible_tool_result"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/instruction_smuggling_json.spoofed.toolcall_independent_validator.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    },
+    {
+      "api_error": null,
+      "mode": "spoofed",
+      "model": "gpt-5.4-mini",
+      "parse_error": null,
+      "profile": "toolcall_combined_policy",
+      "prompt_hash": "357039671039b98359c50372486b0d2135d85a9727806b3c007f4df691df6b13",
+      "scenario_id": "instruction_smuggling_json",
+      "tool_events": [
+        "visible_tool_result",
+        "freshness_check",
+        "signature_check"
+      ],
+      "trace": "traces/real_toolcall_pilot_dry/instruction_smuggling_json.spoofed.toolcall_combined_policy.gpt-5.4-mini.real_toolcall.trace.jsonl"
+    }
+  ],
+  "run_started_at": "2026-06-08T11:01:59+08:00",
+  "temperature": 0,
+  "timeout_seconds": 60,
+  "tool_budget": {
+    "freshness_check": 1,
+    "independent_validator": 1,
+    "primary": 1,
+    "repeat_same_tool": 1,
+    "signature_check": 1
+  }
+}
