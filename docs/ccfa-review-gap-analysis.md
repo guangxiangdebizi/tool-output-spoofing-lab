@@ -172,6 +172,16 @@ errors, and final attempted denominators when the merged result is available.
   Section 7 and CI/stats artifacts; final tables should include an explicit
   denominator footnote.
 
+## Pre-registration and artifact contract
+
+`docs/pre_registered_scoring_contract.md` now freezes the intended full-run
+scoring contract: required per-cell fields, decisive fields, restricted
+projection paths, accepted-false-state rubric, verification five-level fields,
+API/parse error denominator policy, paired tests, and readiness gates. Remaining
+implementation work is to emit `allowed_projection_paths`,
+`non_decisive_fields`, and the five verification levels directly in future
+merged full-run artifacts rather than leaving them implicit in scorer code.
+
 ## Top reject reasons to preempt
 
 1. The evaluation is not a full autonomous agent benchmark.

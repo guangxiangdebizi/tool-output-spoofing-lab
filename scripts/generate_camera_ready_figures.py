@@ -84,17 +84,18 @@ def figure11() -> str:
         rect(330, 95, 245, 125, "yellow", "Model claimed fields", ["claimed_fields[k]", "commit vs uncertainty", "action_commit flag"]),
         rect(655, 95, 260, 125, "green", "Exact-primary score", ["claim == truthful[k]", "strict object/field shape", "clean_utility_exact"]),
         rect(330, 285, 245, 135, "purple", "Read-back validator", ["split-channel observation", "content_verified=true", "visible validator_call"]),
-        rect(655, 285, 260, 135, "green", "Restricted projection", ["whole object", "value/text/wifi_enabled", "records[*].declared keys", "clean_utility_semantic"]),
+        rect(655, 285, 260, 135, "green", "Restricted projection", ["pre-declared object path", "value/text/wifi_enabled", "records[*].declared keys", "clean_utility_semantic"]),
         rect(975, 185, 175, 125, "gray", "Reported metrics", ["ASR / AFS", "CU exact + semantic", "projection paths", "API/parse errors"]),
         arrow(270, 157, 330, 157),
         arrow(575, 157, 655, 157),
         arrow(575, 350, 655, 350),
         arrow(915, 157, 975, 220),
         arrow(915, 350, 975, 260),
-        arrow(270, 337, 330, 337, dashed=True),
+        '<path d="M 270 337 L 330 337" stroke="#c0392b" stroke-width="1.7" stroke-dasharray="6 5"/>',
+        '<text x="92" y="425" class="tiny" fill="#c0392b">forbidden: no oracle/raw/ground-truth access to projection scorer</text>',
         '<path d="M 300 260 L 945 260" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="6 5"/>',
         '<text x="340" y="252" class="tiny" fill="#c0392b">projection boundary: no arbitrary recursive matching, no oracle/raw access</text>',
-        '<text x="47" y="440" class="small">Paper rule: projection can repair truthful read-back utility only; it must not change spoofed ASR.</text>',
+        '<text x="47" y="445" class="small">Paper rule: projection scores pre-declared semantically equivalent read-back claims only; it must not change spoofed ASR.</text>',
     ]
     return svg_wrap(1200, 470, "\n".join(body))
 

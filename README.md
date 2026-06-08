@@ -59,6 +59,7 @@ docs/
   benchmark-baseline-contract.md
   threat-model.md    Assets, attackers, trust boundaries, attack classes.
   paper-draft-zh.md  Current Chinese working draft.
+  pre_registered_scoring_contract.md
   ccfa-review-gap-analysis.md
   novelty-audit.md
   literature-matrix.md
