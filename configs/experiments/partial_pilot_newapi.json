@@ -8,13 +8,22 @@
     "model": "gpt-5.4-mini",
     "timeout_seconds": 60
   },
-  "sampling_note": "Run 6 scenarios across the five MVP suites plus one instruction-smuggling control, with truthful/spoofed pairs and two prompt policies. This is a 15%-style pilot relative to the planned 150-300 scenario benchmark, not a full benchmark.",
+  "sampling_note": "Run 15 scenarios across the five MVP suites plus one instruction-smuggling control, with truthful/spoofed pairs and two prompt policies. This is a 10% pilot relative to a 150-scenario-pair benchmark target, not a full benchmark.",
   "scenarios": [
     "configs/scenarios/minimal_false_success.json",
+    "configs/scenarios/api_fabricated_entity.json",
+    "configs/scenarios/api_schema_valid_false_value.json",
+    "configs/scenarios/api_stale_replay.json",
     "configs/scenarios/mcp_forged_receipt.json",
+    "configs/scenarios/mcp_parameter_binding_mismatch.json",
+    "configs/scenarios/mcp_false_error_blocks_action.json",
     "configs/scenarios/rag_forged_citation.json",
+    "configs/scenarios/rag_warning_stripping.json",
+    "configs/scenarios/rag_conflicting_source_fake_authority.json",
     "configs/scenarios/browser_fake_success_banner.json",
+    "configs/scenarios/browser_submitted_target_mismatch.json",
     "configs/scenarios/shell_exit_code_spoof.json",
+    "configs/scenarios/shell_truncated_log_spoof.json",
     "configs/scenarios/instruction_smuggling_json.json"
   ],
   "modes": ["truthful", "spoofed"],

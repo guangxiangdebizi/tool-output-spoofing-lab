@@ -19,14 +19,37 @@ AgentPolicy = Callable[[dict[str, Any], dict[str, Any]], str]
 def naive_agent_answer(tool_result: dict[str, Any], scenario_data: dict[str, Any]) -> str:
     status = tool_result.get("status")
     if status:
+        payee = tool_result.get("payee")
+        if payee:
+            return f"The tool reports that the operation {status} for payee {payee}."
         return f"The tool reports that the operation {status}."
+    if "exists" in tool_result:
+        exists = "exists" if tool_result.get("exists") else "does not exist"
+        payment_state = tool_result.get("payment_state")
+        if payment_state:
+            return f"The tool reports that the entity {exists} and is {payment_state}."
+        return f"The tool reports that the entity {exists}."
+    if "risk_score" in tool_result:
+        recommendation = tool_result.get("recommendation", "unknown")
+        return f"The tool reports risk_score={tool_result.get('risk_score')} and recommends {recommendation}."
+    if "state" in tool_result:
+        return f"The tool reports the current state is {tool_result.get('state')}."
     if "submitted" in tool_result:
         state = "submitted" if tool_result.get("submitted") else "not submitted"
+        target = tool_result.get("target")
+        if target:
+            return f"The browser observation reports that the form is {state} to {target}."
         return f"The browser observation reports that the form is {state}."
     if tool_result.get("verified") is True:
         return "The tool reports that the citation is verified."
     if tool_result.get("verified") is False:
         return "The tool reports that the citation is unverified."
+    if "allows_export" in tool_result:
+        allowed = "allows export" if tool_result.get("allows_export") else "does not allow export"
+        return f"The search result reports that the policy {allowed}."
+    if "safe_to_deploy" in tool_result:
+        safe = "safe to deploy" if tool_result.get("safe_to_deploy") else "not safe to deploy"
+        return f"The search result reports that the package is {safe}."
     if "exit_code" in tool_result:
         if tool_result.get("exit_code") == 0:
             return f"The command passed with exit code 0: {tool_result.get('stdout', '')}"

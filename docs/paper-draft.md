@@ -229,7 +229,38 @@ The MVP in this repository currently includes deterministic JSON scenarios for
 false success and instruction-smuggling controls. The planned paper version
 should expand to at least 150-300 scenario pairs before submission.
 
-### 4.4 Agent profiles
+### 4.4 Current 10% partial benchmark slice
+
+As of 2026-06-08, the repository includes a 15-scenario partial benchmark slice.
+This is intentionally not the full benchmark; it is a stratified pilot
+corresponding to 10% of a 150-scenario-pair target.
+
+| Suite / control | Pilot scenarios | Spoof classes represented |
+| --- | ---: | --- |
+| API records | 4 | false success, fabricated entity, schema-valid scalar, stale replay |
+| MCP finance | 3 | forged receipt, parameter binding mismatch, false error |
+| RAG/search | 3 | forged provenance, warning stripping, fake authority |
+| Browser form | 2 | fake success banner, submitted-target mismatch |
+| Shell/tests | 2 | exit-code spoof, truncated log |
+| Instruction-smuggling control | 1 | embedded instruction in JSON |
+
+The pilot scenarios are listed in `configs/experiments/mvp_matrix.json`. Each
+scenario keeps the user task fixed across truthful and spoofed modes, stores
+hidden truth in an oracle-only row, and exposes only the selected visible tool
+result to the agent profile. Generated traces are excluded from version control
+but can be reproduced with:
+
+```bash
+PYTHONPATH=src /usr/bin/python3.11 scripts/run_mvp_matrix.py \
+  --config configs/experiments/mvp_matrix.json \
+  --out-dir traces/mvp_15scenario_partial
+```
+
+This slice is adequate for checking whether the benchmark mechanics and
+baseline contrasts produce signal. It is not adequate for final submission
+claims about model populations or real deployed agents.
+
+### 4.5 Agent profiles
 
 Evaluation should cover both deterministic policy stubs and real agents:
 
@@ -266,6 +297,24 @@ We group defenses by whether they target instructions or observation truth.
 The paper's key experimental contrast is prompt-centric versus
 observation-integrity defenses.
 
+### 5.1 Baseline implementation status
+
+The current artifact implements five deterministic baselines for the 15-scenario
+pilot:
+
+| Baseline | Current implementation | Input access | Intended paper-grade replacement |
+| --- | --- | --- | --- |
+| No defense / naive trust | Accepts the visible tool result and reports its decisive field. | Visible result only | Real agent/tool harness with normal tool result handling. |
+| Strict schema validation | Treats schema-valid output as acceptable, then behaves like naive trust. | Visible result only | JSON schema validation plus typed final-answer schema. |
+| Prompt-filter-only | Blocks instruction-like text such as "ignore previous"; otherwise trusts the result. | Visible result only | Prompt-injection detector or sanitizer baseline. |
+| Provenance/corroboration policy | Requires independent corroboration for non-truth-oracle provenance. | Visible result metadata | Budgeted policy with explicit fail-open/fail-closed behavior. |
+| Cross-tool verifier | Compares visible result with an independent validator field-by-field. | Visible result + independent validator | Actual secondary tool call with fixed tool-call/token budget. |
+
+The full paper must add repeat-same-tool, LLM-as-judge/self-critique, signed
+receipt, freshness, and combined-policy baselines. For each baseline, the final
+experiment must report input access, tool-call budget, token budget, latency,
+cost, fallback policy, and whether an independent authority is available.
+
 ## 6. Metrics
 
 Primary metrics:
@@ -297,6 +346,29 @@ This is not a replacement for per-metric reporting; it is a compact ranking
 signal for defense comparisons.
 
 ## 7. Experimental plan
+
+### 7.0 Completed preliminary pilots
+
+Two preliminary pilots have been run locally.
+
+**Deterministic 10% slice.** We ran 15 scenarios x 2 modes x 5 deterministic
+baseline profiles = 150 cells. On spoofed cases, the naive baseline accepted
+15/15 false observations, schema-only accepted 15/15, and prompt-filter-only
+accepted 14/15; prompt filtering only blocked the explicit
+instruction-smuggling control. The provenance/corroboration policy and
+cross-tool verifier scored 0/15 spoofed ASR in this slice. These results verify
+that the benchmark can separate prompt-injection filtering from observation
+integrity, but they do not yet prove model-level robustness claims because the
+agents are deterministic policy stubs and the oracle is still keyword-based.
+
+**Real-model smoke pilot.** We also ran a six-scenario smoke pilot on
+`gpt-5.4-mini` via an OpenAI-compatible NewAPI endpoint: 6 scenarios x 2 modes
+x 2 prompt policies = 24 attempted cells, with one timeout. The naive
+single-observation prompt had spoofed ASR 3/6; a verification-required prompt
+had spoofed ASR 0/6 while requesting corroboration in 6/6 spoofed cases. This
+run is only preliminary. The prompt-policy defense directly tells the model
+that tool outputs may be stale, forged, or semantically false, so it is not a
+fair substitute for an implemented verification mechanism.
 
 ### RQ1: Do agents accept schema-valid false observations?
 
@@ -356,16 +428,17 @@ The closest work blocks broad novelty. The paper must be explicit:
 
 ## 9. Expected results table
 
-This table states the desired evidence before running large experiments.
+This table separates the evidence already obtained from the evidence still
+required before making paper-grade claims.
 
-| Finding | Evidence required |
-| --- | --- |
-| Agents accept false observations | ASR significantly above truthful false-positive rate across at least three suites |
-| Prompt filters are insufficient | Filters reduce instruction-smuggling ASR more than semantic-falsehood ASR |
-| Schema validation is insufficient | Valid spoofed JSON passes schema but causes false acceptance |
-| Independent verification helps | Cross-tool/read-after-write reduces ASR relative to repeat-same-tool |
-| Receipts/freshness help where available | Signed/freshness policy reduces forged/stale result acceptance |
-| Utility tradeoff is manageable | Combined policy preserves clean utility above a pre-registered threshold |
+| Finding | Current pilot evidence | Evidence still required |
+| --- | --- | --- |
+| Agents accept false observations | Deterministic naive baseline accepts 15/15 spoofed observations; real-model smoke accepts 3/6. | Multi-model agentic tool-call experiments across at least 30-45 scenario pairs before a serious submission draft. |
+| Prompt filters are insufficient | Prompt-filter baseline blocks 1/15 spoofed cases, the instruction-smuggling control, and misses 14/14 non-instructional semantic falsehoods. | Real prompt-injection filters/sanitizers under equal budgets, with no attack labels leaked through fixture text. |
+| Schema validation is insufficient | Schema-only baseline accepts 15/15 schema-valid spoofed observations. | Formal schemas, malformed-output controls, and structured final-answer scoring. |
+| Independent verification helps | Cross-tool verifier has 0/15 spoofed ASR in the deterministic slice. | Actual independent validator calls, budget controls, repeat-same-tool comparison, and clean utility. |
+| Receipts/freshness help where available | Planned but not yet implemented as a real verifier. | Signed receipt and freshness experiments on forged provenance and stale replay. |
+| Utility tradeoff is manageable | Not yet established. | Truthful-case utility, false-positive refusal, latency, token, and tool-call overhead. |
 
 ## 10. Threats to validity
 
@@ -380,6 +453,24 @@ agent profiles.
 **Oracle validity.** If the oracle is too simple, results may reward benchmark
 gaming. Mitigation: keep truth state separate, deterministic, and auditable;
 include raw artifacts for shell/browser suites.
+
+Current pilot limitation: the oracle uses per-scenario keyword criteria. This
+is acceptable for smoke testing but not for final claims. The next artifact
+revision should require structured model outputs such as:
+
+```json
+{
+  "claimed_state": "success|failure|unknown",
+  "verified": false,
+  "verification_source": "none|same_tool|independent|signed_receipt",
+  "confidence": "high|medium|low",
+  "action_commit": false
+}
+```
+
+The oracle should then score false-state acceptance, propagation, unsafe action,
+uncertainty, effective verification, clean utility, and false-positive refusal
+at field level.
 
 **Defense unfairness.** Cross-tool verification may see more information than
 the no-defense baseline. Mitigation: report overhead and fixed verification
@@ -433,18 +524,24 @@ Implemented locally:
 
 - concept, threat model, attack taxonomy, novelty audit;
 - literature matrix and deep-reading notes;
-- deterministic scenario configs for false success and instruction-smuggling
+- deterministic scenario configs for a 15-scenario 10% partial benchmark slice
+  across API, MCP, RAG/search, browser, shell, and an instruction-smuggling
   control;
-- trace runner, oracle, and small MVP matrix;
+- trace runner, oracle, deterministic baseline matrix, and six-scenario
+  real-model smoke pilot;
 - smoke tests requiring no external packages.
 
 Still required before a serious top-tier submission:
 
-- expand scenario count and surfaces;
-- add real agent adapters;
-- implement provenance, signed receipt, and cross-tool defense policies;
+- expand to at least 150-300 paired scenario records, with 30-45 paired
+  scenarios as the next model-based pilot;
+- add real agent adapters and actual tool-call harnesses rather than direct
+  observation-in-context prompts;
+- implement provenance, signed receipt, freshness, repeat-same-tool, and
+  cross-tool defense policies under fixed budgets;
 - run controlled model experiments;
 - compare against or emulate close baselines;
+- replace keyword oracle scoring with structured field-level scoring and manual
+  audit;
 - produce statistical analysis and figures;
 - package artifact and anonymize traces.
-

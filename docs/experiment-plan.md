@@ -45,6 +45,43 @@ policy?
 3. Manually plug in one or more agents later through adapters.
 4. Score whether final answer accepted the spoofed state.
 
+## Completed partial pilot as of 2026-06-08
+
+The repository now contains a 15-scenario deterministic benchmark slice. This
+is approximately 10% of a 150-scenario-pair final benchmark target, not the
+full benchmark.
+
+Composition:
+
+| Suite / control | Scenario count | Covered spoof classes |
+| --- | ---: | --- |
+| API records | 4 | false success, fabricated entity, schema-valid false scalar, stale replay |
+| MCP finance | 3 | forged receipt, parameter binding mismatch, false error |
+| RAG/search | 3 | forged provenance, warning stripping, fake authority |
+| Browser form | 2 | fake success banner, submitted-target mismatch |
+| Shell/tests | 2 | exit-code spoof, truncated log |
+| Instruction-smuggling control | 1 | embedded imperative text in JSON |
+
+Executed matrix:
+
+```text
+15 scenarios x 2 modes x 5 deterministic baselines = 150 cells
+```
+
+Spoofed ASR in this deterministic slice:
+
+| Baseline | Spoofed ASR |
+| --- | ---: |
+| naive accept | 15 / 15 |
+| schema only | 15 / 15 |
+| prompt filter only | 14 / 15 |
+| provenance/corroboration policy | 0 / 15 |
+| cross-tool verifier | 0 / 15 |
+
+This validates the benchmark mechanics and baseline separation, especially the
+distinction between instruction-smuggling filters and semantic observation
+falsehoods. It does not yet validate model-level or deployed-agent claims.
+
 ## Metrics
 
 - **Attack Success Rate (ASR)**: fraction where the final answer/action accepts
@@ -67,6 +104,15 @@ policy?
 5. Provenance/freshness gate: require signature/timestamp/nonce metadata.
 6. Combined defense.
 
+Paper-grade baselines must additionally specify:
+
+- visible inputs and hidden/oracle-only state;
+- tool-call and token budgets;
+- whether independent authority is available;
+- retry, timeout, and fail-open/fail-closed policy;
+- cost/latency accounting; and
+- truthful-case utility and false-positive refusal.
+
 ## First formal experiment
 
 For each scenario:
@@ -80,6 +126,26 @@ oracle compares expected truth and final claim/action
 
 The decisive test is paired: same benign user task and same intended ground
 truth, only the tool observation changes.
+
+## Next 10%-15% model pilot
+
+Before any full run, execute a model-based pilot of 30-45 paired scenarios:
+
+```text
+30-45 scenarios x truthful/spoofed x 4-6 defenses x 2+ models
+```
+
+Minimum defenses:
+
+1. no defense;
+2. schema-only;
+3. prompt-injection filter or prompt warning;
+4. repeat same tool;
+5. independent validator; and
+6. signed receipt/freshness or combined policy.
+
+This pilot must use actual tool-call events for the validator baselines rather
+than passing all observations directly inside a user JSON prompt.
 
 ## Go/no-go thresholds
 

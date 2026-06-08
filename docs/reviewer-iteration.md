@@ -81,3 +81,78 @@ local strict-review pass instead of blocking all progress.
   generic keywords.
 - Recorded that subagent review remains incomplete because the configured
   external model backend failed twice.
+
+## Round 2: subagent reviewer critique after initial pilots
+
+A reviewer subagent completed a USENIX/S&P-style review after the six-scenario
+NewAPI smoke pilot and the first benchmark draft.
+
+### Reviewer decision
+
+**Reject for current top-tier submission; Weak Go as a research direction.**
+
+The core reason was not that the idea is weak. The issue was that the evidence
+was still underpowered:
+
+1. The six-scenario model pilot was a smoke test, not a benchmark-scale
+   experiment.
+2. The model harness passed `visible_tool_result` directly in user JSON, so it
+   was closer to single-observation reading comprehension than a full
+   tool-using agent benchmark.
+3. The `verification_required` prompt was too strong as a defense baseline
+   because it directly warned that tool outputs may be stale, forged, or
+   semantically false.
+4. The oracle was keyword-based and could mis-score negated or mixed answers.
+5. Several spoofed fixtures leaked obvious fake markers.
+6. Close work such as Trust No Tool, MCP Security Bench, MCP-SafetyBench,
+   AgentDojo, InjecAgent, ToolEmu, CaMeL, and AttriGuard still compresses the
+   novelty claim.
+
+### Changes made after Round 2 critique
+
+- Expanded the local partial benchmark from 6 to 15 scenarios, matching a 10%
+  slice of a 150-scenario-pair benchmark target.
+- Added nine new scenario records:
+  - `api_fabricated_entity`
+  - `api_schema_valid_false_value`
+  - `api_stale_replay`
+  - `mcp_parameter_binding_mismatch`
+  - `mcp_false_error_blocks_action`
+  - `rag_warning_stripping`
+  - `rag_conflicting_source_fake_authority`
+  - `browser_submitted_target_mismatch`
+  - `shell_truncated_log_spoof`
+- Ran the deterministic 15-scenario matrix:
+  - 15 scenarios x 2 modes x 5 baselines = 150 cells.
+  - naive ASR: 15/15 spoofed cases.
+  - schema-only ASR: 15/15 spoofed cases.
+  - prompt-filter-only ASR: 14/15 spoofed cases; it only blocked the
+    instruction-smuggling control.
+  - provenance/corroboration policy ASR: 0/15 spoofed cases.
+  - cross-tool verifier ASR: 0/15 spoofed cases.
+- Reclassified the earlier `gpt-5.4-mini` run as a six-scenario real-model
+  smoke pilot rather than the 10% benchmark slice.
+- Added `configs/experiments/partial_pilot_newapi_smoke6.json` to preserve the
+  old smoke-pilot configuration separately from the new 15-scenario pilot
+  config.
+- Updated `docs/paper-draft.md` to include concrete benchmark counts,
+  baseline access assumptions, pilot result tables, and the remaining
+  limitations.
+- Updated `docs/partial-pilot-results.md` with the deterministic 10% slice and
+  explicit non-paper-grade limitations.
+
+### Remaining blockers before a reviewer could move above Reject
+
+The current state still should not be represented as top-tier-ready. The next
+iteration needs:
+
+1. a real tool-call harness instead of direct observation-in-context prompts;
+2. a 30-45 paired-scenario model pilot, not only deterministic stubs;
+3. at least two models;
+4. structured final-answer schema and field-level oracle scoring;
+5. truthful clean-utility and false-positive refusal measurement;
+6. actual repeat-same-tool, independent-validator, signed-receipt, freshness,
+   and combined defenses under fixed budgets;
+7. plausible spoofed fixtures with fewer obvious fake markers; and
+8. close-work comparison or ablation against Trust No Tool / MCP benchmarks
+   where feasible.
