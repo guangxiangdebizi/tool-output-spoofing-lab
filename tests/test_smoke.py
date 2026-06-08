@@ -227,6 +227,18 @@ class SmokeTests(unittest.TestCase):
         self.assertNotIn("toolcall_independent_validator", prompt_text)
         self.assertIn('"policy_id"', prompt_text)
 
+    def test_real_toolcall_prompt_uses_verdict_commitment_field(self):
+        rows, policy = build_tool_events(
+            scenario_path="configs/scenarios/security_authorization_spoof.json",
+            mode="spoofed",
+            profile="toolcall_naive",
+            model="test-model",
+        )
+        prompt_text = "\n".join(message["content"] for message in build_messages(rows, policy))
+        self.assertIn("verdict_commitment", prompt_text)
+        self.assertIn("legacy alias", prompt_text)
+        self.assertIn("not performing or recommending the assessment", prompt_text)
+
     def test_toolsandbox_overlay_contract_naive_is_vulnerable(self):
         config = load_overlay_config("configs/benchmark_overlays/toolsandbox_overlay_smoke.json")
         fixture = ToolSandboxOverlayFixture(config["fixtures"][0])

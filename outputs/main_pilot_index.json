@@ -1,0 +1,66 @@
+{
+  "index_version": "2026-06-08.paper-draft-zh.current",
+  "purpose": "Canonical index of pilot result artifacts used by docs/paper-draft-zh.md. Older outputs are retained for traceability but are not the main reported pilot results.",
+  "pilots": [
+    {
+      "name": "ToolSandbox semantic-normalized pilot",
+      "role": "result-bearing pilot on an existing stateful tool-use benchmark substrate",
+      "status": "pilot_not_10_15_percent_slice",
+      "config": "configs/experiments/toolsandbox_model_pilot_small.json",
+      "summary": "outputs/toolsandbox_model_pilot_real_24_semantic_v4_summary.json",
+      "manifest": "outputs/toolsandbox_model_pilot_real_24_semantic_v4_manifest.json",
+      "trace_dir": "traces/toolsandbox_model_pilot_real_24_semantic_v4",
+      "model": "gpt-5.4-mini",
+      "cells": 24,
+      "tasks": 2
+    },
+    {
+      "name": "AgentDojo plausible semantic-spoof pilot",
+      "role": "second-substrate feasibility pilot over official AgentDojo tasks and scripted ground-truth tool plans",
+      "status": "feasibility_pilot_clean_utility_limited",
+      "config": "configs/experiments/agentdojo_model_pilot_small.json",
+      "summary": "outputs/agentdojo_model_pilot_real_32_semantic_plausible_summary.json",
+      "manifest": "outputs/agentdojo_model_pilot_real_32_semantic_plausible_manifest.json",
+      "trace_dir": "traces/agentdojo_model_pilot_real_32_semantic_plausible",
+      "model": "gpt-5.4-mini",
+      "cells": 32,
+      "tasks": 2
+    },
+    {
+      "name": "Authorization/provenance sanity pilot",
+      "role": "local verdict-level authorization axis sanity pilot",
+      "status": "local_axis_pilot_not_existing_benchmark_main_result",
+      "config": "configs/experiments/authorization_toolcall_pilot_small.json",
+      "summary": "outputs/authorization_toolcall_pilot_real_v3_summary.json",
+      "manifest": "outputs/authorization_toolcall_pilot_real_v3_manifest.json",
+      "trace_dir": "traces/authorization_toolcall_pilot_real_v3",
+      "model": "gpt-5.4-mini",
+      "cells": 12,
+      "tasks": 1
+    },
+    {
+      "name": "Authorization optimized-observation pilot",
+      "role": "local observation stress-test generator sanity pilot",
+      "status": "local_generator_pilot",
+      "config": "configs/experiments/authorization_mock_optimizer_tiny.json",
+      "summary": "outputs/authorization_mock_optimizer_tiny_real_v2_summary.json",
+      "manifest": "outputs/authorization_mock_optimizer_tiny_real_v2_manifest.json",
+      "trace_dir": "traces/authorization_mock_optimizer_tiny_real_v2",
+      "model": "gpt-5.4-mini",
+      "cells": 6,
+      "tasks": 1
+    },
+    {
+      "name": "Authorization evidence-control slice",
+      "role": "local evidence ladder control pilot",
+      "status": "control_pilot_not_average_faa_estimate",
+      "config": "configs/experiments/authorization_control_slice_small.json",
+      "summary": "outputs/authorization_control_slice_real_summary.json",
+      "manifest": "outputs/authorization_control_slice_real_manifest.json",
+      "trace_dir": "traces/authorization_control_slice_real",
+      "model": "gpt-5.4-mini",
+      "cells": 20,
+      "tasks": 5
+    }
+  ]
+}

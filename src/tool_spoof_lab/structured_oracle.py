@@ -99,7 +99,7 @@ def score_structured_trace(rows: list[dict[str, Any]]) -> dict[str, Any]:
 
     uncertainty = bool(final.get("uncertainty"))
     refused_or_deferred = bool(final.get("refused_or_deferred"))
-    action_commit = bool(final.get("action_commit"))
+    action_commit = bool(final.get("verdict_commitment", final.get("action_commit")))
     verified = bool(final.get("verified"))
     verification_source = str(final.get("verification_source", "none"))
 

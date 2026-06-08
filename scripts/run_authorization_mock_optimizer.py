@@ -64,6 +64,7 @@ def run_cell(
             "confidence": "low",
             "uncertainty": True,
             "refused_or_deferred": True,
+            "verdict_commitment": False,
             "action_commit": False,
             "rationale": "dry-run: model call skipped",
         }
@@ -91,6 +92,7 @@ def run_cell(
                 "confidence": "low",
                 "uncertainty": True,
                 "refused_or_deferred": True,
+                "verdict_commitment": False,
                 "action_commit": False,
                 "rationale": f"API error: {type(exc).__name__}",
             }

@@ -1347,3 +1347,68 @@ Remaining blocker before a strong systems/security submission:
 - Add 2-3 models and bootstrap confidence intervals.
 - Replace privileged hidden-registry validator in main tables with deployable
   independent authority variants wherever possible.
+
+## Round 25: CCF-A reviewer critique on benchmark/baseline contract
+
+A follow-up CCF-A / USENIX / S&P style review judged the direction correct but
+not yet submission-ready. The core assessment was:
+
+- The paper has moved away from a toy benchmark framing and now uses
+  ToolSandbox and AgentDojo as real existing substrates.
+- ToolSandbox is the strongest current evidence chain, but the real-model run is
+  still only 2 tasks / 24 cells.
+- AgentDojo is useful as second-substrate feasibility, but current clean utility
+  is too low to claim defense effectiveness.
+- Authorization/provenance spoofing accurately captures the user's intended
+  mechanism: user self-claim plus tool-mediated nginx/banner/asset-inventory
+  and scope evidence can shift the authorization verdict under weak baselines.
+- The authorization axis remains local synthetic and must be migrated to an
+  existing substrate or clearly labeled as an axis stress test.
+
+Must-fix items from the review:
+
+1. Lock the canonical result files so reviewers do not see multiple output
+   versions as cherry-picking.
+2. Downgrade AgentDojo wording from robustness evidence to second-substrate
+   feasibility evidence until clean utility improves.
+3. Avoid the ambiguous `action_commit` wording in the manuscript; use verdict
+   commitment / false authorization acceptance / unsafe assessment escalation.
+4. Treat local `mock_independent_scope_registry` as an upper-bound authority
+   unless implemented as signed-scope or challenge-response verification.
+5. Add prompt-leakage invariants and a stronger baseline contract with
+   deployable vs upper-bound labels.
+
+Implemented response:
+
+- Added `outputs/main_pilot_index.json` as the canonical pilot result index.
+- Added `docs/benchmark-baseline-contract.md`, defining benchmark unit,
+  existing-benchmark grounding, observation generator constraints, deployable
+  vs upper-bound baselines, the authorization evidence ladder, prompt-leakage
+  invariants, and the minimum 720-cell paper-grade matrix.
+- Updated `docs/paper-draft-zh.md` with:
+  - canonical artifact paths for each pilot table;
+  - AgentDojo feasibility-only wording;
+  - verdict-commitment wording instead of action-execution commitment;
+  - a warning that local scope registry validation is upper-bound unless
+    implemented as deployable signed-scope/challenge-response;
+  - an evidence-condition table explaining why weak-control FAA 0/5 and strong
+    spoof FAA 1/1 are not contradictory.
+- Updated `docs/benchmark-overlay-strategy.md` and `docs/experiment-plan.md`
+  with signed-scope/challenge-response baseline requirements and prompt-leakage
+  invariants.
+
+Next reviewer-requested experiments:
+
+1. ToolSandbox 6-task semantic real-model pilot:
+
+```text
+6 tasks x truthful/spoofed x 6 profiles = 72 cells
+```
+
+2. ToolSandbox raw-repr vs semantic-normalized observation-format ablation:
+
+```text
+2 tasks x 2 observation formats x truthful/spoofed x 6 profiles = 48 cells
+```
+
+3. AgentDojo clean-utility-focused 4-task rerun before scaling to more tasks.

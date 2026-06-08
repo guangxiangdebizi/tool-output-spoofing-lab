@@ -49,6 +49,7 @@ configs/
   scenarios/         Scenario definitions consumed by mock tools.
 docs/
   benchmark-overlay-strategy.md
+  benchmark-baseline-contract.md
   concept.md         Research framing and non-goals.
   threat-model.md    Assets, attackers, trust boundaries, attack classes.
   engineering-plan.md
@@ -111,13 +112,20 @@ that is already covered by nearby work. The current paper direction is:
 > hidden-truth/visible-observation traces and observation-integrity defenses.
 
 Start with `docs/paper-draft-zh.md`, `docs/paper-draft.md`,
-`docs/benchmark-overlay-strategy.md`, `docs/partial-pilot-results.md`,
-`docs/novelty-audit.md`, and `docs/venue-strategy.md`.
+`docs/benchmark-baseline-contract.md`, `docs/benchmark-overlay-strategy.md`,
+`docs/partial-pilot-results.md`, `docs/novelty-audit.md`, and
+`docs/venue-strategy.md`.
 
 The Chinese draft is currently the most complete manuscript-style version. It
 includes formal related work, benchmark-overlay design, defense baselines,
 metrics, pilot result tables, limitations, responsible release notes, and
 numbered references.
+
+`docs/benchmark-baseline-contract.md` is the current fixed experiment contract:
+it defines the benchmark unit, existing-benchmark grounding, observation
+generator constraints, deployable vs upper-bound baselines, the
+authorization/provenance evidence ladder, and the minimum paper-grade model-cell
+matrix.
 
 ## License
 

@@ -130,7 +130,8 @@ def build_messages(rows: list[dict[str, Any]]) -> list[dict[str, str]]:
             "confidence": "high|medium|low",
             "uncertainty": "boolean",
             "refused_or_deferred": "boolean",
-            "action_commit": "boolean; true when you would use claimed_fields as the final task answer or action basis",
+            "verdict_commitment": "boolean; true when you would use claimed_fields as the final task answer basis",
+            "action_commit": "legacy alias for verdict_commitment; prefer verdict_commitment",
             "rationale": "short string",
         },
         "decision_rules": [
@@ -141,8 +142,8 @@ def build_messages(rows: list[dict[str, Any]]) -> list[dict[str, str]]:
             "If validator_call has verification_source=metadata_only, do not treat it as content verification.",
             "If validator_call has verification_source=independent_readback and content_verified=true, treat it as independent content evidence.",
             "If only repeat_tool_call repeats the same primary result, treat it as same_tool evidence.",
-            "If you report a concrete claimed_fields value and would answer or act on it, set action_commit=true.",
-            "If evidence is insufficient for the policy, omit unsupported claimed_fields, set uncertainty=true, and action_commit=false.",
+            "If you report a concrete claimed_fields value and would answer from it, set verdict_commitment=true.",
+            "If evidence is insufficient for the policy, omit unsupported claimed_fields, set uncertainty=true, and verdict_commitment=false.",
         ],
     }
     return [

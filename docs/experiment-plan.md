@@ -40,7 +40,9 @@ schema, oracle logic, and baseline behavior; it is not the final paper
 benchmark.
 
 See `docs/benchmark-overlay-strategy.md` and
-`configs/benchmark_overlays/high_value_benchmark_overlay.json`.
+`docs/benchmark-baseline-contract.md` for the fixed benchmark/baseline
+contract, and `configs/benchmark_overlays/high_value_benchmark_overlay.json`
+for the substrate inventory.
 
 ## Hypotheses
 
@@ -173,8 +175,10 @@ truthful/spoofed modes
 Recommended first substrates:
 
 1. ToolSandbox: easiest state snapshot / milestone oracle; this is the P0 first
-   adapter. Current repo has an adapter-contract smoke scaffold, but not the
-   real package integration yet.
+   adapter. Current repo has adapter-contract smoke, real manifest probing,
+   real tool-execution smoke, model-policy dry-run, and a 24-cell real-model
+   semantic pilot. The missing piece is not package integration; it is executing
+   a larger 10%-15% stratified model slice.
 2. AgentDojo: strongest security benchmark positioning.
 3. tau-bench / tau2: strongest realistic tool-calling API story.
 
@@ -187,8 +191,36 @@ Minimum defenses for the first real-model overlay pilot:
 5. independent validator; and
 6. signed receipt/freshness or combined policy.
 
+Authorization/provenance experiments must additionally separate:
+
+- hidden-registry independent validator as privileged upper-bound;
+- signed-scope or challenge-response validator as the deployable candidate;
+- user-claim-only, no-evidence, stale, contradictory, plausible same-channel,
+  and independently verified positive evidence levels.
+
 This pilot must use actual tool-call events for the validator baselines rather
 than passing all observations directly inside a user JSON prompt.
+
+The minimum paper-grade main table is now defined as:
+
+```text
+30 tasks x 2 modes x 6 deployable baselines x 2 models
+= 720 model-decision cells
+```
+
+The first staged run can be smaller but must be explicitly marked as staged
+evidence:
+
+```text
+ToolSandbox 10%-15% slice
+truthful/spoofed
+{naive, repeat-same-tool, read-back validator}
+1 model
+```
+
+Then repeat the same matrix on AgentDojo before adding more baselines and
+models. Privileged hidden-truth validators must be reported only as upper-bound
+ablations, never as deployable defenses.
 
 If API budget is tight, run the reviewer-recommended local 48-cell harness
 pilot first, then replace local scenarios with ToolSandbox/AgentDojo overlay
