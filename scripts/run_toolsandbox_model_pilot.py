@@ -79,7 +79,9 @@ def main() -> None:
                 for profile in profiles:
                     if args.limit_cells is not None and cell_count >= args.limit_cells:
                         break
-                    rows = build_interception_trace(execution, mode=mode, profile=profile, model=model)
+                    scripted_rows = build_interception_trace(execution, mode=mode, profile=profile, model=model)
+                    harness_expected_score = score_structured_trace(scripted_rows)
+                    rows = [row for row in scripted_rows if row["event"] != "structured_final"]
                     for row in rows:
                         row.update(
                             {
@@ -140,6 +142,7 @@ def main() -> None:
                         "api_error": api_error,
                         "parse_error": parse_error,
                         "prompt_hash": prompt_hash,
+                        "harness_expected_structured_score": harness_expected_score,
                     }
                     scored.append(scored_row)
                     manifest_rows.append(

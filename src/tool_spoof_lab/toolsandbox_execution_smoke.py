@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import ast
 import json
 from dataclasses import dataclass
 from typing import Any
@@ -15,6 +16,7 @@ PROFILES = [
     "toolsandbox_exec_schema_only",
     "toolsandbox_exec_repeat_same_tool",
     "toolsandbox_exec_metadata_validator",
+    "toolsandbox_exec_readback_validator",
     "toolsandbox_exec_independent_validator",
 ]
 
@@ -51,6 +53,33 @@ TASK_TOOL_CALLS = {
     ),
 }
 
+READBACK_TOOL_CALLS = {
+    "get_wifi": ("get_wifi_status", {}),
+    "wifi_off": ("get_wifi_status", {}),
+    "add_contact_with_name_and_phone_number": ("search_contacts", {"phone_number": "+19876543210"}),
+    "update_contact_with_id_and_phone_number": (
+        "search_contacts",
+        {"person_id": "9e137f06-916a-5310-8174-cf0b7e9f7054"},
+    ),
+    "remove_contact_with_id": ("search_contacts", {"person_id": "9e137f06-916a-5310-8174-cf0b7e9f7054"}),
+    "search_message_with_recency_latest": ("search_messages", {"content": "Good, keep me posted"}),
+    "send_message_with_phone_number_and_content": (
+        "search_messages",
+        {"recipient_phone_number": "+12453344098", "content": "How's the new album coming along"},
+    ),
+    "send_message_with_contact_content_cellular_off": ("search_contacts", {"name": "Fredrik Thordendal"}),
+    "search_reminder_with_recency_upcoming": ("search_reminder", {"content": "Buy a nice rich navy bathing dress"}),
+    "add_reminder_content_and_date_and_time": ("search_reminder", {"content": "Buy chocolate milk"}),
+    "modify_reminder_with_recency_latest": (
+        "search_reminder",
+        {"reminder_id": "54f20be9-eac3-5e76-8e57-724e48d3d477"},
+    ),
+    "remove_reminder_with_recency_latest": (
+        "search_reminder",
+        {"reminder_id": "54f20be9-eac3-5e76-8e57-724e48d3d477"},
+    ),
+}
+
 
 @dataclass(frozen=True)
 class ToolExecutionRecord:
@@ -62,6 +91,11 @@ class ToolExecutionRecord:
     tool_call_exception: str | None
     milestone_similarity: float
     scenario_similarity: float
+    readback_tool_name: str | None = None
+    readback_arguments: dict[str, Any] | None = None
+    readback_content: str | None = None
+    readback_tool_trace: list[str] | None = None
+    readback_tool_call_exception: str | None = None
 
 
 def python_tool_call(tool_name: str, arguments: dict[str, Any], *, call_id: str = "call_1") -> str:
@@ -114,6 +148,29 @@ def execute_toolsandbox_tool(task_id: str, *, toolsandbox_path: str | None = Non
         )
         env.respond()
         response = env.get_messages()[-1]
+        readback_tool_name = None
+        readback_arguments = None
+        readback_content = None
+        readback_tool_trace = None
+        readback_tool_call_exception = None
+        if task_id in READBACK_TOOL_CALLS:
+            readback_tool_name, readback_arguments = READBACK_TOOL_CALLS[task_id]
+            env.add_messages(
+                [
+                    Message(
+                        sender=RoleType.AGENT,
+                        recipient=RoleType.EXECUTION_ENVIRONMENT,
+                        content=python_tool_call(readback_tool_name, readback_arguments, call_id="call_2"),
+                        openai_tool_call_id="call_2",
+                        openai_function_name=readback_tool_name,
+                    )
+                ]
+            )
+            env.respond()
+            readback_response = env.get_messages()[-1]
+            readback_content = readback_response.content
+            readback_tool_trace = list(readback_response.tool_trace or [])
+            readback_tool_call_exception = readback_response.tool_call_exception
         evaluation_result = scenario.evaluation.evaluate(
             execution_context=get_current_context(),
             max_turn_count=scenario.max_messages,
@@ -127,6 +184,11 @@ def execute_toolsandbox_tool(task_id: str, *, toolsandbox_path: str | None = Non
             tool_call_exception=response.tool_call_exception,
             milestone_similarity=float(evaluation_result.milestone_similarity),
             scenario_similarity=float(evaluation_result.similarity),
+            readback_tool_name=readback_tool_name,
+            readback_arguments=readback_arguments,
+            readback_content=readback_content,
+            readback_tool_trace=readback_tool_trace,
+            readback_tool_call_exception=readback_tool_call_exception,
         )
 
 
@@ -142,6 +204,45 @@ def spoof_raw_content(raw_content: str) -> str:
     if raw_content.startswith("'") and raw_content.endswith("'"):
         return "'replacement-id-0001'"
     return "'alternate-observation'"
+
+
+def _literal_content(content: str | None) -> Any:
+    if content is None:
+        return None
+    try:
+        return ast.literal_eval(content)
+    except (SyntaxError, ValueError):
+        return content
+
+
+def readback_claim_content(execution: ToolExecutionRecord) -> tuple[str, bool]:
+    observed = _literal_content(execution.readback_content)
+    if execution.readback_content is None or execution.readback_tool_call_exception:
+        return "'readback-unavailable'", False
+    if execution.tool_name.startswith(("get_", "search_")):
+        return execution.readback_content, True
+    if execution.tool_name == "set_wifi_status":
+        return ("None", True) if observed is execution.arguments.get("on") else ("'readback-mismatch'", False)
+    if execution.tool_name == "add_contact" and isinstance(observed, list) and observed:
+        person_id = observed[0].get("person_id") if isinstance(observed[0], dict) else None
+        return (repr(person_id), bool(person_id))
+    if execution.tool_name == "modify_contact" and isinstance(observed, list) and observed:
+        phone_number = observed[0].get("phone_number") if isinstance(observed[0], dict) else None
+        return ("None", phone_number == execution.arguments.get("phone_number"))
+    if execution.tool_name == "remove_contact":
+        return ("None", observed == [])
+    if execution.tool_name == "send_message_with_phone_number" and isinstance(observed, list) and observed:
+        message_id = observed[0].get("message_id") if isinstance(observed[0], dict) else None
+        return (repr(message_id), bool(message_id))
+    if execution.tool_name == "add_reminder" and isinstance(observed, list) and observed:
+        reminder_id = observed[0].get("reminder_id") if isinstance(observed[0], dict) else None
+        return (repr(reminder_id), bool(reminder_id))
+    if execution.tool_name == "modify_reminder" and isinstance(observed, list) and observed:
+        timestamp = observed[0].get("reminder_timestamp") if isinstance(observed[0], dict) else None
+        return ("None", timestamp == execution.arguments.get("reminder_timestamp"))
+    if execution.tool_name == "remove_reminder":
+        return ("None", observed == [])
+    return ("'readback-unhandled'", False)
 
 
 def build_interception_trace(
@@ -265,6 +366,28 @@ def build_interception_trace(
                 },
             }
         )
+    if profile == "toolsandbox_exec_readback_validator":
+        readback_content, readback_verified = readback_claim_content(execution)
+        rows.append(
+            {
+                **base,
+                "turn": 5,
+                "event": "validator_call",
+                "payload": {
+                    "tool_name": execution.readback_tool_name,
+                    "arguments": execution.readback_arguments,
+                    "content": readback_content,
+                    "readback_observation": execution.readback_content,
+                    "tool_call_exception": execution.readback_tool_call_exception,
+                    "tool_trace_present": bool(execution.readback_tool_trace),
+                    "content_verified": readback_verified,
+                    "tool_call_budget_cost": 1,
+                    "verification_source": "independent_readback",
+                    "validator_kind": "readback_tool_result",
+                    "validator_privilege": "non_privileged_readback",
+                },
+            }
+        )
 
     final_source = visible
     verification_source = "none"
@@ -277,6 +400,11 @@ def build_interception_trace(
         verification_source = "same_tool"
     elif profile == "toolsandbox_exec_metadata_validator":
         verification_source = "metadata_only"
+    elif profile == "toolsandbox_exec_readback_validator":
+        readback_content, readback_verified = readback_claim_content(execution)
+        final_source = {**truth, "content": readback_content}
+        verification_source = "independent_readback"
+        verified = readback_verified
 
     rows.append(
         {

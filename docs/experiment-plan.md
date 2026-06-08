@@ -285,15 +285,15 @@ PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/run_toolsandbox_
   --dry-run --sleep 0
 ```
 
-This completed 120 dry-run cells:
+This completed 144 dry-run cells:
 
 ```text
 12 real ToolSandbox tasks
 truthful/spoofed
 naive / schema-only / repeat-same-tool /
-metadata-only validator / privileged independent-validator upper bound
+metadata-only validator / read-back validator / privileged independent-validator upper bound
 1 configured model id
-= 120 prompt/trace cells
+= 144 prompt/trace cells
 ```
 
 The runner uses real ToolSandbox tool execution as the raw observation source,
@@ -307,11 +307,20 @@ only 12 / 1032 scenarios. Prompt tests verify that `oracle_context`,
 `raw_tool_result`, raw profile names, and truthful/spoofed condition labels are
 not exposed to the model-visible prompt.
 
-The validator baselines are now separated into a non-privileged metadata-only
-check and a privileged upper-bound validator. The former records
-`verification_source=metadata_only` and `content_verified=false`; the latter
-uses the raw truthful ToolSandbox execution result and must be reported only as
-an upper-bound ablation until replaced by a deployable independent authority.
+The validator baselines are now separated into three levels:
+
+1. non-privileged metadata-only check:
+   `verification_source=metadata_only`, `content_verified=false`;
+2. non-privileged read-back validator:
+   `verification_source=independent_readback`, `validator_privilege=non_privileged_readback`,
+   using a second real ToolSandbox read tool in the same execution context;
+3. privileged upper-bound validator:
+   `validator_privilege=privileged_upper_bound`, using the raw truthful
+   ToolSandbox execution result and reported only as an upper-bound ablation.
+
+The read-back validator assumes a split trust boundary: the primary observation
+can be spoofed, but the canonical state/read-back path is still available. If
+the whole ToolSandbox backend is compromised, it is not independent.
 
 Current 10%-15% ToolSandbox sampling manifest design:
 

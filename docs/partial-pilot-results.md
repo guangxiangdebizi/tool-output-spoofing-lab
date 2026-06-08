@@ -76,7 +76,7 @@ The real-tool harness supports:
 
 Unlike `scripts/run_newapi_partial_pilot.py`, this runner records
 harness-controlled tool events before asking the model for a structured final
-decision. It is the intended entrypoint for the next 120-cell small pilot and
+decision. It is the intended entrypoint for the next 144-cell small pilot and
 the later 30-45 paired-scenario model pilot.
 
 Current caveat: `freshness_check` and `signature_check` are metadata checks in
@@ -110,9 +110,9 @@ PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/run_toolsandbox_
 
 ### Dry-run verification
 
-- Completed cells: 120 / 120
+- Completed cells: 144 / 144
 - Selected tasks: 12 / 1032 (`selected_fraction=0.0116`)
-- Profiles: naive, schema-only, repeat-same-tool, metadata-only validator,
+- Profiles: naive, schema-only, repeat-same-tool, metadata-only validator, read-back validator,
   privileged independent-validator upper bound
 - `real_tool_execution=true`
 - `real_execution_interception=true`
@@ -128,20 +128,37 @@ truthful/spoofed model-visible tool events, and asks the model for a structured
 final decision in non-dry-run mode. Unit tests verify the model-visible prompt
 does not leak `oracle_context`, `raw_tool_result`, raw profile names, or
 truthful/spoofed condition labels.
+The read-back validator exposes `readback_observation` as a model-visible
+second-tool output. This is not hidden oracle state and not the primary raw
+result; it is valid only under the narrower threat model where the primary
+observation channel can be spoofed but the canonical state/read-back path is
+not also compromised.
 
 Validator honesty ablation:
 
 - `toolsandbox_exec_metadata_validator` is non-privileged. It can inspect only
   tool metadata such as exception status and whether a tool trace exists; it
   sets `verification_source=metadata_only` and `content_verified=false`.
+- `toolsandbox_exec_readback_validator` is non-privileged read-back validation.
+  It executes a second real ToolSandbox read tool in the same execution context
+  and exposes that read-back observation to the model as
+  `verification_source=independent_readback`. It does not expose the hidden
+  oracle or the primary raw result.
 - `toolsandbox_exec_independent_validator` is a privileged upper-bound ablation
   that uses the raw truthful ToolSandbox execution result. It should not be
-  described as a deployed defense until replaced by an actual independent
-  state authority.
+  described as a deployed defense; use the read-back validator as the current
+  deployability-oriented comparison.
 
 In the dry-run scripted scoring, metadata-only validation still has spoofed ASR
 12 / 12, matching the reviewer concern that metadata checks do not prove
-semantic truth. The privileged validator remains useful only as an upper bound.
+semantic truth. The read-back validator and privileged upper-bound validator
+both have scripted spoofed ASR 0 / 12 in this 12-task bring-up. Only the
+read-back validator is a deployability-oriented baseline; the privileged
+validator remains useful only as an upper bound.
+
+The dry-run summary also stores `harness_expected_structured_score` for each
+cell. That field is scripted expected behavior, not model behavior. Real model
+claims require a non-dry-run pass with `model_call_executed=true`.
 
 ## ToolSandbox 10%-15% stratified sampling manifest
 

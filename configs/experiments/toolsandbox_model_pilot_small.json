@@ -17,6 +17,7 @@
     "toolsandbox_exec_schema_only",
     "toolsandbox_exec_repeat_same_tool",
     "toolsandbox_exec_metadata_validator",
+    "toolsandbox_exec_readback_validator",
     "toolsandbox_exec_independent_validator"
   ],
   "max_tokens": 260,
@@ -25,6 +26,7 @@
     "primary": 1,
     "repeat_same_tool": 1,
     "metadata_validator": 1,
+    "readback_validator": 1,
     "independent_validator": 1
   }
 }

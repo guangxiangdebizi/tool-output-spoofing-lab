@@ -528,7 +528,7 @@ PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/run_toolsandbox_
 Result:
 
 - `executed_tasks=12`
-- `completed_cells=120`
+- `completed_cells=144`
 - `missing_tool_trace=0`
 - `tool_call_exception=0`
 - `real_tool_execution=true`
@@ -613,8 +613,8 @@ PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/run_toolsandbox_
 
 Result:
 
-- `completed_cells=120`
-- `expected_cells_without_limit=120`
+- `completed_cells=144`
+- `expected_cells_without_limit=144`
 - `selected_task_count=12`
 - `selected_fraction=0.0116`
 - `real_tool_execution=true`
@@ -658,7 +658,7 @@ tool-call map is expanded.
 
 Remaining P0:
 
-1. run the 120-cell ToolSandbox model-policy pilot with a real API key;
+1. run the 144-cell ToolSandbox model-policy pilot with a real API key;
 2. expand from 12-task bring-up to the 104-task stratified manifest;
 3. implement a non-oracle independent validator service;
 4. integrate AgentDojo or tau-bench as a second existing benchmark substrate;
@@ -676,30 +676,36 @@ ToolSandbox execution/model pilot now separates:
   It records `verification_source=metadata_only`,
   `validator_kind=trace_metadata_only`, `validator_privilege=non_privileged`,
   and `content_verified=false`.
+- `toolsandbox_exec_readback_validator`: non-privileged read-back validator.
+  It executes a second real ToolSandbox read tool in the same execution context
+  and records `verification_source=independent_readback` and
+  `validator_privilege=non_privileged_readback`.
 - `toolsandbox_exec_independent_validator`: privileged upper-bound validator.
   It records `validator_kind=raw_toolsandbox_execution_result` and
   `validator_privilege=privileged_upper_bound`.
 
-The ToolSandbox model-policy dry-run was re-run with five profiles:
+The ToolSandbox model-policy dry-run was re-run with six profiles:
 
 ```text
 12 tasks x truthful/spoofed x
   naive / schema-only / repeat-same-tool /
-  metadata-only validator / privileged independent-validator upper bound
-= 120 cells
+  metadata-only validator / read-back validator / privileged independent-validator upper bound
+= 144 cells
 ```
 
 Dry-run summary:
 
-- `completed_cells=120`
-- `expected_cells_without_limit=120`
+- `completed_cells=144`
+- `expected_cells_without_limit=144`
 - metadata-only validator spoofed ASR in scripted scoring: 12 / 12
+- read-back validator spoofed ASR in scripted scoring: 0 / 12
 - privileged independent-validator spoofed ASR in scripted scoring: 0 / 12
 - `real_model_run=false`
 - `model_call_executed=false`
 
 Interpretation: metadata-only validation and same-channel repetition do not
-verify semantic truth. A content-level independent authority is required, but
-the current raw-result validator is only an upper-bound ablation. The next
-paper-grade step is still to implement a non-oracle independent authority and
-run the model-policy pilot with a real API key.
+verify semantic truth. A content-level independent authority is required.
+Read-back validation is the current deployability-oriented ToolSandbox
+baseline; the raw-result validator remains only an upper-bound ablation. The
+next paper-grade step is to run the read-back baseline with real model calls and
+then scale it to the 104-task manifest.
