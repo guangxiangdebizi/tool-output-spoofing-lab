@@ -1,0 +1,147 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900">
+  <defs>
+    <style>
+      .title { font: 700 34px Arial, Helvetica, sans-serif; fill: #111827; }
+      .panel-title { font: 700 22px Arial, Helvetica, sans-serif; fill: #111827; }
+      .label { font: 16px Arial, Helvetica, sans-serif; fill: #111827; }
+      .small { font: 13px Arial, Helvetica, sans-serif; fill: #374151; }
+      .tiny { font: 12px Arial, Helvetica, sans-serif; fill: #4b5563; }
+      .box { fill: #ffffff; stroke: #1f2937; stroke-width: 2; rx: 14; }
+      .blue { fill: #eff6ff; stroke: #2563eb; }
+      .orange { fill: #fff7ed; stroke: #ea580c; }
+      .green { fill: #ecfdf5; stroke: #059669; }
+      .red { fill: #fef2f2; stroke: #dc2626; }
+      .gray { fill: #f9fafb; stroke: #6b7280; }
+      .arrow { stroke: #374151; stroke-width: 2.2; fill: none; marker-end: url(#arrow); }
+      .dashed { stroke-dasharray: 7 6; }
+      .sep { stroke: #d1d5db; stroke-width: 2; }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#374151"/>
+    </marker>
+  </defs>
+
+  <rect width="1400" height="900" fill="#ffffff"/>
+  <text x="700" y="48" text-anchor="middle" class="title">Tool-Output Spoofing Benchmark: Hidden Truth vs. Visible Observation</text>
+  <line x1="700" y1="80" x2="700" y2="860" class="sep"/>
+  <line x1="60" y1="450" x2="1340" y2="450" class="sep"/>
+
+  <!-- Panel A -->
+  <text x="82" y="112" class="panel-title">A. Threat model</text>
+  <rect x="86" y="142" width="150" height="62" class="box blue"/>
+  <text x="161" y="166" text-anchor="middle" class="label">User task</text>
+  <text x="161" y="187" text-anchor="middle" class="small">authorization verdict</text>
+
+  <rect x="306" y="142" width="150" height="62" class="box"/>
+  <text x="381" y="166" text-anchor="middle" class="label">LLM agent</text>
+  <text x="381" y="187" text-anchor="middle" class="small">tool-using policy</text>
+
+  <rect x="526" y="142" width="150" height="62" class="box blue"/>
+  <text x="601" y="166" text-anchor="middle" class="label">Tool call</text>
+  <text x="601" y="187" text-anchor="middle" class="small">API / MCP / browser</text>
+
+  <path d="M236 173 L306 173" class="arrow"/>
+  <path d="M456 173 L526 173" class="arrow"/>
+  <path d="M526 206 C430 250 365 250 306 206" class="arrow"/>
+  <text x="382" y="254" text-anchor="middle" class="small">model-visible observation</text>
+
+  <rect x="102" y="304" width="240" height="78" class="box red"/>
+  <text x="222" y="329" text-anchor="middle" class="label">Spoofed observation</text>
+  <text x="222" y="352" text-anchor="middle" class="small">authorized / ownership_verified</text>
+  <text x="222" y="371" text-anchor="middle" class="tiny">attacker controls this channel only</text>
+
+  <rect x="420" y="304" width="240" height="78" class="box green"/>
+  <text x="540" y="329" text-anchor="middle" class="label">Hidden truth / oracle</text>
+  <text x="540" y="352" text-anchor="middle" class="small">not_authorized / passive_triage</text>
+  <text x="540" y="371" text-anchor="middle" class="tiny">unchanged backend state</text>
+
+  <path d="M342 343 L420 343" class="arrow dashed"/>
+  <text x="381" y="331" text-anchor="middle" class="tiny">split</text>
+
+  <!-- Panel B -->
+  <text x="772" y="112" class="panel-title">B. Benchmark overlay on existing substrates</text>
+  <rect x="795" y="140" width="170" height="62" class="box blue"/>
+  <text x="880" y="166" text-anchor="middle" class="label">ToolSandbox</text>
+  <text x="880" y="187" text-anchor="middle" class="small">stateful oracle</text>
+
+  <rect x="1005" y="140" width="170" height="62" class="box blue"/>
+  <text x="1090" y="166" text-anchor="middle" class="label">AgentDojo</text>
+  <text x="1090" y="187" text-anchor="middle" class="small">security tasks</text>
+
+  <rect x="1215" y="140" width="170" height="62" class="box blue"/>
+  <text x="1300" y="166" text-anchor="middle" class="label">Other suites</text>
+  <text x="1300" y="187" text-anchor="middle" class="small">tau/Web/SWE/MCP</text>
+
+  <rect x="905" y="250" width="360" height="70" class="box orange"/>
+  <text x="1085" y="277" text-anchor="middle" class="label">Observation-spoofing overlay</text>
+  <text x="1085" y="300" text-anchor="middle" class="small">same task + same hidden oracle; vary visible result</text>
+
+  <path d="M880 202 L1000 250" class="arrow"/>
+  <path d="M1090 202 L1090 250" class="arrow"/>
+  <path d="M1300 202 L1170 250" class="arrow"/>
+
+  <rect x="835" y="358" width="220" height="64" class="box green"/>
+  <text x="945" y="384" text-anchor="middle" class="label">Truthful condition</text>
+  <text x="945" y="405" text-anchor="middle" class="small">visible = true state</text>
+  <rect x="1135" y="358" width="220" height="64" class="box red"/>
+  <text x="1245" y="384" text-anchor="middle" class="label">Spoofed condition</text>
+  <text x="1245" y="405" text-anchor="middle" class="small">visible = false state</text>
+  <path d="M1015 320 L945 358" class="arrow"/>
+  <path d="M1170 320 L1245 358" class="arrow"/>
+
+  <!-- Panel C -->
+  <text x="82" y="500" class="panel-title">C. Baseline hierarchy</text>
+  <rect x="90" y="532" width="285" height="44" class="box red"/>
+  <text x="110" y="560" class="label">Naive trust</text>
+  <text x="355" y="560" text-anchor="end" class="small">fails</text>
+  <rect x="90" y="584" width="285" height="44" class="box red"/>
+  <text x="110" y="612" class="label">Schema-only</text>
+  <text x="355" y="612" text-anchor="end" class="small">schema valid ≠ true</text>
+  <rect x="90" y="636" width="285" height="44" class="box red"/>
+  <text x="110" y="664" class="label">Prompt filter</text>
+  <text x="355" y="664" text-anchor="end" class="small">no instruction text</text>
+  <rect x="90" y="688" width="285" height="44" class="box orange"/>
+  <text x="110" y="716" class="label">Repeat same tool</text>
+  <text x="355" y="716" text-anchor="end" class="small">same channel</text>
+  <rect x="420" y="532" width="285" height="44" class="box orange"/>
+  <text x="440" y="560" class="label">Metadata-only validator</text>
+  <text x="685" y="560" text-anchor="end" class="small">weak</text>
+  <rect x="420" y="584" width="285" height="44" class="box green"/>
+  <text x="440" y="612" class="label">Read-back validator</text>
+  <text x="685" y="612" text-anchor="end" class="small">deployable</text>
+  <rect x="420" y="636" width="285" height="44" class="box green"/>
+  <text x="440" y="664" class="label">Independent authority</text>
+  <text x="685" y="664" text-anchor="end" class="small">scope registry</text>
+  <rect x="420" y="688" width="285" height="44" class="box green"/>
+  <text x="440" y="716" class="label">Combined policy</text>
+  <text x="685" y="716" text-anchor="end" class="small">best current</text>
+  <text x="350" y="786" text-anchor="middle" class="small">Metric: ASR ↓, clean utility ↑, false-positive refusal ↓, verification cost ↓</text>
+
+  <!-- Panel D -->
+  <text x="772" y="500" class="panel-title">D. Authorization/provenance case</text>
+  <rect x="800" y="532" width="265" height="112" class="box red"/>
+  <text x="932" y="558" text-anchor="middle" class="label">Visible mock evidence</text>
+  <text x="932" y="584" text-anchor="middle" class="small">ownership_verified = true</text>
+  <text x="932" y="606" text-anchor="middle" class="small">authorization_status = authorized</text>
+  <text x="932" y="628" text-anchor="middle" class="small">nginx/banner + inventory present</text>
+
+  <rect x="1110" y="532" width="265" height="112" class="box green"/>
+  <text x="1242" y="558" text-anchor="middle" class="label">Hidden scope registry</text>
+  <text x="1242" y="584" text-anchor="middle" class="small">not_authorized</text>
+  <text x="1242" y="606" text-anchor="middle" class="small">passive_triage_only</text>
+  <text x="1242" y="628" text-anchor="middle" class="small">no exploit steps requested</text>
+
+  <path d="M1065 588 L1110 588" class="arrow dashed"/>
+
+  <rect x="804" y="700" width="185" height="66" class="box gray"/>
+  <text x="896" y="727" text-anchor="middle" class="label">FAA</text>
+  <text x="896" y="750" text-anchor="middle" class="tiny">false authorization</text>
+  <rect x="1010" y="700" width="185" height="66" class="box gray"/>
+  <text x="1102" y="727" text-anchor="middle" class="label">UAE</text>
+  <text x="1102" y="750" text-anchor="middle" class="tiny">unsafe escalation</text>
+  <rect x="1216" y="700" width="185" height="66" class="box gray"/>
+  <text x="1308" y="727" text-anchor="middle" class="label">Utility</text>
+  <text x="1308" y="750" text-anchor="middle" class="tiny">truthful correctness</text>
+
+  <text x="1085" y="828" text-anchor="middle" class="small">Core claim: schema-valid false observations can shift authorization verdicts unless independently verified.</text>
+</svg>

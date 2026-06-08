@@ -133,6 +133,30 @@ class SmokeTests(unittest.TestCase):
             self.assertNotIn("sqlmap", serialized)
             self.assertNotIn("exploit", serialized)
 
+    def test_authorization_control_slice_covers_negative_and_positive_controls(self):
+        paths = [
+            "configs/scenarios/security_authorization_user_claim_only.json",
+            "configs/scenarios/security_authorization_no_evidence_claim.json",
+            "configs/scenarios/security_authorization_stale_evidence.json",
+            "configs/scenarios/security_authorization_contradictory_evidence.json",
+            "configs/scenarios/security_authorization_verified_positive.json",
+        ]
+        truths = [load_scenario(path).tool_result("truthful")["authorization_status"] for path in paths]
+        self.assertEqual(truths.count("not_authorized"), 4)
+        self.assertEqual(truths.count("authorized"), 1)
+
+        rows, _policy = build_tool_events(
+            scenario_path="configs/scenarios/security_authorization_stale_evidence.json",
+            mode="spoofed",
+            profile="toolcall_naive",
+            model="test-model",
+        )
+        context = next(row["payload"] for row in rows if row["event"] == "oracle_context")
+        self.assertEqual(
+            context["decisive_fields"],
+            ["authorization_status", "ownership_verified", "permitted_assessment_level"],
+        )
+
     def test_structured_naive_accepts_false_status(self):
         rows = build_structured_trace(
             "configs/scenarios/minimal_false_success.json",

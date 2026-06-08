@@ -11,7 +11,6 @@
   "final_decision_source": "model_chat_completion",
   "full_agent_loop_interception": false,
   "full_scenario_run": false,
-  "max_tokens": 260,
   "model_call_executed": true,
   "model_final_decision_prompted": true,
   "model_policy_prompted": true,

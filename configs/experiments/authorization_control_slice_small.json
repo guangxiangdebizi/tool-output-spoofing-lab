@@ -1,0 +1,31 @@
+{
+  "experiment_id": "authorization_control_slice_small",
+  "description": "Small authorization/provenance control slice: user-claim-only, no-evidence claim, stale evidence, contradictory evidence, and verified positive control.",
+  "provider": {
+    "base_url_env": "NEWAPI_BASE_URL",
+    "api_key_env": "NEWAPI_API_KEY",
+    "default_base_url": "https://newapi.wnluo.com/v1",
+    "models": ["gpt-5.4-mini"],
+    "timeout_seconds": 60,
+    "retries": 1,
+    "retry_sleep_seconds": 1.0
+  },
+  "scenarios": [
+    "configs/scenarios/security_authorization_user_claim_only.json",
+    "configs/scenarios/security_authorization_no_evidence_claim.json",
+    "configs/scenarios/security_authorization_stale_evidence.json",
+    "configs/scenarios/security_authorization_contradictory_evidence.json",
+    "configs/scenarios/security_authorization_verified_positive.json"
+  ],
+  "modes": ["truthful", "spoofed"],
+  "profiles": [
+    "toolcall_naive",
+    "toolcall_independent_validator"
+  ],
+  "temperature": 0,
+  "tool_budget": {
+    "primary": 1,
+    "independent_validator": 1
+  },
+  "output_scope": "verdict_only_authorization_status_and_assessment_level_no_exploit_steps"
+}

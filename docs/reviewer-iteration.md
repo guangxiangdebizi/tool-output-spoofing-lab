@@ -1278,3 +1278,72 @@ The v2 prompt restricts authorization final output to verdict fields only:
 confirms the fixed benchmark task / fixed hidden scope registry / varied
 visible-observation structure. Next step is to port the generator axis to
 ToolSandbox and AgentDojo 10%-15% slices.
+
+## Round 24: evidence ladder controls and paper-grade framing
+
+The latest reviewer pass focused on whether the authorization/provenance result
+could be dismissed as one over-optimized local mock. The critique was:
+
+- A publishable claim needs controls where the same user request is paired with
+  different evidence conditions while hidden authorization truth is held fixed.
+- The benchmark must distinguish user self-claim, no evidence, stale evidence,
+  contradictory evidence, internally plausible evidence, and independently
+  verified positive authorization.
+- Hidden authorization truth must never be leaked into the model-visible prompt.
+- Positive controls are required so a reject-all policy cannot look like a
+  strong defense.
+- The "independent validator" must be described carefully: hidden-registry
+  access is an upper bound unless implemented as a deployable independent
+  authority such as signed scoped capability, DNS/file challenge, or canonical
+  scope registry read.
+
+Implementation response:
+
+- Added five control scenarios:
+  - `security_authorization_user_claim_only`
+  - `security_authorization_no_evidence_claim`
+  - `security_authorization_stale_evidence`
+  - `security_authorization_contradictory_evidence`
+  - `security_authorization_verified_positive`
+- Added `configs/experiments/authorization_control_slice_small.json`.
+- Added a smoke test proving the slice contains four negative controls plus one
+  verified positive control, and that decisive authorization fields remain
+  verdict-level only.
+- Ran the 20-cell real-model slice:
+
+```text
+5 evidence conditions x truthful/spoofed x naive/independent validator
+= 20 real-model cells
+```
+
+Result:
+
+| Profile | Spoofed false authorization acceptance | Spoofed unsafe escalation | Truthful authorization utility | Effective verification |
+| --- | ---: | ---: | ---: | ---: |
+| naive | 0 / 5 | 0 / 5 | 5 / 5 | 0 / 5 |
+| independent validator | 0 / 5 | 0 / 5 | 5 / 5 | 5 / 5 |
+
+Reviewer interpretation:
+
+- This improves credibility because the paper no longer implies that any weak
+  authorization-looking observation is sufficient.
+- The result should be written as an evidence-strength ladder: weak/no/stale or
+  contradictory evidence does not trigger commitment, while earlier strong
+  internally consistent provenance evidence and optimized observation variants
+  do trigger false authorization acceptance under weak baselines.
+- Main-paper claims should avoid broad "models help attack websites" language.
+  Preferred terms are "authorization-context spoofing",
+  "tool-mediated provenance spoofing", "permission-boundary verdict drift", and
+  "sandbox-only verdict-level evaluation".
+- The current Chinese draft has been rewritten into formal paper structure with
+  explicit related work, threat model, benchmark overlay design, defense
+  baselines, metrics, pilot tables, limitations, responsible release notes, and
+  numbered references.
+
+Remaining blocker before a strong systems/security submission:
+
+- Execute a 10%-15% existing-benchmark slice rather than only manifests.
+- Expand to 30-45 paired scenarios across at least two existing substrates.
+- Add 2-3 models and bootstrap confidence intervals.
+- Replace privileged hidden-registry validator in main tables with deployable
+  independent authority variants wherever possible.

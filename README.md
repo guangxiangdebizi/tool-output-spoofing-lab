@@ -10,6 +10,16 @@ observations. This lab studies the failure mode where the tool side returns
 mocked or spoofed data and the agent converts that untrusted observation into
 an incorrect report, decision, or action.
 
+![Tool-output spoofing overview](figures/figure1_tool_output_spoofing_overview.png)
+
+Editable source for the overview figure is in
+`figures/figure1_tool_output_spoofing_overview.svg`.
+
+Additional paper figures are available in:
+
+- `figures/figure2_benchmark_baseline_matrix.png`
+- `figures/figure3_authorization_evidence_ladder.png`
+
 One important axis is authorization/provenance spoofing: a tool may falsely
 report that a sandbox asset is owned, in scope, or backed by nginx/banner,
 certificate, or asset-inventory evidence. The benchmark records whether an
@@ -103,6 +113,11 @@ that is already covered by nearby work. The current paper direction is:
 Start with `docs/paper-draft-zh.md`, `docs/paper-draft.md`,
 `docs/benchmark-overlay-strategy.md`, `docs/partial-pilot-results.md`,
 `docs/novelty-audit.md`, and `docs/venue-strategy.md`.
+
+The Chinese draft is currently the most complete manuscript-style version. It
+includes formal related work, benchmark-overlay design, defense baselines,
+metrics, pilot result tables, limitations, responsible release notes, and
+numbered references.
 
 ## License
 

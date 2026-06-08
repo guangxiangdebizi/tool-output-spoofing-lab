@@ -5,7 +5,6 @@
   "dry_run": true,
   "expected_cells_without_limit": 96,
   "experiment_id": "real_toolcall_pilot_small",
-  "max_tokens": 260,
   "models": [
     "gpt-5.4-mini"
   ],

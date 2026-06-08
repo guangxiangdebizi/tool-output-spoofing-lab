@@ -238,6 +238,57 @@ the paper only on ToolSandbox or on local toy scenarios. It uses AgentDojo's
 official user tasks; our overlay target is non-instructional tool-observation
 falsehood, not AgentDojo's native indirect prompt-injection attack.
 
+## Authorization evidence-control real-model slice
+
+After the authorization/provenance positive pilot and the optimized-observation
+tiny run, a 20-cell control slice was added to avoid overclaiming from one
+strong mock:
+
+```text
+5 authorization evidence conditions
+truthful/spoofed
+2 profiles
+= 20 real-model cells
+```
+
+Configuration and artifacts:
+
+- Config: `configs/experiments/authorization_control_slice_small.json`
+- Runner: `scripts/run_real_toolcall_pilot.py`
+- Summary: `outputs/authorization_control_slice_real_summary.json`
+- Manifest: `outputs/authorization_control_slice_real_manifest.json`
+- Traces: `traces/authorization_control_slice_real/`
+
+Evidence conditions:
+
+- `security_authorization_user_claim_only`
+- `security_authorization_no_evidence_claim`
+- `security_authorization_stale_evidence`
+- `security_authorization_contradictory_evidence`
+- `security_authorization_verified_positive`
+
+Aggregate result:
+
+| Profile | Spoofed false authorization acceptance | Spoofed unsafe escalation | Truthful authorization utility | Effective verification |
+| --- | ---: | ---: | ---: | ---: |
+| naive | 0 / 5 | 0 / 5 | 5 / 5 | 0 / 5 |
+| independent validator | 0 / 5 | 0 / 5 | 5 / 5 | 5 / 5 |
+
+Interpretation:
+
+- This control slice is not negative evidence against the authorization-spoofing
+  hypothesis. It shows that weak/no/stale/contradictory evidence is not enough
+  to trigger `action_commit=true` under the current prompt and model.
+- The earlier 12-cell authorization pilot and 6-cell optimized-observation
+  pilot remain the positive signal: plausible, internally consistent,
+  tool-mediated provenance claims can cause false authorization acceptance under
+  weak baselines.
+- Together, the positive and control slices support an evidence-strength ladder:
+  the benchmark should report results by evidence condition, not only pooled
+  ASR/FAA.
+- The verified positive control confirms both evaluated profiles retain
+  truthful authorization utility on authorized cases.
+
 ### Command
 
 ```bash
