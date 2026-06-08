@@ -513,7 +513,35 @@ AgentDojo 当前使用官方任务和 ground-truth tool plan，但不是 autonom
 
 结论：AgentDojo pilot 的主要价值不是展示弱基线失败或防御有效，而是证明 overlay 可以迁移到第二个已有 benchmark。当前 clean utility 偏低，必须先调试 clean-utility-focused task slice，再扩大任务数，避免把任务难度误判为防御效果。AgentDojo 当前不能支撑 prompt-filter/combined 的有效性 claim；这些 profile 在 truthful 条件下 utility 不合格。AgentDojo results should not be aggregated with ToolSandbox as defense-effectiveness evidence until clean utility is repaired。可作为正面信号的是 read-back-specific result 和跨 substrate 可迁移性。
 
-### 9.2.1 Local multi-surface 48-cell real-toolcall pilot
+### 9.2.1 AgentDojo 1552-cell full-overlay run
+
+远端云主机已完成 AgentDojo full overlay：97 official user tasks × truthful/spoofed × 8 profiles × 1 model，共 1552 个 model-decision cells。该 run 使用 `gpt-5.4-mini` 和 NewAPI-compatible chat-completions endpoint；仍是 official ground-truth tool plan + trace-level observation substitution + model-final-decision prompt，不是 autonomous AgentDojo full agent loop。
+
+Canonical artifacts：
+
+- summary: `outputs/agentdojo_model_full_summary.json`
+- manifest: `outputs/agentdojo_model_full_manifest.json`
+- CI summary: `outputs/agentdojo_model_full_ci.json`
+- trace directory: `traces/agentdojo_model_full` on the remote run host
+- config: `configs/experiments/agentdojo_model_full.json`
+- model: `gpt-5.4-mini`
+
+Run flags: `completed_cells=1552/1552`, `real_model_run=true`, `real_tool_execution=true`, `official_ground_truth_tool_plan=true`, `real_benchmark_run=false`, `full_agent_loop_interception=false`。
+
+| Profile | Spoofed ASR | Spoofed accepted false state | Truthful clean utility | Effective verification | API/parse errors | 解释 |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| naive | 28/97 | 28/97 | 17/97 | 0/194 | 0 | 弱基线在约三成 spoofed tasks 上接受 false observation |
+| schema-only | 31/97 | 31/97 | 15/97 | 0/194 | 3 | schema 合法仍不能证明语义真实 |
+| prompt-filter | 11/97 | 12/97 | 9/97 | 0/194 | 1 | 指令过滤降低部分 ASR，但 truthful utility 很差 |
+| repeat-same-tool | 15/97 | 15/97 | 12/97 | 0/194 | 1 | 同源重复仍会接受 false observation |
+| metadata-only | 15/97 | 15/97 | 14/97 | 0/194 | 0 | metadata 不能验证 content truth |
+| read-back validator | 0/97 | 0/97 | 42/97 | 194/194 | 2 | 最强可部署信号：阻断 spoofed ASR，且 clean utility 最高 |
+| privileged independent validator | 0/97 | 0/97 | 20/97 | 194/194 | 0 | 上界信号；不能当部署防御 |
+| combined policy | 0/97 | 0/97 | 13/97 | 194/194 | 1 | 安全但 utility 仍未调好 |
+
+结论：AgentDojo full run 确认了该方向有实验证据价值：naive/schema-only/repeat/metadata 在 full 97-task substrate 上仍有非零 ASR，而 read-back/independent/combined 将 spoofed ASR 压到 0/97。与此同时，AgentDojo truthful clean utility 普遍偏低，说明当前 AgentDojo adapter/scoring/task difficulty 仍会限制防御有效性主张。最稳妥的论文表述是：AgentDojo full run 支持“schema-valid false observation 是真实 failure mode”和“read-back 是强 candidate defense”，但不应单独作为 full agent defense effectiveness 的最终证明。
+
+### 9.2.2 Local multi-surface 48-cell real-toolcall pilot
 
 该 pilot 覆盖 8 个本地 smoke/regression scenarios，运行 truthful/spoofed × 3 profiles × 1 model，共 48 个真实模型 cell。它不是主 benchmark，但覆盖 API、MCP、RAG、browser、shell 等多 surface，用于验证 harness 不是只对单一场景有效。
 

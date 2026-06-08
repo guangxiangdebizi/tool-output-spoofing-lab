@@ -1,113 +1,127 @@
 {
-  "index_version": "2026-06-08.paper-draft-zh.current",
-  "purpose": "Canonical index of pilot result artifacts used by docs/paper-draft-zh.md. Older outputs are retained for traceability but are not the main reported pilot results.",
   "audits": [
     {
-      "name": "Expanded pilot model-visible prompt leakage audit",
-      "role": "checks that hidden oracle, mode labels, raw results, ground-truth metadata, and expected scores are absent from reconstructed model-visible prompts",
-      "status": "all_clear",
-      "script": "scripts/audit_prompt_leakage.py",
       "artifact": "outputs/prompt_leakage_audit_expanded_gpt54.json",
       "checked_cells": 184,
+      "name": "Expanded pilot model-visible prompt leakage audit",
+      "role": "checks that hidden oracle, mode labels, raw results, ground-truth metadata, and expected scores are absent from reconstructed model-visible prompts",
+      "script": "scripts/audit_prompt_leakage.py",
+      "status": "all_clear",
       "violations": 0
     }
   ],
+  "index_version": "2026-06-08.agentdojo-full-overlay",
   "pilots": [
     {
+      "cells": 72,
+      "config": "configs/experiments/toolsandbox_model_pilot_small.json",
+      "manifest": "outputs/toolsandbox_model_pilot_real_72_semantic_manifest.json",
+      "model": "gpt-5.4-mini",
       "name": "ToolSandbox 72-cell semantic-normalized benchmark pilot",
       "role": "largest current result-bearing pilot on an existing stateful tool-use benchmark substrate",
       "status": "expanded_real_model_pilot_not_10_15_percent_slice",
-      "config": "configs/experiments/toolsandbox_model_pilot_small.json",
       "summary": "outputs/toolsandbox_model_pilot_real_72_semantic_summary.json",
-      "manifest": "outputs/toolsandbox_model_pilot_real_72_semantic_manifest.json",
-      "trace_dir": "traces/toolsandbox_model_pilot_real_72_semantic",
-      "model": "gpt-5.4-mini",
-      "cells": 72,
-      "tasks": 6
+      "tasks": 6,
+      "trace_dir": "traces/toolsandbox_model_pilot_real_72_semantic"
     },
     {
+      "cells": 1552,
+      "ci": "outputs/agentdojo_model_full_ci.json",
+      "completed_cells": "1552/1552",
+      "config": "configs/experiments/agentdojo_model_full.json",
+      "manifest": "outputs/agentdojo_model_full_manifest.json",
+      "model": "gpt-5.4-mini",
+      "name": "AgentDojo 1552-cell full-overlay run",
+      "role": "first completed full-overlay run over all available official AgentDojo user tasks; still scripted ground-truth tool plan / model-final-decision, not autonomous full agent loop",
+      "status": "completed_full_overlay_utility_limited_non_autonomous",
+      "summary": "outputs/agentdojo_model_full_summary.json",
+      "tasks": 97,
+      "trace_dir": "traces/agentdojo_model_full (remote run host)"
+    },
+    {
+      "cells": 64,
+      "config": "configs/experiments/agentdojo_model_pilot_small.json",
+      "manifest": "outputs/agentdojo_model_pilot_real_clean4_manifest.json",
+      "model": "gpt-5.4-mini",
       "name": "AgentDojo clean4 64-cell real-model pilot",
       "role": "expanded second-substrate real-model pilot over official AgentDojo tasks and scripted ground-truth tool plans",
       "status": "second_substrate_real_model_pilot_clean_utility_limited",
-      "config": "configs/experiments/agentdojo_model_pilot_small.json",
       "summary": "outputs/agentdojo_model_pilot_real_clean4_summary.json",
-      "manifest": "outputs/agentdojo_model_pilot_real_clean4_manifest.json",
-      "trace_dir": "traces/agentdojo_model_pilot_real_clean4",
-      "model": "gpt-5.4-mini",
-      "cells": 64,
-      "tasks": 4
+      "tasks": 4,
+      "trace_dir": "traces/agentdojo_model_pilot_real_clean4"
     },
     {
+      "cells": 48,
+      "config": "configs/experiments/real_toolcall_pilot_min48.json",
+      "manifest": "outputs/real_toolcall_pilot_min48_real_manifest.json",
+      "model": "gpt-5.4-mini",
       "name": "Local multi-surface 48-cell real-toolcall pilot",
       "role": "broad local regression pilot across API/MCP/RAG/browser/shell surfaces",
       "status": "local_multi_surface_pilot_not_main_benchmark",
-      "config": "configs/experiments/real_toolcall_pilot_min48.json",
       "summary": "outputs/real_toolcall_pilot_min48_real_summary.json",
-      "manifest": "outputs/real_toolcall_pilot_min48_real_manifest.json",
-      "trace_dir": "traces/real_toolcall_pilot_min48_real",
-      "model": "gpt-5.4-mini",
-      "cells": 48,
-      "tasks": 8
+      "tasks": 8,
+      "trace_dir": "traces/real_toolcall_pilot_min48_real"
     },
     {
+      "cells": 24,
+      "config": "configs/experiments/toolsandbox_model_pilot_small.json",
+      "manifest": "outputs/toolsandbox_model_pilot_real_24_semantic_v4_manifest.json",
+      "model": "gpt-5.4-mini",
       "name": "ToolSandbox semantic-normalized pilot",
       "role": "result-bearing pilot on an existing stateful tool-use benchmark substrate",
       "status": "pilot_not_10_15_percent_slice",
-      "config": "configs/experiments/toolsandbox_model_pilot_small.json",
       "summary": "outputs/toolsandbox_model_pilot_real_24_semantic_v4_summary.json",
-      "manifest": "outputs/toolsandbox_model_pilot_real_24_semantic_v4_manifest.json",
-      "trace_dir": "traces/toolsandbox_model_pilot_real_24_semantic_v4",
-      "model": "gpt-5.4-mini",
-      "cells": 24,
-      "tasks": 2
+      "tasks": 2,
+      "trace_dir": "traces/toolsandbox_model_pilot_real_24_semantic_v4"
     },
     {
+      "cells": 32,
+      "config": "configs/experiments/agentdojo_model_pilot_small.json",
+      "manifest": "outputs/agentdojo_model_pilot_real_32_semantic_plausible_manifest.json",
+      "model": "gpt-5.4-mini",
       "name": "AgentDojo plausible semantic-spoof pilot",
       "role": "second-substrate feasibility pilot over official AgentDojo tasks and scripted ground-truth tool plans",
       "status": "feasibility_pilot_clean_utility_limited",
-      "config": "configs/experiments/agentdojo_model_pilot_small.json",
       "summary": "outputs/agentdojo_model_pilot_real_32_semantic_plausible_summary.json",
-      "manifest": "outputs/agentdojo_model_pilot_real_32_semantic_plausible_manifest.json",
-      "trace_dir": "traces/agentdojo_model_pilot_real_32_semantic_plausible",
-      "model": "gpt-5.4-mini",
-      "cells": 32,
-      "tasks": 2
+      "tasks": 2,
+      "trace_dir": "traces/agentdojo_model_pilot_real_32_semantic_plausible"
     },
     {
+      "cells": 12,
+      "config": "configs/experiments/authorization_toolcall_pilot_small.json",
+      "manifest": "outputs/authorization_toolcall_pilot_real_v3_manifest.json",
+      "model": "gpt-5.4-mini",
       "name": "Authorization/provenance sanity pilot",
       "role": "local verdict-level authorization axis sanity pilot",
       "status": "local_axis_pilot_not_existing_benchmark_main_result",
-      "config": "configs/experiments/authorization_toolcall_pilot_small.json",
       "summary": "outputs/authorization_toolcall_pilot_real_v3_summary.json",
-      "manifest": "outputs/authorization_toolcall_pilot_real_v3_manifest.json",
-      "trace_dir": "traces/authorization_toolcall_pilot_real_v3",
-      "model": "gpt-5.4-mini",
-      "cells": 12,
-      "tasks": 1
+      "tasks": 1,
+      "trace_dir": "traces/authorization_toolcall_pilot_real_v3"
     },
     {
+      "cells": 6,
+      "config": "configs/experiments/authorization_mock_optimizer_tiny.json",
+      "manifest": "outputs/authorization_mock_optimizer_tiny_real_v2_manifest.json",
+      "model": "gpt-5.4-mini",
       "name": "Authorization optimized-observation pilot",
       "role": "local observation stress-test generator sanity pilot",
       "status": "local_generator_pilot",
-      "config": "configs/experiments/authorization_mock_optimizer_tiny.json",
       "summary": "outputs/authorization_mock_optimizer_tiny_real_v2_summary.json",
-      "manifest": "outputs/authorization_mock_optimizer_tiny_real_v2_manifest.json",
-      "trace_dir": "traces/authorization_mock_optimizer_tiny_real_v2",
-      "model": "gpt-5.4-mini",
-      "cells": 6,
-      "tasks": 1
+      "tasks": 1,
+      "trace_dir": "traces/authorization_mock_optimizer_tiny_real_v2"
     },
     {
+      "cells": 20,
+      "config": "configs/experiments/authorization_control_slice_small.json",
+      "manifest": "outputs/authorization_control_slice_real_manifest.json",
+      "model": "gpt-5.4-mini",
       "name": "Authorization evidence-control slice",
       "role": "local evidence ladder control pilot",
       "status": "control_pilot_not_average_faa_estimate",
-      "config": "configs/experiments/authorization_control_slice_small.json",
       "summary": "outputs/authorization_control_slice_real_summary.json",
-      "manifest": "outputs/authorization_control_slice_real_manifest.json",
-      "trace_dir": "traces/authorization_control_slice_real",
-      "model": "gpt-5.4-mini",
-      "cells": 20,
-      "tasks": 5
+      "tasks": 5,
+      "trace_dir": "traces/authorization_control_slice_real"
     }
-  ]
+  ],
+  "purpose": "Canonical index of pilot result artifacts used by docs/paper-draft-zh.md. Older outputs are retained for traceability but are not the main reported pilot results."
 }
