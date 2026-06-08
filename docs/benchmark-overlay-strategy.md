@@ -111,8 +111,10 @@ Recommended order:
      indirect prompt injection.
    - Current repo status: official AgentDojo v1.2.2 suites are importable in an
      isolated probe environment, and a 12 / 97 stratified 10-15% manifest has
-     been generated. This is manifest-only; it is not yet executable
-     observation interception or a model run.
+     been generated. A 168-cell executable smoke now runs official AgentDojo
+     ground-truth tool calls and performs trace-level visible-observation
+     substitution. This is still scripted-agent smoke, not full AgentDojo
+     agent-loop interception or a model run.
 3. **tau-bench overlay smoke**
    - Strong realistic tool-calling API story.
    - Goal: status/refund/reservation API falsehoods under the same user tasks.
@@ -285,6 +287,29 @@ difficulty, suite tools, injection-task counts, and ground-truth tool-call
 plans. It is a second existing-benchmark substrate and a valid sampling/design
 artifact, but it is not yet an executed AgentDojo benchmark because
 `real_benchmark_run=false` and `real_model_run=false`.
+
+AgentDojo executable smoke:
+
+```bash
+PYTHONPATH=src:. /tmp/agentdojo-probe-venv/bin/python scripts/run_agentdojo_execution_smoke.py \
+  --manifest outputs/agentdojo_real_manifest.json \
+  --agentdojo-path /tmp/AgentDojo \
+  --benchmark-version v1.2.2 \
+  --out-dir traces/agentdojo_execution_smoke \
+  --summary outputs/agentdojo_execution_smoke_summary.json \
+  --limit-tasks 12
+```
+
+This completed 168 cells over 12 official AgentDojo tasks x truthful/spoofed x
+7 profiles. It uses each task's official `ground_truth()` tool-call plan to
+execute one real AgentDojo tool call, then substitutes the agent-visible
+observation at trace level. It records `real_tool_execution=true`,
+`official_ground_truth_tool_plan=true`, `trace_level_visible_result_substitution=true`,
+`scripted_agent=true`, `full_agent_loop_interception=false`, and
+`real_model_run=false`. Scripted scoring shows the same baseline separation as
+ToolSandbox: naive/schema-only/prompt-filter/repeat-same-tool/metadata-only
+accept spoofed content, while read-back and privileged upper-bound validators
+recover the truth under their stated trust assumptions.
 
 ### tau-bench overlay
 

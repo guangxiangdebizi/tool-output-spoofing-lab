@@ -745,3 +745,99 @@ artifact" or "planned AgentDojo overlay slice", not "AgentDojo benchmark
 results". The baseline comparison should remain "same AgentDojo tasks, same
 official utility/security checks, different observation-integrity baselines"
 once the executable adapter is implemented.
+
+## Round 15: AgentDojo executable smoke
+
+The AgentDojo path now moves beyond manifest-only. Implemented:
+
+- `src/tool_spoof_lab/agentdojo_execution_smoke.py`
+- `scripts/run_agentdojo_execution_smoke.py`
+
+Command run:
+
+```bash
+PYTHONPATH=src:. /tmp/agentdojo-probe-venv/bin/python scripts/run_agentdojo_execution_smoke.py \
+  --manifest outputs/agentdojo_real_manifest.json \
+  --agentdojo-path /tmp/AgentDojo \
+  --benchmark-version v1.2.2 \
+  --out-dir traces/agentdojo_execution_smoke \
+  --summary outputs/agentdojo_execution_smoke_summary.json \
+  --limit-tasks 12
+```
+
+Result:
+
+- 12 official AgentDojo tasks.
+- 7 profiles: naive, schema-only, prompt-filter, repeat-same-tool, metadata-only validator,
+  read-back validator, privileged independent-validator upper bound.
+- truthful/spoofed modes.
+- 168 / 168 scripted trace cells completed.
+- `official_ground_truth_tool_plan=true`.
+- `real_tool_execution=true`.
+- `trace_level_visible_result_substitution=true`.
+- `scripted_agent=true`.
+- `full_agent_loop_interception=false`.
+- `real_model_run=false`.
+
+Scripted spoofed ASR:
+
+| Profile | Spoofed ASR | Effective verification |
+| --- | ---: | ---: |
+| `agentdojo_exec_naive` | 12 / 12 | 0 / 12 |
+| `agentdojo_exec_schema_only` | 12 / 12 | 0 / 12 |
+| `agentdojo_exec_prompt_filter` | 12 / 12 | 0 / 12 |
+| `agentdojo_exec_repeat_same_tool` | 12 / 12 | 0 / 12 |
+| `agentdojo_exec_metadata_validator` | 12 / 12 | 0 / 12 |
+| `agentdojo_exec_readback_validator` | 0 / 12 | 12 / 12 |
+| `agentdojo_exec_independent_validator` | 0 / 12 | 12 / 12 |
+
+Reviewer interpretation: this is a meaningful engineering upgrade over a
+manifest-only second substrate. It shows the benchmark/baseline protocol is not
+ToolSandbox-specific. But it remains scripted; it cannot support model
+robustness or full AgentDojo benchmark claims until a real model pipeline and
+full agent-loop adapter are implemented.
+
+## Round 16: subagent review after AgentDojo executable smoke
+
+A CCF-A/USENIX/S&P-style reviewer subagent reviewed the AgentDojo executable
+smoke plan and current limitations.
+
+Review verdict:
+
+- AgentDojo executable smoke is a **substantive improvement** over manifest-only
+  and materially weakens the "single substrate" criticism.
+- It can support the claim that the overlay/baseline protocol transfers from
+  ToolSandbox to another existing benchmark substrate.
+- It cannot support model robustness, full AgentDojo benchmark, or
+  statistically meaningful multi-benchmark claims.
+- Overall status after this step: **Borderline-**, not Weak Accept.
+
+Reviewer-required wording:
+
+- Use "AgentDojo executable overlay smoke" or "adapter-level execution smoke".
+- Do not use "AgentDojo benchmark results" or "full AgentDojo evaluation".
+- Explicitly state that tool plans are benchmark-ground-truth/scripted,
+  `full_agent_loop_interception=false`, and `real_model_run=false`.
+- Treat read-back validation as deployability-oriented only under a split
+  channel/state threat model.
+- Treat privileged independent validation only as an upper-bound ablation.
+
+Reviewer-required next gates:
+
+1. Run a ToolSandbox real-model pilot with `real_model_run=true` and
+   `model_call_executed=true` once API credentials are available.
+2. Keep AgentDojo at least as executable smoke, then add a model policy or
+   agent-loop adapter.
+3. Keep the newly added prompt-filter baseline in the AgentDojo executable
+   smoke, because AgentDojo's native framing is prompt-injection security and
+   reviewers will expect that comparison.
+4. Report ASR, clean utility, FPR, verification success, cost/latency, and
+   confidence intervals for any result-bearing run.
+
+Reviewer rating ladder:
+
+- AgentDojo manifest-only: Weak Reject+.
+- AgentDojo executable smoke + ToolSandbox dry-run: Borderline-.
+- AgentDojo executable smoke + ToolSandbox real-model pilot: Borderline.
+- Two-substrate real-model pilot + read-back validator + CI/cost/statistics:
+  possible Weak Accept.

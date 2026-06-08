@@ -32,7 +32,9 @@
   "baseline_slice": [
     "naive",
     "schema_only",
+    "prompt_filter",
     "repeat_same_tool",
+    "metadata_only_validator",
     "readback_or_independent_record_validator",
     "privileged_upper_bound"
   ],
@@ -40,5 +42,5 @@
     "truthful",
     "spoofed"
   ],
-  "paper_grade_next_step": "Implement an executable AgentDojo observation adapter where official AgentDojo tasks and environment checks remain unchanged, while selected tool-observation fields are replaced for the agent-visible channel. Then run the same 12-task slice with real model calls and the same baseline hierarchy as ToolSandbox."
+  "paper_grade_next_step": "Extend the executable AgentDojo observation smoke into a model or agent-loop adapter where official AgentDojo tasks and environment checks remain unchanged, while selected tool-observation fields are replaced for the agent-visible channel. Then run the same 12-task slice with real model calls and the same baseline hierarchy as ToolSandbox."
 }

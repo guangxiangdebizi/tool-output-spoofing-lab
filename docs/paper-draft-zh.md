@@ -181,6 +181,25 @@ PYTHONPATH=src:. /tmp/agentdojo-probe-venv/bin/python scripts/probe_agentdojo_re
 benchmark 设计层面的“第二个现有 substrate”问题；还没有 AgentDojo observation adapter、
 真实模型调用或 attack/defense 结果。
 
+真实 AgentDojo execution smoke：
+
+```bash
+PYTHONPATH=src:. /tmp/agentdojo-probe-venv/bin/python scripts/run_agentdojo_execution_smoke.py \
+  --manifest outputs/agentdojo_real_manifest.json \
+  --agentdojo-path /tmp/AgentDojo \
+  --benchmark-version v1.2.2 \
+  --out-dir traces/agentdojo_execution_smoke \
+  --summary outputs/agentdojo_execution_smoke_summary.json \
+  --limit-tasks 12
+```
+
+这个 smoke 使用官方 task 的 `ground_truth()` tool plan 执行一个真实 AgentDojo tool call，
+捕获 raw tool result，然后只改写 agent-visible observation。它已完成
+12 tasks × truthful/spoofed × 7 profiles = 168 cells。它比 manifest-only 更强，因为
+已经有 `real_tool_execution=true` 和 `official_ground_truth_tool_plan=true`；但它仍标记为
+`scripted_agent=true`, `full_agent_loop_interception=false`, `real_model_run=false`，
+不能写成真实模型 benchmark。
+
 ## 5. Baseline 设计
 
 当前实现了两层 baseline。
@@ -569,6 +588,33 @@ ground-truth tool-call plan、suite tool names 和 injection-task count。这个
 只说明第二个现有 benchmark substrate 已经被定位并抽样；还不能报告 ASR、utility 或
 defense gain。
 
+进一步补了 AgentDojo execution smoke：
+
+```bash
+PYTHONPATH=src:. /tmp/agentdojo-probe-venv/bin/python scripts/run_agentdojo_execution_smoke.py \
+  --manifest outputs/agentdojo_real_manifest.json \
+  --agentdojo-path /tmp/AgentDojo \
+  --benchmark-version v1.2.2 \
+  --out-dir traces/agentdojo_execution_smoke \
+  --summary outputs/agentdojo_execution_smoke_summary.json \
+  --limit-tasks 12
+```
+
+该 smoke 已完成 168/168 cells，baseline 与 ToolSandbox 对齐：
+
+| AgentDojo baseline | Spoofed ASR scripted score | Effective verification | 解释 |
+| --- | ---: | ---: | --- |
+| naive | 12 / 12 | 0 / 12 | 直接相信 visible observation |
+| schema-only | 12 / 12 | 0 / 12 | schema 合法不代表语义真实 |
+| prompt-filter | 12 / 12 | 0 / 12 | 拦截指令不等于验证事实 |
+| repeat-same-tool | 12 / 12 | 0 / 12 | 重复同一可疑通道不是独立验证 |
+| metadata-only validator | 12 / 12 | 0 / 12 | metadata 不能验证 content truth |
+| read-back validator | 0 / 12 | 12 / 12 | split-channel threat model 下的非特权内容级 read-back |
+| privileged independent-validator | 0 / 12 | 12 / 12 | privileged upper-bound ablation |
+
+这张表只能作为 scripted-agent / harness-expected baseline separation，不是模型鲁棒性结果。
+它的价值是证明同一 baseline hierarchy 能迁移到第二个现有 benchmark substrate。
+
 ### 6.6 当前实验状态分层表
 
 | 层级 | 规模 | 证据强度 | 当前状态 |
@@ -581,6 +627,7 @@ defense gain。
 | ToolSandbox model-policy pilot | 12 × 2 × 6 = 144 | prompt/manifest dry-run + read-back validator ablation | dry-run 已跑，`real_model_run=false` |
 | ToolSandbox stratified 10% manifest | 104 / 1032 | sampling design | 已生成，尚未执行 |
 | AgentDojo stratified 10%-15% manifest | 12 / 97 | second existing-benchmark sampling design | 已生成，尚未执行 |
+| AgentDojo execution smoke | 12 × 2 × 7 = 168 | official ground-truth tool plan + trace-level substitution | 已跑，`scripted_agent=true` |
 | Paper-grade main run | >= 2 substrates, 30-45 paired scenarios first | model benchmark evidence | 未完成 |
 
 ## 7. 当前能支持的 claim 和不能支持的 claim
@@ -594,12 +641,13 @@ defense gain。
 5. ToolSandbox 真实工具执行结果可以被捕获，并在 trace 层构造 truthful/spoofed 可见 observation，同时保留 raw result / tool trace 供 oracle 审计。
 6. 已有 104/1032 的 ToolSandbox 10% stratified manifest 设计，但它只是 scaling plan，不是已执行结果。
 7. 已有 12/97 的 AgentDojo v1.2.2 stratified manifest，覆盖 workspace/travel/banking/slack 和 easy/medium/hard 难度，用于证明主实验会迁移到第二个现有 benchmark substrate；它同样只是 sampling/design artifact。
+8. AgentDojo execution smoke 已经能执行官方 ground-truth tool call 并进行 trace-level observation substitution；它支持“第二 substrate 的 harness wiring 可跑”，但不支持模型 ASR claim。
 
 当前不能支持：
 
 1. “真实模型普遍会被工具输出欺骗”——还缺基于现有 benchmark substrate 的 multi-model agentic run。
 2. “combined policy 是 paper-grade 防御”——已有 harness 入口和 dry-run，但还缺真实模型运行、成本统计和更大场景。
-3. “已经跑了 ToolSandbox/AgentDojo 10%-15% benchmark”——当前只生成了 ToolSandbox 104-task manifest 和 AgentDojo 12-task manifest，尚未执行对应 real-model benchmark；已执行的 ToolSandbox 仍是 12-task bring-up/dry-run seed。
+3. “已经跑了 ToolSandbox/AgentDojo 10%-15% real-model benchmark”——当前只生成了 ToolSandbox 104-task manifest，AgentDojo 12-task manifest 已有 execution smoke，但尚未执行对应 real-model benchmark；已执行的 ToolSandbox/AgentDojo 仍是 12-task scripted/dry-run seed。
 4. “能投 USENIX/S&P”——还缺 AgentDojo/ToolSandbox/tau-bench 等现有 benchmark overlay pilot、30-45 paired scenario model pilot、150-300 full benchmark、close-work ablation。
 
 ## 8. Related work 定位

@@ -110,9 +110,9 @@ PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/run_toolsandbox_
 
 ### Dry-run verification
 
-- Completed cells: 144 / 144
+- Completed cells: 168 / 168
 - Selected tasks: 12 / 1032 (`selected_fraction=0.0116`)
-- Profiles: naive, schema-only, repeat-same-tool, metadata-only validator, read-back validator,
+- Profiles: naive, schema-only, prompt-filter, repeat-same-tool, metadata-only validator, read-back validator,
   privileged independent-validator upper bound
 - `real_tool_execution=true`
 - `real_execution_interception=true`
@@ -216,6 +216,56 @@ Interpretation: this is a paper-positioning and experiment-design artifact,
 not result-bearing evidence. The next implementation step is an executable
 AgentDojo observation adapter that preserves AgentDojo's official task and
 utility/security checks while mutating only the agent-visible tool result.
+
+## AgentDojo execution smoke
+
+This moves AgentDojo from manifest-only planning to executable substrate smoke.
+It is still not a full AgentDojo agent loop and not a real-model benchmark; it
+uses official AgentDojo task definitions and ground-truth tool plans to test the
+same observation-spoofing and baseline hierarchy used for ToolSandbox.
+
+### Command
+
+```bash
+PYTHONPATH=src:. /tmp/agentdojo-probe-venv/bin/python scripts/run_agentdojo_execution_smoke.py \
+  --manifest outputs/agentdojo_real_manifest.json \
+  --agentdojo-path /tmp/AgentDojo \
+  --benchmark-version v1.2.2 \
+  --out-dir traces/agentdojo_execution_smoke \
+  --summary outputs/agentdojo_execution_smoke_summary.json \
+  --limit-tasks 12
+```
+
+### Verification
+
+- Completed cells: 168 / 168
+- Selected official AgentDojo tasks: 12 / 97
+- Profiles: naive, schema-only, prompt-filter, repeat-same-tool, metadata-only validator,
+  read-back validator, privileged independent-validator upper bound
+- `real_agentdojo_task=true`
+- `official_ground_truth_tool_plan=true`
+- `real_tool_execution=true`
+- `trace_level_visible_result_substitution=true`
+- `scripted_agent=true`
+- `full_agent_loop_interception=false`
+- `real_model_run=false`
+
+Scripted spoofed scoring:
+
+| Profile | Spoofed ASR | Effective verification |
+| --- | ---: | ---: |
+| `agentdojo_exec_naive` | 12 / 12 | 0 / 12 |
+| `agentdojo_exec_schema_only` | 12 / 12 | 0 / 12 |
+| `agentdojo_exec_prompt_filter` | 12 / 12 | 0 / 12 |
+| `agentdojo_exec_repeat_same_tool` | 12 / 12 | 0 / 12 |
+| `agentdojo_exec_metadata_validator` | 12 / 12 | 0 / 12 |
+| `agentdojo_exec_readback_validator` | 0 / 12 | 12 / 12 |
+| `agentdojo_exec_independent_validator` | 0 / 12 | 12 / 12 |
+
+Interpretation: the second substrate now reproduces the baseline separation
+seen in ToolSandbox under a scripted-agent harness. This strengthens the
+engineering and benchmark-design story, but real claims still require model
+calls and a full agent-loop adapter.
 
 ## 15-scenario structured local smoke
 

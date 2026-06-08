@@ -228,6 +228,50 @@ and single/multiple ground-truth tool calls. It directly addresses the
 "single substrate / local toy benchmark" concern at the design level, but it is
 not yet an AgentDojo execution or real-model benchmark result.
 
+Current AgentDojo execution smoke:
+
+```bash
+PYTHONPATH=src:. /tmp/agentdojo-probe-venv/bin/python scripts/run_agentdojo_execution_smoke.py \
+  --manifest outputs/agentdojo_real_manifest.json \
+  --agentdojo-path /tmp/AgentDojo \
+  --benchmark-version v1.2.2 \
+  --out-dir traces/agentdojo_execution_smoke \
+  --summary outputs/agentdojo_execution_smoke_summary.json \
+  --limit-tasks 12
+```
+
+This completed:
+
+```text
+12 official AgentDojo tasks
+truthful/spoofed
+naive / schema-only / prompt-filter / repeat-same-tool /
+metadata-only validator / read-back validator / privileged independent-validator upper bound
+= 168 scripted trace cells
+```
+
+The runner executes the selected official task's `ground_truth()` tool plan for
+one real AgentDojo tool call, captures the raw tool result, and performs
+trace-level visible-observation substitution. It is marked
+`official_ground_truth_tool_plan=true`, `real_tool_execution=true`,
+`scripted_agent=true`, `full_agent_loop_interception=false`,
+`real_model_run=false`, and `real_benchmark_run=false`.
+
+Scripted expected scoring on the 12-task slice:
+
+| AgentDojo profile | Spoofed ASR | Effective verification | Intended interpretation |
+| --- | ---: | ---: | --- |
+| naive | 12 / 12 | 0 / 12 | no observation-integrity defense |
+| schema-only | 12 / 12 | 0 / 12 | schema validity does not prove truth |
+| prompt-filter | 12 / 12 | 0 / 12 | instruction filtering does not verify facts |
+| repeat-same-tool | 12 / 12 | 0 / 12 | same-channel repetition is not independent |
+| metadata-only validator | 12 / 12 | 0 / 12 | metadata does not verify semantic content |
+| read-back validator | 0 / 12 | 12 / 12 | non-privileged content read-back under split-channel threat model |
+| privileged independent-validator | 0 / 12 | 12 / 12 | upper-bound ablation, not deployable defense |
+
+These are scripted-agent results, not model results. They justify the baseline
+hierarchy and implementation wiring before the real-model AgentDojo pilot.
+
 ToolSandbox adapter-contract smoke:
 
 ```text
@@ -316,7 +360,7 @@ This completed 144 dry-run cells:
 ```text
 12 real ToolSandbox tasks
 truthful/spoofed
-naive / schema-only / repeat-same-tool /
+naive / schema-only / prompt-filter / repeat-same-tool /
 metadata-only validator / read-back validator / privileged independent-validator upper bound
 1 configured model id
 = 144 prompt/trace cells
