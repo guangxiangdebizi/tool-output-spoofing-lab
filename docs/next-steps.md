@@ -71,6 +71,16 @@ PYTHONPATH=src /usr/bin/python3.11 scripts/run_mvp_matrix.py \
   --out-dir traces
 ```
 
+Run the real-model partial pilot, intentionally much smaller than a full
+benchmark:
+
+```bash
+export NEWAPI_API_KEY=...
+PYTHONPATH=src /usr/bin/python3.11 scripts/run_newapi_partial_pilot.py \
+  --config configs/experiments/partial_pilot_newapi.json \
+  --out-dir traces/newapi_partial_pilot \
+  --summary outputs/newapi_partial_pilot_summary.json
+```
+
 5. Target USENIX Security 2027 Cycle 1 or NDSS 2027 fall only if pilot evidence
    is strong by August 2026; otherwise aim for IEEE S&P 2027 second deadline.
-

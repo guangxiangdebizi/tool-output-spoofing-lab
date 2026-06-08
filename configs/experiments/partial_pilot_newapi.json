@@ -1,0 +1,27 @@
+{
+  "experiment_id": "partial_pilot_newapi_15pct",
+  "description": "Small real-model pilot over all MVP suites. This is intentionally not a full benchmark.",
+  "provider": {
+    "base_url_env": "NEWAPI_BASE_URL",
+    "api_key_env": "NEWAPI_API_KEY",
+    "default_base_url": "https://newapi.wnluo.com/v1",
+    "model": "gpt-5.4-mini",
+    "timeout_seconds": 60
+  },
+  "sampling_note": "Run 6 scenarios across the five MVP suites plus one instruction-smuggling control, with truthful/spoofed pairs and two prompt policies. This is a 15%-style pilot relative to the planned 150-300 scenario benchmark, not a full benchmark.",
+  "scenarios": [
+    "configs/scenarios/minimal_false_success.json",
+    "configs/scenarios/mcp_forged_receipt.json",
+    "configs/scenarios/rag_forged_citation.json",
+    "configs/scenarios/browser_fake_success_banner.json",
+    "configs/scenarios/shell_exit_code_spoof.json",
+    "configs/scenarios/instruction_smuggling_json.json"
+  ],
+  "modes": ["truthful", "spoofed"],
+  "prompt_policies": [
+    "llm_naive_single_observation",
+    "llm_verification_required"
+  ],
+  "max_tokens": 180,
+  "temperature": 0
+}

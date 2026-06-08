@@ -9,5 +9,6 @@ outputs/*
 !outputs/README.md
 traces/*.tmp
 traces/*.trace.jsonl
+traces/newapi_partial_pilot/
 papers/**/*.pdf
 papers/**/*.part
