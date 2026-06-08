@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from tool_spoof_lab.openai_compat import call_chat_completion, response_text
+from tool_spoof_lab.oracle import load_jsonl
 from tool_spoof_lab.runner import now_iso, write_jsonl
 from tool_spoof_lab.structured_oracle import score_structured_trace
 from tool_spoof_lab.toolsandbox_execution_smoke import (
@@ -40,6 +41,11 @@ def main() -> None:
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--limit-cells", type=int, default=None)
     parser.add_argument("--limit-tasks", type=int, default=None)
+    parser.add_argument(
+        "--skip-existing",
+        action="store_true",
+        help="If a trace file already exists, load and score it instead of calling the model again.",
+    )
     parser.add_argument(
         "--task-offset",
         type=int,
@@ -134,6 +140,62 @@ def main() -> None:
                         )
                     messages = build_messages(rows)
                     prompt_hash = sha256_text(json.dumps(messages, ensure_ascii=False, sort_keys=True))
+                    trace_path = out_dir / f"{task_id}.{mode}.{profile}.{model}.toolsandbox_model.trace.jsonl"
+                    if args.skip_existing and trace_path.exists():
+                        existing_rows = load_jsonl(trace_path)
+                        if not existing_rows:
+                            raise RuntimeError(f"existing trace is empty: {trace_path}")
+                        existing_score = score_structured_trace(existing_rows)
+                        final_row = next((row for row in reversed(existing_rows) if row.get("event") == "structured_final"), existing_rows[-1])
+                        final_decision_source = str(final_row.get("final_decision_source", "existing_trace"))
+                        api_error = (
+                            "existing_api_error_uncertainty_stub"
+                            if final_decision_source == "api_error_uncertainty_stub"
+                            else None
+                        )
+                        parse_error = None
+                        model_call_executed = bool(final_row.get("model_call_executed", False))
+                        scored.append(
+                            {
+                                **existing_score,
+                                "trace": str(trace_path),
+                                "model": model,
+                                "api_error": api_error,
+                                "parse_error": parse_error,
+                                "prompt_hash": prompt_hash,
+                                "harness_expected_structured_score": harness_expected_score,
+                                "skipped_existing": True,
+                            }
+                        )
+                        manifest_rows.append(
+                            {
+                                "trace": str(trace_path),
+                                "task_id": task_id,
+                                "mode": mode,
+                                "profile": profile,
+                                "model": model,
+                                "prompt_hash": prompt_hash,
+                                "api_error": api_error,
+                                "parse_error": parse_error,
+                                "model_call_executed": model_call_executed,
+                                "final_decision_source": final_decision_source,
+                                "skipped_existing": True,
+                                "tool_events": [
+                                    row["event"]
+                                    for row in existing_rows
+                                    if row.get("event")
+                                    in {
+                                        "toolsandbox_tool_call",
+                                        "visible_tool_result",
+                                        "repeat_tool_call",
+                                        "validator_call",
+                                    }
+                                ],
+                                "model_visible_events": [row["event"] for row in visible_rows_for_model(existing_rows)],
+                            }
+                        )
+                        cell_count += 1
+                        continue
                     api_error = None
                     parse_error = None
                     if args.dry_run:
@@ -170,7 +232,6 @@ def main() -> None:
                                 "final_decision_source": final_decision_source,
                             }
                         )
-                    trace_path = out_dir / f"{task_id}.{mode}.{profile}.{model}.toolsandbox_model.trace.jsonl"
                     write_jsonl(trace_path, rows)
                     scored_row = {
                         **score_structured_trace(rows),
@@ -236,6 +297,7 @@ def main() -> None:
         "real_model_run": not args.dry_run,
         "real_benchmark_run": False,
         "representative_10_15_percent_slice": False,
+        "skip_existing": args.skip_existing,
         "task_offset": args.task_offset,
         "task_stride": args.task_stride,
         "pre_shard_task_count": pre_shard_task_count,
