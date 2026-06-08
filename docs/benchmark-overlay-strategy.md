@@ -157,6 +157,18 @@ PYTHONPATH=src:. /usr/bin/python3.11 scripts/run_toolsandbox_overlay_smoke.py \
   --summary outputs/toolsandbox_overlay_smoke_summary.json
 ```
 
+Real ToolSandbox manifest probe command:
+
+```bash
+git clone https://github.com/apple/ToolSandbox /tmp/ToolSandbox
+/usr/bin/python3.11 -m venv /tmp/toolsandbox-probe-venv
+/tmp/toolsandbox-probe-venv/bin/python -m pip install -e /tmp/ToolSandbox
+PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/probe_toolsandbox_real.py \
+  --toolsandbox-path /tmp/ToolSandbox \
+  --limit 12 \
+  --output outputs/toolsandbox_real_manifest.json
+```
+
 The current execution environment does not have the ToolSandbox package
 installed, so this scaffold uses ToolSandbox-shaped fixtures. The next step is
 to replace fixtures with real ToolSandbox tasks and state snapshots. To prevent
@@ -165,6 +177,12 @@ row emitted by the current scaffold is marked with `adapter_contract=true`,
 `fixture=true`, and `real_benchmark_run=false`; real ToolSandbox runs must flip
 those provenance fields and record package version, task id, state snapshot, and
 evaluator configuration.
+
+The manifest probe does use real ToolSandbox scenario definitions and milestone
+oracles, but it is still `manifest_only=true`: it enumerates a 12-task
+bring-up seed and extracts state/oracle metadata before any model run or
+observation interception. It is not a representative 10-15% ToolSandbox slice;
+that larger slice must be stratified separately.
 
 ### AgentDojo overlay
 

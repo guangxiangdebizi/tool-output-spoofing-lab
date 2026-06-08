@@ -1,0 +1,38 @@
+{
+  "overlay_id": "toolsandbox_real_probe",
+  "substrate": "ToolSandbox",
+  "source_repo": "https://github.com/apple/ToolSandbox",
+  "mode": "manifest_only_probe",
+  "description": "Small real ToolSandbox bring-up seed for observation-spoofing overlay planning. This manifest probe enumerates real scenario metadata and milestone oracles but does not run a model and is not a representative 10-15% benchmark slice.",
+  "recommended_setup": [
+    "git clone https://github.com/apple/ToolSandbox /tmp/ToolSandbox",
+    "/usr/bin/python3.11 -m venv /tmp/toolsandbox-probe-venv",
+    "/tmp/toolsandbox-probe-venv/bin/python -m pip install -e /tmp/ToolSandbox"
+  ],
+  "probe_command": "PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/probe_toolsandbox_real.py --toolsandbox-path /tmp/ToolSandbox --limit 12 --output outputs/toolsandbox_real_manifest.json",
+  "selected_tasks": [
+    "get_wifi",
+    "wifi_off",
+    "add_contact_with_name_and_phone_number",
+    "update_contact_with_id_and_phone_number",
+    "remove_contact_with_id",
+    "search_message_with_recency_latest",
+    "send_message_with_phone_number_and_content",
+    "send_message_with_contact_content_cellular_off",
+    "search_reminder_with_recency_upcoming",
+    "add_reminder_content_and_date_and_time",
+    "modify_reminder_with_recency_latest",
+    "remove_reminder_with_recency_latest"
+  ],
+  "baseline_slice": [
+    "naive",
+    "schema_only",
+    "repeat_same_tool",
+    "independent_validator"
+  ],
+  "modes": [
+    "truthful",
+    "spoofed"
+  ],
+  "paper_grade_next_step": "Convert this manifest-only bring-up seed into an executable overlay run where ToolSandbox returns are intercepted for the model, while the original execution context and milestone evaluator remain authoritative. A representative 10-15% ToolSandbox slice must be stratified separately and will require far more than 12 tasks."
+}

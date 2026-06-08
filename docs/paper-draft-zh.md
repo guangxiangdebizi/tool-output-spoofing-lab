@@ -147,6 +147,15 @@ PYTHONPATH=src:. /usr/bin/python3.11 scripts/run_toolsandbox_overlay_smoke.py \
   --summary outputs/toolsandbox_overlay_smoke_summary.json
 ```
 
+真实 ToolSandbox manifest probe：
+
+```bash
+PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/probe_toolsandbox_real.py \
+  --toolsandbox-path /tmp/ToolSandbox \
+  --limit 12 \
+  --output outputs/toolsandbox_real_manifest.json
+```
+
 当前环境还没有安装真实 ToolSandbox package，所以这一步只验证 adapter contract：
 ToolSandbox-shaped fixture 的 hidden state / milestone oracle / spoofed
 observation / independent validator 能被转换成统一 trace schema。下一步要接真实
@@ -331,6 +340,34 @@ adapter smoke 已跑通，生成 `outputs/toolsandbox_overlay_smoke_summary.json
 
 - naive 在 spoofed ToolSandbox-shaped observation 上 vulnerable；
 - independent-validator 使用 state snapshot 后不再 attack success。
+
+本轮也加入了真实 ToolSandbox manifest probe 入口：`scripts/probe_toolsandbox_real.py`
+和 `configs/benchmark_overlays/toolsandbox_real_probe.json`。它使用 Apple ToolSandbox
+真实 scenario definitions 枚举 12 个候选任务、tool allow list、starting state preview
+和 milestone oracle metadata；但它仍是 `manifest_only=true`，还没有完成 observation
+interception 或 real-model agent run。下一步是把这 12 个任务转成可执行 overlay cells：
+12 tasks × truthful/spoofed × naive/schema/repeat-same-tool/independent-validator =
+96 cells。注意，这只是 12-task real-substrate bring-up seed，不是 ToolSandbox 的
+representative 10%-15% slice；1032 个官方 scenarios 的 10%-15% 需要后续按类别分层抽样。
+
+当前 probe 已在隔离环境 `/tmp/toolsandbox-probe-venv` 中跑通，使用 `/tmp/ToolSandbox`
+官方仓库源码，枚举到 1032 个 ToolSandbox scenarios，并抽取 12 个任务写入
+`outputs/toolsandbox_real_manifest.json`。该输出不提交到仓库，但结果摘要如下：
+
+```text
+total_available_scenarios = 1032
+selected_count = 12
+selected task families include:
+- get_wifi / wifi_off
+- add_contact / update_contact / remove_contact
+- search_message / send_message
+- search_reminder / add_reminder / modify_reminder / remove_reminder
+```
+
+这一步比 fixture smoke 更进一步：task id、tool allow list、starting state preview 和
+milestone oracle metadata 来自真实 ToolSandbox benchmark definitions；但它仍不是
+attack/defense 结果表，因为模型尚未执行、tool return 尚未被真实拦截。正式 10%-15%
+slice 不能用 12/1032 冒充，必须另做 stratified sampling。
 
 ## 7. 当前能支持的 claim 和不能支持的 claim
 

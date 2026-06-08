@@ -399,3 +399,61 @@ metadata.
 
 Remaining P0: install/use the real ToolSandbox package and replace fixtures with
 10-15 real ToolSandbox tasks and state snapshots.
+
+## Round 9: Real ToolSandbox manifest probe
+
+Implemented a manifest-only probe for the real Apple ToolSandbox repository:
+
+- `configs/benchmark_overlays/toolsandbox_real_probe.json`
+- `src/tool_spoof_lab/toolsandbox_real_probe.py`
+- `scripts/probe_toolsandbox_real.py`
+
+Probe command used on this VM:
+
+```bash
+git clone https://github.com/apple/ToolSandbox /tmp/ToolSandbox
+/usr/bin/python3.11 -m venv /tmp/toolsandbox-probe-venv
+/tmp/toolsandbox-probe-venv/bin/python -m pip install \
+  polars==0.20.31 networkx==3.2.1 numpy==1.26.4 scipy==1.13.1 \
+  attrs dill==0.3.8 StrEnum==0.4.15 tqdm rouge-score==0.1.2 \
+  rapidfuzz==3.9.3 phonenumbers==8.13.39 pint==0.23 geopy==2.4.1 \
+  holidays==0.51 ccy==1.3.1 decorator==5.1.1 typing_extensions==4.12.2 \
+  pydantic==2.7.4 pyyaml==6.0.1 requests==2.32.3 jsonschema==4.19.2 \
+  langchain-core==0.1.14 langsmith==0.0.83 jsonpatch==1.33 \
+  tenacity==8.4.1 anyio httpx sniffio distro jiter openai==1.17.0 \
+  anthropic==0.26.1
+PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/probe_toolsandbox_real.py \
+  --toolsandbox-path /tmp/ToolSandbox \
+  --limit 12 \
+  --output outputs/toolsandbox_real_manifest.json
+```
+
+Result:
+
+- `total_available_scenarios=1032`
+- `selected_count=12`
+- selected bring-up seed includes `get_wifi`, `wifi_off`, add/update/remove
+  contact, search/send message, and search/add/modify/remove reminder tasks.
+
+This is stronger than the fixture smoke because task IDs, tool allow lists,
+starting state previews, and milestone oracle metadata come from the real
+ToolSandbox definitions. It is still `manifest_only=true` and
+`real_benchmark_run=false`: no model executed, no tool return was intercepted,
+and no attack/defense ASR can be claimed from this probe.
+
+Reviewer correction: this is a 12-task engineering bring-up seed, not a
+representative 10-15% sample of ToolSandbox. Since the probe found 1032
+available scenarios, a literal 10-15% slice would require roughly 103-155 tasks
+and stratification over scenario category, tool count, turn count, state
+mutation/read-only, distraction/no-distraction, and insufficient-information
+variants. The 12-task seed is only meant to validate the executable overlay
+adapter before scaling.
+
+Next P0: convert the manifest slice into executable overlay cells:
+
+```text
+12 real ToolSandbox tasks
+truthful + spoofed modes
+naive / schema-only / repeat-same-tool / independent-validator
+= 96 cells before adding a second model or second substrate
+```

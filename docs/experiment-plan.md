@@ -206,13 +206,33 @@ ToolSandbox adapter-contract smoke:
 
 ```text
 configs/benchmark_overlays/toolsandbox_overlay_smoke.json
+configs/benchmark_overlays/toolsandbox_real_probe.json
 scripts/run_toolsandbox_overlay_smoke.py
+scripts/probe_toolsandbox_real.py
 src/tool_spoof_lab/toolsandbox_overlay.py
+src/tool_spoof_lab/toolsandbox_real_probe.py
 ```
 
 This validates the ToolSandbox mapping contract with fixtures. It must be
 replaced by real ToolSandbox tasks/state snapshots before being counted as
 benchmark evidence.
+
+The next intermediate probe is manifest-only but uses the real Apple
+ToolSandbox package:
+
+```bash
+PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/probe_toolsandbox_real.py \
+  --toolsandbox-path /tmp/ToolSandbox \
+  --limit 12 \
+  --output outputs/toolsandbox_real_manifest.json
+```
+
+This is a 12-task real-substrate bring-up seed, not a representative 10-15%
+ToolSandbox slice. It yields 12 real ToolSandbox tasks × truthful/spoofed × 4
+baselines = 96 cells once executable observation interception is connected. A
+true 10-15% ToolSandbox slice must be stratified separately over categories such
+as single/multi-turn, single/multi-tool, read-only/state mutation,
+distraction/no-distraction, and insufficient-information tasks.
 
 ## Go/no-go thresholds
 

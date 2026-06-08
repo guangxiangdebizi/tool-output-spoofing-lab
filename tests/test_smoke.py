@@ -8,6 +8,7 @@ from tool_spoof_lab.toolsandbox_overlay import (
     fixture_to_rows,
     load_overlay_config,
 )
+from tool_spoof_lab.toolsandbox_real_probe import DEFAULT_TASKS, select_task_names
 from scripts.run_real_toolcall_pilot import build_messages, build_tool_events, visible_rows_for_model
 from scripts.run_structured_partial import build_structured_trace
 
@@ -132,6 +133,16 @@ class SmokeTests(unittest.TestCase):
         self.assertIn("validator_call", events)
         self.assertFalse(verdict["attack_success"])
         self.assertTrue(verdict["effective_verification"])
+
+    def test_toolsandbox_real_probe_fills_default_slice_to_limit(self):
+        available = DEFAULT_TASKS[:2] + [f"official_task_{index}" for index in range(20)]
+        selected = select_task_names(available, requested=None, limit=12)
+        self.assertEqual(len(selected), 12)
+        self.assertEqual(selected[:2], DEFAULT_TASKS[:2])
+
+    def test_toolsandbox_real_probe_rejects_missing_requested_task(self):
+        with self.assertRaises(KeyError):
+            select_task_names(["get_wifi"], requested=["missing_task"], limit=12)
 
 
 if __name__ == "__main__":
