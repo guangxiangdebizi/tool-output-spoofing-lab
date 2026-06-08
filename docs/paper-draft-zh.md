@@ -710,6 +710,30 @@ schema-only 分别为 19/97 和 17/95。所有 1552 个 AgentDojo full cells 均
 `non_decisive_fields` 目前仍由 scorer 隐式定义，camera-ready full-run
 artifact 需要把它们显式写入 summary。
 
+为避免把旧 runner-level `effective_verification` 误解为“验证真实有效”，本文
+新增五层 verification diagnostic artifact：
+`outputs/agentdojo_model_full_verification_levels.json`。该 artifact 分开报告
+attempted、observed、contradictory、decision-changing 与 effective
+split-channel verification。AgentDojo full 的关键结果如下：
+
+| Profile | Mode | Attempted | Observed | Contradictory | Decision-changing vs naive | Effective split-channel | Legacy effective_verification |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| naive | spoofed | 0/97 | 0/97 | 0/97 | 0/97 | 0/97 | 0/97 |
+| schema-only | spoofed | 0/97 | 0/97 | 0/97 | 23/97 | 0/97 | 0/97 |
+| prompt-filter | spoofed | 97/97 | 97/97 | 0/97 | 25/97 | 0/97 | 0/97 |
+| repeat-same-tool | spoofed | 97/97 | 97/97 | 0/97 | 17/97 | 0/97 | 0/97 |
+| metadata-only | spoofed | 97/97 | 97/97 | 0/97 | 23/97 | 0/97 | 0/97 |
+| read-back validator | spoofed | 97/97 | 97/97 | 97/97 | 28/97 | 97/97 | 97/97 |
+| independent validator | spoofed | 97/97 | 97/97 | 97/97 | 28/97 | 97/97 | 97/97 |
+| combined policy | spoofed | 97/97 | 97/97 | 97/97 | 28/97 | 96/97 | 97/97 |
+| read-back validator | truthful | 97/97 | 97/97 | 0/97 | 37/97 | 42/97 | 97/97 |
+
+这张表说明两点：第一，prompt-filter、repeat 和 metadata 可以“尝试/观察到”
+某种检查，但没有 split-channel contradiction，因此不能称为语义验证；第二，
+read-back 在 spoofed 条件下是有效 split-channel 防御，但 truthful 条件下
+effective split-channel 只有 42/97，与 clean utility funnel 一致，说明
+AgentDojo adapter/scoring 仍需修复，而不是简单宣称验证总是有效。
+
 结论：AgentDojo full run 确认了该方向有实验证据价值：naive/schema-only/repeat/metadata 在 full 97-task substrate 上仍有非零 ASR，而 read-back/independent/combined 将 spoofed ASR 压到 0/97。与此同时，AgentDojo truthful clean utility 普遍偏低，说明当前 AgentDojo adapter/scoring/task difficulty 仍会限制防御有效性主张。最稳妥的论文表述是：AgentDojo full run 支持“schema-valid false observation 是真实 failure mode”和“read-back 是强 candidate defense”，但不应单独作为 full agent defense effectiveness 的最终证明。
 
 ### 9.2.2 Local multi-surface 48-cell real-toolcall pilot

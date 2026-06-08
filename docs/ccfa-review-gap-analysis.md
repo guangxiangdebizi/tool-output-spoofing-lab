@@ -95,7 +95,12 @@ Priority route from the reviewer:
 2. Add confidence intervals and paired tests before making comparative claims.
    AgentDojo full now has Wilson CI plus exact paired McNemar/binomial tests
    with Holm correction in `outputs/agentdojo_model_full_stats.json`;
-   ToolSandbox needs the same treatment after merge.
+   ToolSandbox needs the same treatment after merge. AgentDojo also now has
+   five-level verification diagnostics in
+   `outputs/agentdojo_model_full_verification_levels.json`, so main tables
+   should use attempted/observed/contradictory/decision-changing/effective
+   split-channel fields rather than the older runner-level
+   `effective_verification` field.
 3. Add at least one additional model only after the `gpt-5.4-mini` full
    ToolSandbox+AgentDojo result is merged and inspected.
 4. Replace or supplement raster concept figures with camera-ready vector figures

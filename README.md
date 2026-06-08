@@ -127,6 +127,7 @@ scripts/postprocess_full_model_run.sh \
   --ci-out outputs/toolsandbox_model_full_ci.json \
   --leakage-out outputs/prompt_leakage_audit_toolsandbox_full_gpt54.json \
   --stats-out outputs/toolsandbox_model_full_stats.json \
+  --verification-out outputs/toolsandbox_model_full_verification_levels.json \
   --reference-profile toolsandbox_exec_naive
 ```
 

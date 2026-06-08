@@ -26,6 +26,13 @@
       "role": "reports exact McNemar/binomial sign tests with Holm correction, plus clean-utility and spoofed-security funnel diagnostics",
       "script": "scripts/analyze_model_full_stats.py",
       "source_summary": "outputs/agentdojo_model_full_summary.json"
+    },
+    {
+      "artifact": "outputs/agentdojo_model_full_verification_levels.json",
+      "name": "AgentDojo full-overlay five-level verification diagnostics",
+      "role": "separates attempted, observed, contradictory, decision-changing, and effective split-channel verification instead of using the older runner-level effective_verification field as a main metric",
+      "script": "scripts/analyze_verification_levels.py",
+      "source_summary": "outputs/agentdojo_model_full_summary.json"
     }
   ],
   "full_overlays": [
@@ -41,7 +48,8 @@
       "status": "completed_full_overlay_utility_limited_non_autonomous",
       "summary": "outputs/agentdojo_model_full_summary.json",
       "tasks": 97,
-      "trace_dir": "traces/agentdojo_model_full (remote run host)"
+      "trace_dir": "traces/agentdojo_model_full (remote run host)",
+      "verification_levels": "outputs/agentdojo_model_full_verification_levels.json"
     },
     {
       "cells": 12384,
@@ -54,7 +62,8 @@
       "status": "running_remote_not_merged",
       "summary": "outputs/toolsandbox_model_full_summary.json",
       "tasks": 1032,
-      "trace_dir": "traces/toolsandbox_model_full (remote run host)"
+      "trace_dir": "traces/toolsandbox_model_full (remote run host)",
+      "verification_levels": "outputs/toolsandbox_model_full_verification_levels.json"
     }
   ],
   "index_version": "2026-06-09.full-overlay-separated",

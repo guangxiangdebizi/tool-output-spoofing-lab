@@ -113,6 +113,10 @@ Main tables should separate verification into five levels:
 Current `verification_attempted` and `effective_verification` fields are
 runner-level approximations. Camera-ready tables should either recompute these
 five levels or clearly label the older fields as runner-level diagnostics.
+The canonical recomputation script is `scripts/analyze_verification_levels.py`.
+It writes `*_verification_levels.json` artifacts and treats
+`legacy_effective_verification` as a comparison-only diagnostic, not as a main
+paper metric.
 
 ## API/parse error denominator policy
 
@@ -165,6 +169,8 @@ A full-overlay substrate can enter the main result table only after:
 4. paired stats / utility funnel exists;
 5. paired stats includes metric directions, `contract_diagnostics`, and both
    `OR_attempted` and `OR_excluding_api_errors` when over-refusal is reported;
-6. invalid existing trace count, API/parse errors, and denominator policy are
+6. five-level verification diagnostics exist and main tables do not rely on the
+   older runner-level `effective_verification` field;
+7. invalid existing trace count, API/parse errors, and denominator policy are
    reported;
-7. privileged upper bounds are separated from deployable defenses.
+8. privileged upper bounds are separated from deployable defenses.

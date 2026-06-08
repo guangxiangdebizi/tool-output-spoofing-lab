@@ -12,10 +12,12 @@ Usage:
     --ci-out outputs/toolsandbox_model_full_ci.json \
     --leakage-out outputs/prompt_leakage_audit_toolsandbox_full_gpt54.json \
     --stats-out outputs/toolsandbox_model_full_stats.json \
+    --verification-out outputs/toolsandbox_model_full_verification_levels.json \
     --reference-profile toolsandbox_exec_naive
 
 Runs the reproducible post-processing pipeline for a sharded full-overlay run:
-merge shards -> Wilson CI -> prompt-leakage audit -> paired stats/utility funnel.
+merge shards -> Wilson CI -> prompt-leakage audit -> paired stats/utility funnel
+-> five-level verification diagnostics.
 USAGE
 }
 
@@ -26,6 +28,7 @@ MANIFEST_OUT=""
 CI_OUT=""
 LEAKAGE_OUT=""
 STATS_OUT=""
+VERIFICATION_OUT=""
 REFERENCE_PROFILE=""
 PYTHON_BIN="${PYTHON:-python3.11}"
 
@@ -38,6 +41,7 @@ while [[ $# -gt 0 ]]; do
     --ci-out) CI_OUT="$2"; shift 2 ;;
     --leakage-out) LEAKAGE_OUT="$2"; shift 2 ;;
     --stats-out) STATS_OUT="$2"; shift 2 ;;
+    --verification-out) VERIFICATION_OUT="$2"; shift 2 ;;
     --reference-profile) REFERENCE_PROFILE="$2"; shift 2 ;;
     --python) PYTHON_BIN="$2"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
@@ -45,7 +49,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-for value in SUMMARY_GLOB MANIFEST_GLOB SUMMARY_OUT MANIFEST_OUT CI_OUT LEAKAGE_OUT STATS_OUT REFERENCE_PROFILE; do
+for value in SUMMARY_GLOB MANIFEST_GLOB SUMMARY_OUT MANIFEST_OUT CI_OUT LEAKAGE_OUT STATS_OUT VERIFICATION_OUT REFERENCE_PROFILE; do
   if [[ -z "${!value}" ]]; then
     echo "missing required argument: ${value}" >&2
     usage >&2
@@ -72,4 +76,9 @@ export PYTHONPATH="${PYTHONPATH:-src:.}"
 "$PYTHON_BIN" scripts/analyze_model_full_stats.py \
   --summary "$SUMMARY_OUT" \
   --output "$STATS_OUT" \
+  --reference-profile "$REFERENCE_PROFILE"
+
+"$PYTHON_BIN" scripts/analyze_verification_levels.py \
+  --summary "$SUMMARY_OUT" \
+  --output "$VERIFICATION_OUT" \
   --reference-profile "$REFERENCE_PROFILE"
