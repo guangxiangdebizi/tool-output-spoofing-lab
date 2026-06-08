@@ -20,6 +20,7 @@ Additional paper figures are available in:
 - `figures/figure2_benchmark_baseline_matrix.png`
 - `figures/figure3_authorization_evidence_ladder.png`
 - `figures/figure4_pilot_result_snapshot.png`
+- `figures/figure7_observation_spoofing_overlay.png`
 
 One important axis is authorization/provenance spoofing: a tool may falsely
 report that a sandbox asset is owned, in scope, or backed by nginx/banner,
@@ -121,6 +122,11 @@ The Chinese draft is currently the most complete manuscript-style version. It
 includes formal related work, benchmark-overlay design, defense baselines,
 metrics, pilot result tables, limitations, responsible release notes, and
 numbered references.
+
+For manuscript numbers, use only `outputs/main_pilot_index.json` as the
+canonical pilot-result index. Older summaries/manifests are retained for
+traceability and may contain stale wording. `docs/paper-draft.md` is an older
+English draft; `docs/paper-draft-zh.md` is the current working manuscript.
 
 `docs/benchmark-baseline-contract.md` is the current fixed experiment contract:
 it defines the benchmark unit, existing-benchmark grounding, observation

@@ -81,6 +81,55 @@ READBACK_TOOL_CALLS = {
 }
 
 
+def _dataframe_rows(dataframe: Any) -> list[dict[str, Any]]:
+    try:
+        rows = dataframe.to_dicts()
+        if isinstance(rows, list):
+            return [row for row in rows if isinstance(row, dict)]
+    except Exception:
+        pass
+    try:
+        rows = dataframe.head(100).to_dicts()
+        if isinstance(rows, list):
+            return [row for row in rows if isinstance(row, dict)]
+    except Exception:
+        return []
+    return []
+
+
+def _parse_tool_trace(value: Any) -> tuple[str, dict[str, Any]] | None:
+    if not isinstance(value, str) or not value.strip():
+        return None
+    try:
+        parsed = json.loads(value)
+    except json.JSONDecodeError:
+        return None
+    if not isinstance(parsed, dict):
+        return None
+    tool_name = parsed.get("tool_name")
+    arguments = parsed.get("arguments", {})
+    if isinstance(tool_name, str) and isinstance(arguments, dict):
+        return tool_name, arguments
+    return None
+
+
+def infer_tool_call_from_scenario(scenario: Any) -> tuple[str, dict[str, Any]]:
+    milestones = getattr(scenario.evaluation.milestone_matcher, "milestones", [])
+    for milestone in milestones:
+        for constraint in getattr(milestone, "snapshot_constraints", []):
+            for row in _dataframe_rows(getattr(constraint, "target_dataframe", None)):
+                parsed = _parse_tool_trace(row.get("tool_trace"))
+                if parsed is not None:
+                    return parsed
+    raise KeyError("No milestone tool_trace target found for ToolSandbox scenario")
+
+
+def infer_readback_tool_call(tool_name: str, arguments: dict[str, Any]) -> tuple[str, dict[str, Any]] | None:
+    if tool_name.startswith(("get_", "search_")):
+        return tool_name, arguments
+    return None
+
+
 @dataclass(frozen=True)
 class ToolExecutionRecord:
     task_id: str
@@ -110,15 +159,13 @@ def execute_toolsandbox_tool(task_id: str, *, toolsandbox_path: str | None = Non
     scenarios = load_real_scenarios(toolsandbox_path)
     if task_id not in scenarios:
         raise KeyError(f"ToolSandbox scenario not found: {task_id}")
-    if task_id not in TASK_TOOL_CALLS:
-        raise KeyError(f"No scripted tool call for ToolSandbox scenario: {task_id}")
 
     from tool_sandbox.common.execution_context import DatabaseNamespace, RoleType, get_current_context, new_context
     from tool_sandbox.common.message_conversion import Message
     from tool_sandbox.roles.execution_environment import ExecutionEnvironment
 
     scenario = scenarios[task_id]
-    tool_name, arguments = TASK_TOOL_CALLS[task_id]
+    tool_name, arguments = TASK_TOOL_CALLS.get(task_id) or infer_tool_call_from_scenario(scenario)
     context = copy.deepcopy(scenario.starting_context)
     with new_context(context):
         env = ExecutionEnvironment()
@@ -153,8 +200,9 @@ def execute_toolsandbox_tool(task_id: str, *, toolsandbox_path: str | None = Non
         readback_content = None
         readback_tool_trace = None
         readback_tool_call_exception = None
-        if task_id in READBACK_TOOL_CALLS:
-            readback_tool_name, readback_arguments = READBACK_TOOL_CALLS[task_id]
+        readback_call = READBACK_TOOL_CALLS.get(task_id) or infer_readback_tool_call(tool_name, arguments)
+        if readback_call is not None:
+            readback_tool_name, readback_arguments = readback_call
             env.add_messages(
                 [
                     Message(

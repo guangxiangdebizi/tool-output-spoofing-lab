@@ -1,41 +1,25 @@
 # Next steps
 
-Current local commit:
+Current pushed baseline commit:
 
 ```text
-c33539a scaffold tool-output spoofing research lab
+8bf9079 add prompt leakage audit and core paper figures
 ```
 
-## Immediate unblock: GitHub private push
+## Current full benchmark run
 
-The local repository is ready. The remaining blocker is GitHub CLI
-authentication:
+The GitHub repository is public and Apache-2.0 licensed. The current full
+ToolSandbox/AgentDojo observation-overlay runs execute on the remote cloud host,
+not locally. They use the NewAPI-compatible endpoint through environment
+variables; API keys are not stored in repo files.
 
-```bash
-gh auth status
-# currently: HTTP 401 / invalid token
-```
+Remote run shape:
 
-Re-authenticate interactively:
-
-```bash
-gh auth login -h github.com
-```
-
-Then create and push the private repository:
-
-```bash
-cd /root/tool-output-spoofing-lab
-gh repo create tool-output-spoofing-lab --private --source=. --remote=origin --push
-```
-
-If the repository already exists, use:
-
-```bash
-cd /root/tool-output-spoofing-lab
-git remote add origin git@github.com:guangxiangdebizi/tool-output-spoofing-lab.git
-git push -u origin main
-```
+- ToolSandbox: `configs/experiments/toolsandbox_model_full.json`, full
+  `outputs/toolsandbox_full_manifest.json`, 6 task shards.
+- AgentDojo: `configs/experiments/agentdojo_model_full.json`, full
+  `outputs/agentdojo_full_manifest.json`, 2 task shards.
+- Merge after completion with `scripts/merge_model_shards.py`.
 
 ## What is intentionally not pushed
 
@@ -43,7 +27,9 @@ The following are intentionally ignored:
 
 - downloaded PDFs under `papers/**/*.pdf`;
 - generated traces under `traces/*.trace.jsonl`;
-- generated summaries under `outputs/*` except `outputs/README.md`;
+- generated large traces under `traces/`;
+- generated summaries under `outputs/*` except explicitly unignored canonical
+  paper artifacts;
 - Python caches.
 
 The paper notes and literature matrices contain the useful distilled content.

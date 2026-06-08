@@ -7,6 +7,13 @@ __pycache__/
 venv/
 outputs/*
 !outputs/README.md
+!outputs/main_pilot_index.json
+!outputs/toolsandbox_full_manifest.json
+!outputs/agentdojo_full_manifest.json
+!outputs/toolsandbox_model_full_summary.json
+!outputs/toolsandbox_model_full_manifest.json
+!outputs/agentdojo_model_full_summary.json
+!outputs/agentdojo_model_full_manifest.json
 !outputs/prompt_leakage_audit_expanded_gpt54.json
 !outputs/readback_scoring_ablation.json
 traces/*.tmp

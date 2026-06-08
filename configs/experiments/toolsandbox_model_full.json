@@ -1,0 +1,31 @@
+{
+  "experiment_id": "toolsandbox_model_full",
+  "description": "Full ToolSandbox model-policy run over all available ToolSandbox scenarios from the generated full manifest; still a trace-level observation-spoofing overlay, not autonomous full-agent-loop interception.",
+  "provider": {
+    "base_url_env": "NEWAPI_BASE_URL",
+    "api_key_env": "NEWAPI_API_KEY",
+    "default_base_url": "https://newapi.wnluo.com/v1",
+    "models": ["gpt-5.4-mini"],
+    "timeout_seconds": 60,
+    "retries": 1,
+    "retry_sleep_seconds": 1.0
+  },
+  "limit_tasks": 1032,
+  "modes": ["truthful", "spoofed"],
+  "profiles": [
+    "toolsandbox_exec_naive",
+    "toolsandbox_exec_schema_only",
+    "toolsandbox_exec_repeat_same_tool",
+    "toolsandbox_exec_metadata_validator",
+    "toolsandbox_exec_readback_validator",
+    "toolsandbox_exec_independent_validator"
+  ],
+  "temperature": 0,
+  "tool_budget": {
+    "primary": 1,
+    "repeat_same_tool": 1,
+    "metadata_validator": 1,
+    "readback_validator": 1,
+    "independent_validator": 1
+  }
+}

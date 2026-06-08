@@ -11,6 +11,7 @@ from tool_spoof_lab.openai_compat import call_chat_completion, response_text
 from tool_spoof_lab.runner import now_iso, write_jsonl
 from tool_spoof_lab.structured_oracle import score_structured_trace
 from tool_spoof_lab.toolsandbox_execution_smoke import (
+    ToolExecutionRecord,
     PROFILES,
     build_interception_trace,
     execute_toolsandbox_tool,
@@ -39,8 +40,26 @@ def main() -> None:
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--limit-cells", type=int, default=None)
     parser.add_argument("--limit-tasks", type=int, default=None)
+    parser.add_argument(
+        "--task-offset",
+        type=int,
+        default=0,
+        help="Shard offset over selected tasks. Use with --task-stride for parallel full runs.",
+    )
+    parser.add_argument(
+        "--task-stride",
+        type=int,
+        default=1,
+        help="Shard stride over selected tasks. Each shard runs tasks[offset::stride].",
+    )
     parser.add_argument("--sleep", type=float, default=0.2)
     args = parser.parse_args()
+    if args.task_offset < 0:
+        raise SystemExit("--task-offset must be >= 0")
+    if args.task_stride < 1:
+        raise SystemExit("--task-stride must be >= 1")
+    if args.task_offset >= args.task_stride:
+        raise SystemExit("--task-offset must be smaller than --task-stride")
 
     config_path = Path(args.config)
     config = json.loads(config_path.read_text(encoding="utf-8"))
@@ -56,16 +75,17 @@ def main() -> None:
         task_records = task_records[: args.limit_tasks]
     else:
         task_records = task_records[: int(config["limit_tasks"])]
+    pre_shard_task_count = len(task_records)
+    task_records = task_records[args.task_offset :: args.task_stride]
     task_ids = [task["task_id"] for task in task_records]
     profiles = list(config["profiles"])
     for profile in profiles:
         if profile not in PROFILES:
             raise ValueError(f"unknown profile in config: {profile}")
 
-    execution_cache = {
-        task_id: execute_toolsandbox_tool(task_id, toolsandbox_path=args.toolsandbox_path)
-        for task_id in task_ids
-    }
+    execution_cache: dict[str, ToolExecutionRecord] = {}
+    unsupported_tasks: list[dict[str, Any]] = []
+    unsupported_task_ids: set[str] = set()
 
     out_dir = Path(args.out_dir)
     scored: list[dict[str, Any]] = []
@@ -74,6 +94,24 @@ def main() -> None:
 
     for model in provider["models"]:
         for task_id in task_ids:
+            if task_id in unsupported_task_ids:
+                continue
+            if task_id not in execution_cache:
+                try:
+                    execution_cache[task_id] = execute_toolsandbox_tool(
+                        task_id,
+                        toolsandbox_path=args.toolsandbox_path,
+                    )
+                except Exception as exc:
+                    unsupported_task_ids.add(task_id)
+                    unsupported_tasks.append(
+                        {
+                            "task_id": task_id,
+                            "error_type": type(exc).__name__,
+                            "error": str(exc),
+                        }
+                    )
+                    continue
             execution = execution_cache[task_id]
             for mode in config["modes"]:
                 for profile in profiles:
@@ -198,7 +236,13 @@ def main() -> None:
         "real_model_run": not args.dry_run,
         "real_benchmark_run": False,
         "representative_10_15_percent_slice": False,
+        "task_offset": args.task_offset,
+        "task_stride": args.task_stride,
+        "pre_shard_task_count": pre_shard_task_count,
         "selected_task_count": len(task_ids),
+        "executable_task_count": len(execution_cache),
+        "unsupported_task_count": len(unsupported_tasks),
+        "unsupported_tasks": unsupported_tasks,
         "total_available_scenarios": source_manifest.get("total_available_scenarios"),
         "selected_fraction": (
             len(task_ids) / float(source_manifest["total_available_scenarios"])

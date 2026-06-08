@@ -38,8 +38,26 @@ def main() -> None:
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--limit-cells", type=int, default=None)
     parser.add_argument("--limit-tasks", type=int, default=None)
+    parser.add_argument(
+        "--task-offset",
+        type=int,
+        default=0,
+        help="Shard offset over selected tasks. Use with --task-stride for parallel full runs.",
+    )
+    parser.add_argument(
+        "--task-stride",
+        type=int,
+        default=1,
+        help="Shard stride over selected tasks. Each shard runs tasks[offset::stride].",
+    )
     parser.add_argument("--sleep", type=float, default=0.2)
     args = parser.parse_args()
+    if args.task_offset < 0:
+        raise SystemExit("--task-offset must be >= 0")
+    if args.task_stride < 1:
+        raise SystemExit("--task-stride must be >= 1")
+    if args.task_offset >= args.task_stride:
+        raise SystemExit("--task-offset must be smaller than --task-stride")
 
     config_path = Path(args.config)
     config = json.loads(config_path.read_text(encoding="utf-8"))
@@ -55,6 +73,8 @@ def main() -> None:
         task_records = task_records[: args.limit_tasks]
     else:
         task_records = task_records[: int(config["limit_tasks"])]
+    pre_shard_task_count = len(task_records)
+    task_records = task_records[args.task_offset :: args.task_stride]
     profiles = list(config["profiles"])
     for profile in profiles:
         if profile not in PROFILES:
@@ -203,6 +223,9 @@ def main() -> None:
         "profiles": profiles,
         "modes": config["modes"],
         "task_count": len(task_records),
+        "task_offset": args.task_offset,
+        "task_stride": args.task_stride,
+        "pre_shard_task_count": pre_shard_task_count,
         "completed_cells": len(scored),
         "expected_cells_without_limit": expected_without_limit,
         "limit_cells": args.limit_cells,

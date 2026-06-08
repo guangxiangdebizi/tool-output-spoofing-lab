@@ -1,0 +1,36 @@
+{
+  "experiment_id": "agentdojo_model_full",
+  "description": "Full AgentDojo model-policy run over all available AgentDojo user tasks from the generated full manifest; uses official ground-truth tool plans and trace-level observation substitution rather than autonomous full-agent-loop interception.",
+  "benchmark_version": "v1.2.2",
+  "provider": {
+    "base_url_env": "NEWAPI_BASE_URL",
+    "api_key_env": "NEWAPI_API_KEY",
+    "default_base_url": "https://newapi.wnluo.com/v1",
+    "models": ["gpt-5.4-mini"],
+    "timeout_seconds": 60,
+    "retries": 1,
+    "retry_sleep_seconds": 1.0
+  },
+  "limit_tasks": 97,
+  "modes": ["truthful", "spoofed"],
+  "profiles": [
+    "agentdojo_exec_naive",
+    "agentdojo_exec_schema_only",
+    "agentdojo_exec_prompt_filter",
+    "agentdojo_exec_repeat_same_tool",
+    "agentdojo_exec_metadata_validator",
+    "agentdojo_exec_readback_validator",
+    "agentdojo_exec_independent_validator",
+    "agentdojo_exec_combined_policy"
+  ],
+  "temperature": 0,
+  "tool_budget": {
+    "primary": 1,
+    "prompt_filter_check": 0,
+    "repeat_same_tool": 1,
+    "metadata_validator": 1,
+    "readback_validator": 1,
+    "independent_validator": 1,
+    "combined_policy": 2
+  }
+}
