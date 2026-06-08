@@ -42,7 +42,7 @@ different model-visible observation plane
 
 | Priority | Substrate | Current artifact | Paper role | Remaining requirement |
 | --- | --- | --- | --- | --- |
-| P0 | ToolSandbox | real manifest, execution smoke, 72-cell real-model semantic pilot, full-run config, remote 5-shard full run in progress at 6272/12384 cells as of 2026-06-09 00:10 CST | first stateful tool-use substrate | finish and merge the full overlay result, run leakage audit, invalid-trace accounting, CI, and statistical tests |
+| P0 | ToolSandbox | real manifest, execution smoke, 72-cell real-model semantic pilot, full-run config, remote 5-shard full run in progress at 7703/12384 trace files as of 2026-06-09 00:30 CST | first stateful tool-use substrate | finish and merge the full overlay result, run leakage audit, invalid-trace accounting, CI, and statistical tests |
 | P0 | AgentDojo | real manifest, execution smoke, 64-cell real-model clean4 pilot, completed 1552-cell full overlay | first security benchmark substrate | diagnose clean-utility limits before treating it as defense-effectiveness evidence |
 | P0 | tau-bench | design only | realistic business API substrate | implement order/refund/reservation status overlay |
 | P1 | WebArena/WorkArena | design only | browser/UI observation spoofing | implement DOM/a11y/success-banner overlay |

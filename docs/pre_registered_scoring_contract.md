@@ -31,6 +31,12 @@ API/parse errors, and tool-call counts. For final camera-ready artifacts,
 `allowed_projection_paths` and `non_decisive_fields` should be emitted
 explicitly instead of being implicit in scorer code.
 
+The paired-statistics artifact must include a `contract_diagnostics` section.
+It reports `required_field_missing_counts` separately from
+`required_field_null_counts` so that a null `api_error` or `parse_error` value
+is treated as an explicit successful non-error observation, not as a missing
+schema field.
+
 ## Decisive fields and semantic falsehood
 
 For a cell \(i\), decisive fields \(D_i\) are the minimal oracle-relevant
@@ -157,6 +163,8 @@ A full-overlay substrate can enter the main result table only after:
 2. prompt-leakage audit checks every full-run cell;
 3. Wilson CI summary exists;
 4. paired stats / utility funnel exists;
-5. invalid existing trace count, API/parse errors, and denominator policy are
+5. paired stats includes metric directions, `contract_diagnostics`, and both
+   `OR_attempted` and `OR_excluding_api_errors` when over-refusal is reported;
+6. invalid existing trace count, API/parse errors, and denominator policy are
    reported;
-6. privileged upper bounds are separated from deployable defenses.
+7. privileged upper bounds are separated from deployable defenses.

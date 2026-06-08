@@ -22,9 +22,9 @@ not a claim that the listed gaps are solved.
 
 - Two-substrate full benchmark-level evaluation. AgentDojo 97-task full overlay
   is complete, but ToolSandbox full overlay is still running. As of
-  2026-06-09 00:10 CST it had produced 6272/12384 expected
-  `gpt-5.4-mini` ToolSandbox cells under five remote shards. The paper still
-  lacks the merged ToolSandbox result and multi-model evidence.
+  2026-06-09 00:30 CST it had produced 7703/12384 expected
+  `gpt-5.4-mini` ToolSandbox trace files under five remote shards. The paper
+  still lacks the merged ToolSandbox result and multi-model evidence.
 - Full autonomous LLM-agent risk. The current runners evaluate model final
   decisions over scripted tool-plan traces, not autonomous planning,
   tool-selection, recovery, and long-horizon agent loops.
@@ -40,11 +40,13 @@ not a claim that the listed gaps are solved.
 
 ## P0 gaps before a CCF-A full-paper submission
 
-1. Run at least two existing benchmark substrates with 30-45 paired tasks total.
+1. Complete and merge at least two existing benchmark substrates with full
+   overlay artifacts; do not substitute candidate slices for the full runs.
 2. Add at least two models, preferably three: strong closed model, cheaper/small
    closed model, and a reproducible open/local model.
-3. Freeze a pre-registered scoring contract, especially restricted read-back
-   projection.
+3. Keep the pre-registered scoring contract frozen and make full-run artifacts
+   explicitly emit projection/non-decisive field metadata instead of leaving it
+   implicit in scorer code.
 4. Split validators into deployable signed/read-back authority and privileged
    oracle upper bound.
 5. Repair AgentDojo clean utility or explicitly downgrade AgentDojo to
@@ -77,7 +79,7 @@ not a claim that the listed gaps are solved.
 A reused CCF-A reviewer subagent restated the main decision as: the project is
 promising and now has real full-overlay evidence on AgentDojo, but it is still
 not a CCF-A full paper until ToolSandbox full results, multi-model robustness,
-pre-registered scoring, and statistical tests are integrated. The manuscript
+explicit artifact-level scoring contract, and statistical tests are integrated. The manuscript
 should therefore avoid the phrase "full agent benchmark" unless an autonomous
 agent-loop interception experiment is added. The safest current framing is:
 
@@ -117,6 +119,12 @@ whose final event came from `model_chat_completion`; empty, malformed,
 provider-error, missing-final, or non-executed traces are marked invalid and
 rerun. The paper should report `invalid_existing_trace_count`, API/parse
 errors, and final attempted denominators when the merged result is available.
+
+As of the latest remote check, `outputs/full_monitor.log` shows the monitor is
+alive and the trace directory contains 7703 files, but shard summaries do not
+exist yet because the five shard screens are still running. The main paper
+should therefore continue to report ToolSandbox as an in-progress gate, not as
+a result.
 
 ## Required experiments and tables
 
