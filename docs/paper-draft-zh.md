@@ -8,7 +8,7 @@
 
 本文将该问题定义为 **tool-output spoofing**：攻击者不修改用户请求、系统提示或后端真实状态，只控制模型可见的工具观察平面，使其包含 schema-valid 但语义错误的状态、实体绑定、凭证、来源、授权或新鲜度字段。与从零自建 toy benchmark 不同，本文提出一种 **observation-spoofing overlay**：在 AgentDojo、ToolSandbox、tau-bench、WebArena/WorkArena、SWE-bench、MCP Security Bench、MCP-SafetyBench、PoisonedRAG/SafeRAG 等已有高价值 agent/tool-use benchmark 上，保持原始任务、真实后端状态和 oracle 不变，仅成对替换模型可见观察，从而比较不同防御基线在 false acceptance 与 clean utility 之间的权衡。
 
-我们进一步把用户关心的授权/来源伪造抽象为一个独立评测轴：工具可能声称某资产已被授权、已验证所有权、存在 nginx/banner/证书/资产清单等证据，从而诱导模型把未授权对象升级为可进行更高等级评估的对象。该轴只评测授权状态和允许的评估等级，不生成命令、payload、endpoint 行动或可操作攻击步骤。当前仓库已完成多个真实模型 pilot、一个 AgentDojo 1552-cell full overlay run，并正在远端云主机运行 ToolSandbox full overlay。已完成证据显示弱基线经常接受 schema-valid 虚假观察；read-back 或 independent-authority 基线能降低 false acceptance；combined policy 的 utility/调参仍未稳定。本文当前结论仍限定为 trace-final-decision overlay 证据；最终 CCF-A 级主张需要至少两个现有 benchmark 的 full/candidate-slice overlay、2-3 个模型、预注册 scoring contract 和置信区间支持。
+我们进一步把用户关心的授权/来源伪造抽象为一个独立评测轴：工具可能声称某资产已被授权、已验证所有权、存在 nginx/banner/证书/资产清单等证据，从而诱导模型把未授权对象升级为可进行更高等级评估的对象。该轴只评测授权状态和允许的评估等级，不生成命令、payload、endpoint 行动或可操作攻击步骤。当前仓库已完成多个真实模型 pilot、一个 AgentDojo 1552-cell full overlay run，并正在远端云主机运行 ToolSandbox full overlay；截至 2026-06-09 00:00 CST，该 ToolSandbox run 已产生 5567/12384 个预期 `gpt-5.4-mini` cells，5 个 shard 仍在运行。已完成证据显示弱基线经常接受 schema-valid 虚假观察；read-back 或 independent-authority 基线能降低 false acceptance；combined policy 的 utility/调参仍未稳定。本文当前结论仍限定为 trace-final-decision overlay 证据；最终 CCF-A 级主张需要至少两个现有 benchmark 的 full overlay、2-3 个模型、预注册 scoring contract 和置信区间支持；candidate slice 只能作为预算敏感性或附录，不替代 full run。
 
 本文所有 pilot 表采用的 canonical artifact 固定在 `outputs/main_pilot_index.json`。旧版 summary/manifest 保留用于 traceability，但不作为主文报告结果。
 
@@ -186,8 +186,8 @@ x = (B, task_id, user_task, hidden_truth, visible_truthful_observation,
 
 | Priority | Substrate | 当前 artifact | 论文角色 | 剩余要求 |
 | --- | --- | --- | --- | --- |
-| P0 | ToolSandbox | real manifest、execution smoke、72-cell real-model semantic pilot、10%-15% candidate manifest-only sampling plan、full-run config | 第一个 stateful tool-use substrate | 执行并汇总远端全量/切片 model overlay |
-| P0 | AgentDojo | real manifest、execution smoke、64-cell clean4 pilot、full-run config | 第一个 security benchmark substrate | 扩大任务数并提高 clean utility |
+| P0 | ToolSandbox | real manifest、execution smoke、72-cell real-model semantic pilot、full-run config、远端 5-shard full run 进行中 | 第一个 stateful tool-use substrate | 等待 12384-cell 全量完成、合并、CI、prompt leakage audit |
+| P0 | AgentDojo | real manifest、execution smoke、64-cell clean4 pilot、1552-cell full overlay | 第一个 security benchmark substrate | 修复或明确降级 clean utility 后再作防御有效性主证据 |
 | P0 | tau-bench | 设计完成，未实现 | 真实业务 API substrate | 实现 order/refund/reservation status overlay |
 | P1 | WebArena/WorkArena | 设计完成，未实现 | 浏览器/UI observation spoofing | 实现 DOM/a11y/success-banner overlay |
 | P1 | SWE-bench/SWE-agent | 设计完成，未实现 | shell/test-result spoofing | 实现 stdout/exit-code/test-summary overlay |
@@ -363,7 +363,7 @@ Read-back baseline 的部署假设是 split-channel：攻击者可以伪造 prim
 
 最终论文应至少完成：
 
-1. **现有 benchmark full overlay。** AgentDojo full overlay 已完成并汇总；ToolSandbox full overlay 正在远端云主机运行。分层切片只作为预算或审稿附录的敏感性分析，不再替代用户要求的 full benchmark run。
+1. **现有 benchmark full overlay。** AgentDojo full overlay 已完成并汇总；ToolSandbox full overlay 正在远端云主机运行。当前 ToolSandbox full run 为 `1032 tasks x 2 modes x 6 profiles x 1 model = 12384` cells，截至 2026-06-09 00:00 CST 已生成 5567 cells，5 个 remote shards 存活。分层切片只作为预算或审稿附录的敏感性分析，不再替代用户要求的 full benchmark run。
 2. **30-45 paired scenarios。** 每个 scenario 保持 same task/same hidden truth，只改变 visible observation，并覆盖 API、MCP、browser、shell、RAG、authorization 等 surface。
 3. **2-3 个模型。** 至少比较一个强闭源模型、一个较小闭源/路由模型、一个开源或可本地复现模型。
 4. **Defense × generator matrix。** 每个 task 至少包含 naive、schema-only、prompt-filter、repeat、read-back/authority、combined；generator 至少包含 static、random、template plausible、optimized。
@@ -378,8 +378,8 @@ Read-back baseline 的部署假设是 split-channel：攻击者可以伪造 prim
 
 如果预算受限，分阶段路线为：
 
-1. ToolSandbox full/candidate manifest execution，先跑 naive、repeat-same-tool、read-back validator。
-2. AgentDojo full/candidate manifest execution，使用相同 3 个 baseline 做 substrate 对照。
+1. ToolSandbox full manifest execution，使用全部配置 profiles；若做 deterministic candidate slice，只作为调试/附录敏感性分析。
+2. AgentDojo full manifest execution，使用相同 first-model matrix 做 substrate 对照。
 3. 增加 schema-only、prompt-filter、metadata-only、combined policy。
 4. 增加第二、第三个模型。
 5. 增加 generator ablation：static、random、template plausible、optimized。
@@ -392,7 +392,7 @@ Read-back baseline 的部署假设是 split-channel：攻击者可以伪造 prim
 
 | Requirement | 当前状态 | 投稿前证据门槛 |
 | --- | --- | --- |
-| Existing benchmark substrate | ToolSandbox/AgentDojo pilot 已完成，full overlay 远端运行中 | 至少两个现有 substrate 的 30-45 paired tasks 或全量/candidate slice |
+| Existing benchmark substrate | AgentDojo full overlay 已完成；ToolSandbox full overlay 远端 5-shard 运行中，5567/12384 cells as of 2026-06-09 00:00 CST | 至少两个现有 substrate 的 merged full result、CI 与 leakage audit |
 | Model coverage | 主要为 `gpt-5.4-mini` | 至少 2 个模型，最好 3 个 |
 | Agent-loop boundary | 当前是 trace-final-decision pilot | 主文标题/贡献/限制明确边界；若要称 full agent benchmark，需补 autonomous loop |
 | Scoring contract | 已有 read-back scoring ablation | 主实验前固定 exact-primary 与 restricted projection 规则 |
@@ -413,7 +413,7 @@ ToolSandbox pilot 使用现有 ToolSandbox 任务、真实工具执行和 milest
 
 **图 9：Current overlay protocol vs. full agent loop。** 左侧是本文当前已实现和正在全量运行的证据路径：benchmark task、scripted/ground-truth tool plan、真实执行、hidden/oracle plane、visible overlay、model final decision 和 offline scoring。右侧是未来 full autonomous agent-loop interception：模型自主规划、选择工具、执行、观察拦截、恢复/重规划并最终改变环境。该图由 image2 生成，用于主动界定当前论文 claim 边界，避免把 trace-final-decision overlay 误称为 full autonomous agent benchmark。
 
-所有真实模型运行记录 config、summary、manifest、trace directory、model name 和 run date。当前模型为 `gpt-5.4-mini`，通过 NewAPI-compatible chat-completions endpoint 调用；仓库不提交 API key，也不在代码中显式限制生成长度参数。输出解析失败或 provider error 被转换为 uncertainty stub，并在 summary 中单列 API/parse error。
+所有真实模型运行记录 config、summary、manifest、trace directory、model name 和 run date。当前模型为 `gpt-5.4-mini`，通过 NewAPI-compatible chat-completions endpoint 调用；仓库不提交 API key，也不在代码中显式限制生成长度参数。输出解析失败或 provider error 被转换为 uncertainty stub，并在 summary 中单列 API/parse error。ToolSandbox full runner 的 resume 逻辑只复用完整、真实 `model_chat_completion` trace；空文件、坏 JSONL、缺少 `structured_final`、provider/API uncertainty stub 或 `model_call_executed=false` 的旧 trace 会被记录为 invalid existing trace 并重跑，避免把失败 cell 误当作鲁棒性结果。
 
 复现实验的最小命令形状如下：
 
@@ -491,6 +491,39 @@ Scoring ablation：
 | AgentDojo clean4 | restricted read-back projection | 0/4 | 4/4 | 投影只允许 whole object、`value/text/wifi_enabled` 或 `records[*]` 中预声明键 |
 
 该消融固定在 `outputs/readback_scoring_ablation.json`。Projection scoring 不改变 spoofed ASR，只修正 truthful read-back utility；每个 cell 同时记录 `clean_utility_exact`、`clean_utility_semantic` 和 `semantic_projection_paths`，避免 silent score rewrite。正式主实验会把 projection 规则作为预注册 scoring contract，而不是结果后修分。
+
+### 9.1.1 ToolSandbox 12384-cell full-overlay run status
+
+ToolSandbox full overlay 正在远端云主机运行，目标规模为 1032 official
+ToolSandbox tasks × truthful/spoofed × 6 profiles × 1 model，共 12384 个
+model-decision cells。该 run 使用 `gpt-5.4-mini` 和 NewAPI-compatible
+chat-completions endpoint；与 72-cell pilot 相同，它仍是真实工具执行后的
+trace-final-decision overlay，不是 autonomous ToolSandbox full agent loop。
+
+Canonical planned artifacts：
+
+- summary: `outputs/toolsandbox_model_full_summary.json`
+- manifest: `outputs/toolsandbox_model_full_manifest.json`
+- CI summary: `outputs/toolsandbox_model_full_ci.json`
+- trace directory: `traces/toolsandbox_model_full` on the remote run host
+- config: `configs/experiments/toolsandbox_model_full.json`
+- source manifest: `outputs/toolsandbox_full_manifest.json`
+- model: `gpt-5.4-mini`
+
+Current remote state as of 2026-06-09 00:00 CST:
+
+| Item | Status |
+| --- | --- |
+| Expected cells | 12384 |
+| Generated traces | 5567 |
+| Progress | 44.9% |
+| Active shards | 5 `ts_full_stable_*` screens |
+| Monitor | `full_monitor`, configured to merge shards and compute CI after completion |
+| Resume policy | reuse only complete real `model_chat_completion` traces; rerun empty, malformed, missing-final, API-error, or non-executed traces |
+
+本文当前不把该 run 写入结果表，直到所有 shard 结束并完成 merged summary、
+CI、prompt-leakage audit 和 invalid-trace accounting。这样处理是为了避免把
+早期高并发失败或 provider-error uncertainty stub 误解释为模型鲁棒性。
 
 ### 9.2 AgentDojo 64-cell clean4 semantic-spoof pilot
 
@@ -667,9 +700,9 @@ Read-back validator、independent authority 和 signed scope token 可以降低 
 
 当前版本仍有明显限制：
 
-1. **样本量小。** 现有结果主要是 pilot，不足以支撑最终统计主张。
+1. **样本量和完成度仍不足。** AgentDojo 已有一个完整 1552-cell full overlay，但 ToolSandbox full overlay 仍在运行，尚未完成合并、CI 和 prompt-leakage audit；因此不能把本文表述为已完成的两 substrate full benchmark paper。
 2. **模型覆盖有限。** 当前真实模型主要使用 `gpt-5.4-mini`，需要扩展到 2-3 个模型。
-3. **Adapter 仍需扩展。** ToolSandbox 和 AgentDojo 的 pilot adapter 已能启动全量 overlay run，但当前正文中的已完成结果仍主要来自小切片；全量/10%-15% 执行切片需要等待远端运行结束并完成 shard merge、leakage audit 和统计置信区间。
+3. **Adapter 仍需扩展。** ToolSandbox 和 AgentDojo 的 adapter 已能启动全量 overlay run，但 ToolSandbox 需要等待远端运行结束并完成 shard merge、leakage audit、invalid-trace accounting 和统计置信区间；tau-bench/WebArena/SWE/RAG 仍处于设计或后续实现阶段。
 4. **授权场景仍偏合成。** Authorization/provenance 轴已经加入 controls，但仍需迁移到现有 benchmark 或更真实的 sandbox workflow。
 5. **Privileged oracle 不能作为部署防御。** 论文必须明确把 hidden truth validator 标注为 upper bound，并优先报告 read-back、signed token 或 independent authority 等可部署基线。
 6. **模型输出解析会影响 utility。** 部分 clean utility miss 来自模型简化字段或 parser 规范化不足，需要在主实验中改进 scoring。
@@ -680,7 +713,7 @@ Read-back validator、independent authority 和 signed scope token 可以降低 
 
 ## 13 结论
 
-Tool-output spoofing 是工具调用型 LLM 智能体中的基础 observation-integrity 问题。它不依赖显式 prompt injection，也不要求模型选择恶意工具；只要模型可见工具观察中的关键事实被伪造，agent 就可能把假状态转化为错误报告、错误任务承诺或错误授权边界。本文提出的 observation-spoofing overlay 通过复用 AgentDojo、ToolSandbox、tau-bench、WebArena、SWE-bench、MCP 与 RAG benchmark 的任务和 oracle，把问题从 toy 场景推进到可比较、可复现的现有 benchmark 框架。当前 pilot 结果支持进一步投入：弱基线在多个 surface 上会接受 schema-valid 假观察，read-back/authority 基线能降低风险，但 combined policy 尚需调参，代价和 utility 损失必须一并评测。下一步是完成远端全量/切片现有 benchmark run、多模型运行和置信区间分析。
+Tool-output spoofing 是工具调用型 LLM 智能体中的基础 observation-integrity 问题。它不依赖显式 prompt injection，也不要求模型选择恶意工具；只要模型可见工具观察中的关键事实被伪造，agent 就可能把假状态转化为错误报告、错误任务承诺或错误授权边界。本文提出的 observation-spoofing overlay 通过复用 AgentDojo、ToolSandbox、tau-bench、WebArena、SWE-bench、MCP 与 RAG benchmark 的任务和 oracle，把问题从 toy 场景推进到可比较、可复现的现有 benchmark 框架。当前 pilot 和 AgentDojo full-overlay 结果支持进一步投入：弱基线在多个 surface 上会接受 schema-valid 假观察，read-back/authority 基线能降低风险，但 combined policy 尚需调参，代价和 utility 损失必须一并评测。下一步是完成远端 ToolSandbox full run、同步 merged artifacts、补多模型运行和置信区间分析。
 
 ## 参考文献
 

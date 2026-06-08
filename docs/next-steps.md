@@ -3,7 +3,7 @@
 Current pushed baseline commit:
 
 ```text
-68c248b add agentdojo full overlay results
+2e7485d add toolsandbox shard progress logs
 ```
 
 ## Current full benchmark run
@@ -16,13 +16,21 @@ variables; API keys are not stored in repo files.
 Remote run shape:
 
 - ToolSandbox: `configs/experiments/toolsandbox_model_full.json`, full
-  `outputs/toolsandbox_full_manifest.json`, currently running as 2 stable task
-  shards after high-concurrency shards hit exit 137 on the remote host.
+  `outputs/toolsandbox_full_manifest.json`, currently running as 5 stable task
+  shards on the remote cloud host. As of 2026-06-09 00:00 CST, the trace
+  directory contained 5567/12384 expected cells; `full_monitor` records progress
+  and will merge shards after all `ts_full_stable_*` screens exit.
 - AgentDojo: `configs/experiments/agentdojo_model_full.json`, full
   `outputs/agentdojo_full_manifest.json`, completed 1552/1552 cells and pushed
   merged summary/manifest/CI artifacts.
 - Merge ToolSandbox after completion with `scripts/merge_model_shards.py`, then
   run `scripts/summarize_model_results_with_ci.py` and update the paper tables.
+
+The ToolSandbox runner now treats only complete, real `model_chat_completion`
+traces as reusable. Empty files, malformed JSONL, missing `structured_final`,
+provider/API uncertainty stubs, and traces without `model_call_executed=true`
+are recorded as invalid existing traces and rerun. This matters because earlier
+remote high-concurrency attempts produced unusable or partial cells.
 
 ## What is intentionally not pushed
 
@@ -53,6 +61,6 @@ To make this top-tier viable, prioritize:
    - independent read-after-write;
    - cross-tool contradiction handling;
    - final-answer uncertainty gate.
-5. Target USENIX Security 2027 Cycle 1 or NDSS 2027 fall only if full/candidate
-   existing-benchmark evidence
-   is strong by August 2026; otherwise aim for IEEE S&P 2027 second deadline.
+5. Target USENIX Security 2027 Cycle 1 or NDSS 2027 fall only if full
+   existing-benchmark evidence is strong by August 2026; otherwise aim for
+   IEEE S&P 2027 second deadline.

@@ -21,8 +21,10 @@ not a claim that the listed gaps are solved.
 ## Claims that are not yet supported
 
 - Two-substrate full benchmark-level evaluation. AgentDojo 97-task full overlay
-  is complete, but ToolSandbox full overlay is still running and the paper still
-  lacks multi-model full/candidate-slice evidence.
+  is complete, but ToolSandbox full overlay is still running. As of
+  2026-06-09 00:00 CST it had produced 5567/12384 expected
+  `gpt-5.4-mini` ToolSandbox cells under five remote shards. The paper still
+  lacks the merged ToolSandbox result and multi-model evidence.
 - Full autonomous LLM-agent risk. The current runners evaluate model final
   decisions over scripted tool-plan traces, not autonomous planning,
   tool-selection, recovery, and long-horizon agent loops.
@@ -95,6 +97,22 @@ Priority route from the reviewer:
    for final submission.
 5. Keep AgentDojo as portability/full-substrate evidence unless clean utility is
    repaired enough to support defense-effectiveness claims.
+
+## Current remote-run gate
+
+The current ToolSandbox full run is a required gate before the manuscript can
+claim two existing-benchmark full-overlay evidence. The run uses
+`gpt-5.4-mini`, `configs/experiments/toolsandbox_model_full.json`, and full
+`outputs/toolsandbox_full_manifest.json` on the remote cloud host. It is
+sharded across five `ts_full_stable_*` screens, with `full_monitor` configured
+to merge shard summaries and compute CI after completion.
+
+Important reviewer-facing nuance: failed earlier cells must not be silently
+counted as robustness. The runner now reuses only completed real model traces
+whose final event came from `model_chat_completion`; empty, malformed,
+provider-error, missing-final, or non-executed traces are marked invalid and
+rerun. The paper should report `invalid_existing_trace_count`, API/parse
+errors, and final attempted denominators when the merged result is available.
 
 ## Required experiments and tables
 

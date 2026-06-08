@@ -42,8 +42,8 @@ different model-visible observation plane
 
 | Priority | Substrate | Current artifact | Paper role | Remaining requirement |
 | --- | --- | --- | --- | --- |
-| P0 | ToolSandbox | real manifest, execution smoke, 72-cell real-model semantic pilot, 10%-15% candidate manifest-only sampling plan, full-run config, remote sharded full run in progress | first stateful tool-use substrate | merge remote full/candidate overlay results, run leakage audit, and report confidence intervals |
-| P0 | AgentDojo | real manifest, execution smoke, 64-cell real-model clean4 pilot, full-run config, remote sharded full run in progress | first security benchmark substrate | merge remote full overlay results and diagnose clean-utility limits before treating it as defense-effectiveness evidence |
+| P0 | ToolSandbox | real manifest, execution smoke, 72-cell real-model semantic pilot, full-run config, remote 5-shard full run in progress at 5567/12384 cells as of 2026-06-09 00:00 CST | first stateful tool-use substrate | finish and merge the full overlay result, run leakage audit, invalid-trace accounting, CI, and statistical tests |
+| P0 | AgentDojo | real manifest, execution smoke, 64-cell real-model clean4 pilot, completed 1552-cell full overlay | first security benchmark substrate | diagnose clean-utility limits before treating it as defense-effectiveness evidence |
 | P0 | tau-bench | design only | realistic business API substrate | implement order/refund/reservation status overlay |
 | P1 | WebArena/WorkArena | design only | browser/UI observation spoofing | implement DOM/a11y/success-banner overlay |
 | P1 | SWE-bench/SWE-agent | design only | shell/test-result spoofing | implement stdout/exit-code/test-summary overlay |
@@ -150,11 +150,11 @@ Minimum cells for a compact 2-model, 30-pair run with 6 deployable baselines:
 
 If budget is constrained, the staged path is:
 
-1. ToolSandbox full/candidate manifest execution with the first model and all
-   configured profiles; if cost or runtime is excessive, report a deterministic
-   10%-15% slice with the same merge/audit protocol.
-2. AgentDojo full/candidate manifest execution with the same first model and
-   all configured profiles, plus a clean-utility diagnosis.
+1. ToolSandbox full manifest execution with the first model and all configured
+   profiles. Deterministic 10%-15% slices are allowed only as debugging,
+   sensitivity analysis, or appendix evidence; they do not replace the full run.
+2. AgentDojo full manifest execution with the same first model and all
+   configured profiles, plus a clean-utility diagnosis.
 3. If full-run utility is usable, add the second and third model; otherwise
    first repair task selection/scoring and rerun the same matrix.
 4. Add generator ablations: static, random, plausible, optimized.
@@ -194,16 +194,18 @@ Current state:
 - strong problem framing;
 - correct shift away from toy benchmark as main evidence;
 - useful ToolSandbox and AgentDojo pilot signals;
-- largest current gpt-5.4-mini real-model expansion: ToolSandbox 72 cells,
-  AgentDojo 64 cells, and local multi-surface 48 cells;
+- largest current gpt-5.4-mini real-model expansion: AgentDojo 1552-cell full
+  overlay completed; ToolSandbox 12384-cell full overlay running remotely;
+  ToolSandbox 72 cells and local multi-surface 48 cells remain pilot evidence;
 - authorization/provenance axis matches the intended hypothesis;
 - baseline taxonomy is now explicit.
 
 Not yet CCF-A ready:
 
-- no executed 10%-15% existing-benchmark model slice;
-- remote full ToolSandbox/AgentDojo overlay runs are in progress but not yet
-  merged, audited, or statistically summarized;
+- ToolSandbox full overlay is not yet complete, merged, audited, or
+  statistically summarized;
+- AgentDojo full overlay is complete but clean utility is too low for aggregate
+  defense-effectiveness claims;
 - too few models;
 - AgentDojo clean utility is too low in the current pilot;
 - independent validators must be made deployable or labeled as upper bounds;
