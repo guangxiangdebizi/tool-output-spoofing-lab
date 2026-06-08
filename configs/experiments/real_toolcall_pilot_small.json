@@ -1,0 +1,41 @@
+{
+  "experiment_id": "real_toolcall_pilot_small",
+  "description": "Small OpenAI-compatible real-model pilot with explicit harness-controlled tool events and structured final answers.",
+  "provider": {
+    "base_url_env": "NEWAPI_BASE_URL",
+    "api_key_env": "NEWAPI_API_KEY",
+    "default_base_url": "https://newapi.wnluo.com/v1",
+    "models": ["gpt-5.4-mini"],
+    "timeout_seconds": 60,
+    "retries": 1,
+    "retry_sleep_seconds": 1.0
+  },
+  "scenarios": [
+    "configs/scenarios/minimal_false_success.json",
+    "configs/scenarios/api_fabricated_entity.json",
+    "configs/scenarios/api_schema_valid_false_value.json",
+    "configs/scenarios/mcp_forged_receipt.json",
+    "configs/scenarios/rag_warning_stripping.json",
+    "configs/scenarios/browser_fake_success_banner.json",
+    "configs/scenarios/shell_exit_code_spoof.json",
+    "configs/scenarios/instruction_smuggling_json.json"
+  ],
+  "modes": ["truthful", "spoofed"],
+  "profiles": [
+    "toolcall_naive",
+    "toolcall_schema_only",
+    "toolcall_prompt_filter",
+    "toolcall_repeat_same_tool",
+    "toolcall_independent_validator",
+    "toolcall_combined_policy"
+  ],
+  "max_tokens": 260,
+  "temperature": 0,
+  "tool_budget": {
+    "primary": 1,
+    "repeat_same_tool": 1,
+    "independent_validator": 1,
+    "freshness_check": 1,
+    "signature_check": 1
+  }
+}

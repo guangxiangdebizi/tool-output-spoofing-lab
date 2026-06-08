@@ -12,7 +12,7 @@
 
 我们把这个问题定义为 **tool-output spoofing**，并设计一个 observation-integrity benchmark。每个任务包含 benign user request、oracle-only hidden truth、truthful/spoofed 成对可见工具结果，以及根据 hidden truth 而不是可见工具结果打分的 oracle。当前 10% partial benchmark 包含 15 个场景，覆盖 API records、MCP/finance、RAG/search、browser state、shell/tests 和一个 instruction-smuggling control。我们先运行 deterministic baseline 和 structured baseline，用来验证 benchmark 是否能区分 schema validation、prompt filtering、repeat-same-tool 与 independent verification。
 
-初步结果显示：naive 和 schema-only baseline 在 15/15 spoofed 场景中接受虚假观察；prompt-filter 只挡住 explicit instruction-smuggling control，对 14/14 非指令型语义虚假观察无效；repeat-same-tool 仍然 15/15 ASR；independent-validator 和 combined policy 在当前结构化 15 场景中把 ASR 降到 0/15。当前结果还不能作为顶会主实验证据，因为场景是手写 partial slice，策略是 scripted，真实模型只跑过 6 场景 smoke pilot。下一步需要 30-45 paired scenarios、至少两个模型、真实 tool-call harness、field-level oracle 和 clean utility / false-positive refusal 的系统统计。
+初步结果显示：naive 和 schema-only baseline 在 15/15 spoofed 场景中接受虚假观察；prompt-filter 只挡住 explicit instruction-smuggling control，对 14/14 非指令型语义虚假观察无效；repeat-same-tool 仍然 15/15 ASR；independent-validator 和 combined policy 在当前结构化 15 场景中把 ASR 降到 0/15。当前结果还不能作为顶会主实验证据，因为场景是手写 partial slice，策略主要是 scripted，真实模型只跑过 6 场景 smoke pilot。本轮新增了 OpenAI-compatible real tool-call harness 和 run manifest 入口，但当前 shell 缺少 `NEWAPI_API_KEY`，所以只完成 dry-run 验证，尚未完成 30-45 paired scenario real-model pilot。
 
 ## 1. 问题定义
 
@@ -97,6 +97,27 @@ PYTHONPATH=src:. /usr/bin/python3.11 scripts/run_structured_partial.py \
   --config configs/experiments/mvp_matrix.json \
   --out-dir traces/structured_15scenario_partial \
   --summary outputs/structured_partial_summary.json
+```
+
+真实模型 tool-call harness 入口：
+
+```bash
+PYTHONPATH=src:. /usr/bin/python3.11 scripts/run_real_toolcall_pilot.py \
+  --config configs/experiments/real_toolcall_pilot_small.json \
+  --out-dir traces/real_toolcall_pilot \
+  --summary outputs/real_toolcall_pilot_summary.json \
+  --manifest outputs/real_toolcall_pilot_manifest.json
+```
+
+如果没有 API key，可以先 dry-run 验证 trace / manifest 结构：
+
+```bash
+PYTHONPATH=src:. /usr/bin/python3.11 scripts/run_real_toolcall_pilot.py \
+  --config configs/experiments/real_toolcall_pilot_small.json \
+  --out-dir traces/real_toolcall_pilot_dry \
+  --summary outputs/real_toolcall_pilot_dry_summary.json \
+  --manifest outputs/real_toolcall_pilot_dry_manifest.json \
+  --dry-run --sleep 0
 ```
 
 ## 5. Baseline 设计
@@ -213,6 +234,41 @@ spoofed ASR：
 
 这个结果只能说明方向有信号，不能作为主实验结论。原因是 verification prompt 明确告诉模型工具输出可能 stale/forged/semantically false，不等于真实 defense mechanism。
 
+### 6.4 Real tool-call harness dry-run
+
+为解决“不是严格 tool-calling harness”的审稿意见，本轮新增了
+`scripts/run_real_toolcall_pilot.py` 和
+`configs/experiments/real_toolcall_pilot_small.json`。这个 runner 不再只是把
+`visible_tool_result` 放进 user JSON 后让模型回答，而是由 harness 显式执行
+和记录工具事件：
+
+- `visible_tool_result`
+- `schema_validation`
+- `prompt_filter_check`
+- `repeat_tool_call`
+- `validator_call`
+- `freshness_check`（当前是时间绑定 metadata check，不是真 freshness gate）
+- `signature_check`（当前是 receipt metadata check，不是 cryptographic signature verifier）
+- `structured_final`
+
+模型只能看到 model-visible events；`oracle_context` 和 `truth_result` 不进入
+模型上下文。runner 同时输出 run manifest，记录 config hash、model、temperature、
+max tokens、timeout、retry、tool budget、prompt hash、trace path、API/parse error
+和每个 cell 的 tool events。
+
+当前环境没有 `NEWAPI_API_KEY`，因此只跑了 dry-run：
+
+```text
+real_toolcall_pilot_small dry-run: 96 / 96 cells
+summary: outputs/real_toolcall_pilot_dry_summary.json
+manifest: outputs/real_toolcall_pilot_dry_manifest.json
+```
+
+dry-run 证明 harness、trace、manifest 和 summary 路径可复现，并且真实模型不可见
+`truthful/spoofed` mode 与 oracle-only truth；但它还不能提供真实模型结果。下一步
+需要带 API key 跑完整 96-cell small pilot，然后扩到 30-45 paired scenarios 和至少
+两个模型。
+
 ## 7. 当前能支持的 claim 和不能支持的 claim
 
 当前能支持：
@@ -225,7 +281,7 @@ spoofed ASR：
 当前不能支持：
 
 1. “真实模型普遍会被工具输出欺骗”——还缺 multi-model agentic run。
-2. “combined policy 是 paper-grade 防御”——还缺真实 tool-call harness、成本、统计和更大场景。
+2. “combined policy 是 paper-grade 防御”——已有 harness 入口和 dry-run，但还缺真实模型运行、成本统计和更大场景。
 3. “能投 USENIX/S&P”——还缺 30-45 paired scenario model pilot、150-300 full benchmark、close-work ablation。
 
 ## 8. Related work 定位
@@ -249,10 +305,10 @@ spoofed ASR：
 
 1. 扩到 30-45 paired scenarios 的 real-model pilot；
 2. 至少 2 个模型；
-3. runner 改成真实 tool-call harness，而不是把结果直接塞进 prompt；
+3. 用新增 real tool-call harness 跑完整 real-model pilot，而不是只 dry-run；
 4. structured final answer schema 作为所有模型输出格式；
 5. field-level oracle + manual audit；
-6. 实现 repeat same tool、independent validator、signed receipt、freshness gate、combined policy 的预算控制；
+6. 实现 repeat same tool、independent validator、真实 signed receipt、真实 freshness gate、combined policy 的预算控制；当前 harness 只有 signature/freshness metadata check；
 7. 去掉 obvious fake markers，让 forged receipt/citation/provenance 更 plausible；
 8. 报告 confidence interval、bootstrap、per-suite ASR、utility、FPR、tool-call/token/latency overhead；
 9. 与 Trust No Tool / MCP Security Bench / MCP-SafetyBench 做 crosswalk 或 ablation。

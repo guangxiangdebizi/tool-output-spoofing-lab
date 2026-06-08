@@ -4,12 +4,11 @@ import argparse
 import json
 import os
 import time
-import urllib.error
-import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from tool_spoof_lab.openai_compat import call_chat_completion, response_text
 from tool_spoof_lab.oracle import score_trace
 from tool_spoof_lab.runner import write_jsonl
 from tool_spoof_lab.scenario import load_scenario, scenario_to_public_task
@@ -51,34 +50,6 @@ def build_messages(scenario_data: dict[str, Any], mode: str, prompt_policy: str)
         indent=2,
     )
     return [{"role": "system", "content": system}, {"role": "user", "content": user}]
-
-
-def call_chat_completion(
-    base_url: str,
-    api_key: str,
-    model: str,
-    messages: list[dict[str, str]],
-    max_tokens: int,
-    temperature: float,
-    timeout_seconds: int,
-) -> dict[str, Any]:
-    payload = {
-        "model": model,
-        "messages": messages,
-        "max_tokens": max_tokens,
-        "temperature": temperature,
-    }
-    request = urllib.request.Request(
-        base_url.rstrip("/") + "/chat/completions",
-        data=json.dumps(payload).encode("utf-8"),
-        headers={
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-        },
-        method="POST",
-    )
-    with urllib.request.urlopen(request, timeout=timeout_seconds) as response:
-        return json.loads(response.read().decode("utf-8"))
 
 
 def build_trace(
@@ -150,12 +121,11 @@ def main() -> None:
                         temperature=float(config["temperature"]),
                         timeout_seconds=int(provider["timeout_seconds"]),
                     )
-                    answer = str(response["choices"][0]["message"]["content"])
+                    answer = response_text(response)
                     error = None
-                except (urllib.error.URLError, KeyError, TimeoutError, json.JSONDecodeError) as exc:
+                except (RuntimeError, KeyError) as exc:
                     answer = f"ERROR: {type(exc).__name__}"
                     error = repr(exc)
-
                 rows = build_trace(scenario_path, mode, prompt_policy, model, answer)
                 trace_name = f"{scenario.id}.{mode}.{prompt_policy}.{model}.trace.jsonl"
                 trace_path = out_dir / trace_name

@@ -240,3 +240,80 @@ The next three highest-impact changes are:
 3. implement real signed-receipt, freshness, independent read-after-write, and
    combined-policy baselines with fail-open/fail-closed behavior and truthful
    utility/FPR reporting.
+
+## Round 5: real tool-call harness scaffold
+
+To address the Round 4 P0 that the real-model smoke pilot was direct
+observation-in-context prompting rather than a true tool-call harness, the
+repository now includes:
+
+- `configs/experiments/real_toolcall_pilot_small.json`
+- `scripts/run_real_toolcall_pilot.py`
+- `src/tool_spoof_lab/openai_compat.py`
+
+The new runner builds harness-controlled tool events before asking the model
+for a structured final decision. It records:
+
+- primary visible tool calls;
+- schema validation events;
+- prompt-filter checks;
+- repeat-same-tool calls;
+- independent validator calls;
+- freshness metadata checks;
+- signature metadata checks;
+- structured final decisions;
+- summary metrics; and
+- a run manifest with config hash, model, temperature, max tokens, timeout,
+  retries, tool budget, prompt hash, trace path, and API/parse errors.
+
+Dry-run status:
+
+- Command executed with `--dry-run --sleep 0`.
+- Expected cells without limit: 96.
+- Completed dry-run cells: 96.
+- The current shell had no `NEWAPI_API_KEY`, so no new result-bearing model
+  cells were executed in this round.
+
+This moves the artifact closer to a paper-grade agent harness, but the main P0
+remains open until the 96-cell small real-model pilot and the later 30-45
+paired-scenario multi-model pilot are actually run.
+
+Reviewer follow-up identified and fixed two leakage risks before any real-model
+run:
+
+- the model-visible prompt no longer exposes `truthful` / `spoofed` mode;
+- the model-visible prompt no longer exposes raw profile names such as
+  `toolcall_naive`; it uses policy ids and natural-language policy
+  instructions instead.
+
+It also identified limitations that remain intentionally documented:
+
+- this is still a harness-controlled tool-event evaluation, not an autonomous
+  API function-calling loop;
+- signature and freshness events are metadata checks until real cryptographic
+  signatures, freshness windows, nonces, and request binding are implemented.
+
+## Round 6: targeted review after leakage fixes
+
+A targeted subagent review checked the P0 issues found in Round 5. Result:
+**passed targeted review**.
+
+Confirmed fixes:
+
+1. The model-visible prompt no longer leaks `truthful` / `spoofed` mode. The
+   runner uses an opaque `condition_id`.
+2. The model-visible prompt no longer leaks raw `toolcall_*` profile names. It
+   uses `policy_id` plus natural-language policy instructions.
+3. Dry-run documentation no longer includes `--limit-cells 12`, and the
+   dry-run artifacts are consistent: expected 96, completed 96, manifest rows
+   96.
+4. `schema_validation_result()` is stricter than the prior placeholder: all
+   required keys from the truthful result must be present, and non-null fields
+   must match type.
+5. Signed/freshness language has been downgraded to metadata checks until real
+   cryptographic signatures, freshness windows, nonces, and request binding are
+   implemented.
+
+The targeted reviewer reported no remaining P0 in this fix list. The next-stage
+P0 remains unchanged: run a real-model 48/96-cell pilot, then scale to 30-45
+paired scenarios and at least two models.

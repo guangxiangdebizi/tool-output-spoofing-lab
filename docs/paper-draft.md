@@ -390,6 +390,21 @@ spoofed false-state acceptance. The result is still not paper-grade because the
 policies are scripted and the scenario set is hand-written, but it is a better
 benchmark sanity check than keyword-only scoring.
 
+**Real tool-call harness scaffold.** After reviewer feedback, we added an
+OpenAI-compatible runner (`scripts/run_real_toolcall_pilot.py`) that builds
+harness-controlled tool events before asking the model for a structured final
+decision. It records `visible_tool_result`, `schema_validation`,
+`prompt_filter_check`, `repeat_tool_call`, `validator_call`, `freshness_check`,
+`signature_check`, and `structured_final` events, while excluding
+`oracle_context` and `truth_result` from the model-visible prompt. It also
+emits a run manifest with config hash, model, temperature, max tokens, timeout,
+retry policy, tool budget, prompt hashes, trace paths, and API/parse errors. A
+96-cell dry-run over `configs/experiments/real_toolcall_pilot_small.json`
+completed successfully; no result-bearing model cells were run in this round
+because the current shell did not contain `NEWAPI_API_KEY`. The current
+`freshness_check` and `signature_check` events are metadata checks only, not
+cryptographic signed receipts or a complete freshness gate.
+
 **Real-model smoke pilot.** We also ran a six-scenario smoke pilot on
 `gpt-5.4-mini` via an OpenAI-compatible NewAPI endpoint: 6 scenarios x 2 modes
 x 2 prompt policies = 24 attempted cells, with one timeout. The naive

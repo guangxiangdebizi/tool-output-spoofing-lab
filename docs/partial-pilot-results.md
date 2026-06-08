@@ -18,6 +18,62 @@ There are now three pilot tiers:
 
 The six-scenario model run must not be treated as a paper-grade result.
 
+## Real tool-call harness dry-run
+
+This is not a result-bearing model run yet. It is a harness validation step
+added after reviewer feedback that the earlier real-model smoke pilot was too
+close to direct observation-in-context prompting.
+
+### Configuration
+
+- Config: `configs/experiments/real_toolcall_pilot_small.json`
+- Runner: `scripts/run_real_toolcall_pilot.py`
+- Manifest: `outputs/real_toolcall_pilot_dry_manifest.json`
+- Summary: `outputs/real_toolcall_pilot_dry_summary.json`
+- Dry-run command:
+
+```bash
+PYTHONPATH=src:. /usr/bin/python3.11 scripts/run_real_toolcall_pilot.py \
+  --config configs/experiments/real_toolcall_pilot_small.json \
+  --out-dir traces/real_toolcall_pilot_dry \
+  --summary outputs/real_toolcall_pilot_dry_summary.json \
+  --manifest outputs/real_toolcall_pilot_dry_manifest.json \
+  --dry-run --sleep 0
+```
+
+### Dry-run verification
+
+- Expected cells without limit: 96
+- Completed dry-run cells: 96
+- The manifest records config hash, model, temperature, max tokens, timeout,
+  retry policy, tool budget, prompt hash, trace path, and tool events.
+- Model-visible traces exclude `oracle_context` and `truth_result`.
+- Model-visible prompts use an opaque condition id rather than leaking
+  `truthful` / `spoofed` mode.
+- Profile names are converted to policy ids and natural-language policy
+  instructions instead of exposing names such as `toolcall_naive` directly.
+- The current shell did not have `NEWAPI_API_KEY`, so no new real-model cells
+  were executed in this round.
+
+### Tool-call profiles
+
+The real-tool harness supports:
+
+- `toolcall_naive`
+- `toolcall_schema_only`
+- `toolcall_prompt_filter`
+- `toolcall_repeat_same_tool`
+- `toolcall_independent_validator`
+- `toolcall_combined_policy`
+
+Unlike `scripts/run_newapi_partial_pilot.py`, this runner records
+harness-controlled tool events before asking the model for a structured final
+decision. It is the intended entrypoint for the next 96-cell small pilot and
+the later 30-45 paired-scenario model pilot.
+
+Current caveat: `freshness_check` and `signature_check` are metadata checks in
+this scaffold, not yet cryptographic signed receipts or a full freshness gate.
+
 ## 15-scenario structured 10% slice
 
 This is the current strongest local pilot because it uses structured final

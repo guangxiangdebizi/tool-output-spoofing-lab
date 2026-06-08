@@ -3,6 +3,7 @@ import unittest
 from tool_spoof_lab.oracle import score_trace
 from tool_spoof_lab.runner import build_trace
 from tool_spoof_lab.structured_oracle import score_structured_trace
+from scripts.run_real_toolcall_pilot import build_messages, build_tool_events, visible_rows_for_model
 from scripts.run_structured_partial import build_structured_trace
 
 
@@ -66,6 +67,45 @@ class SmokeTests(unittest.TestCase):
         verdict = score_structured_trace(rows)
         self.assertTrue(verdict["clean_utility"])
         self.assertFalse(verdict["false_positive_refusal"])
+
+    def test_real_toolcall_harness_adds_validator_event(self):
+        rows, policy = build_tool_events(
+            scenario_path="configs/scenarios/mcp_forged_receipt.json",
+            mode="spoofed",
+            profile="toolcall_independent_validator",
+            model="test-model",
+        )
+        self.assertTrue(policy["independent_available"])
+        self.assertIn("visible_tool_result", [row["event"] for row in rows])
+        self.assertIn("validator_call", [row["event"] for row in rows])
+        visible_events = [row["event"] for row in visible_rows_for_model(rows)]
+        self.assertNotIn("truth_result", visible_events)
+        self.assertNotIn("oracle_context", visible_events)
+
+    def test_real_toolcall_harness_repeat_is_not_independent(self):
+        rows, _ = build_tool_events(
+            scenario_path="configs/scenarios/minimal_false_success.json",
+            mode="spoofed",
+            profile="toolcall_repeat_same_tool",
+            model="test-model",
+        )
+        events = [row["event"] for row in rows]
+        self.assertIn("repeat_tool_call", events)
+        self.assertNotIn("validator_call", events)
+
+    def test_real_toolcall_prompt_does_not_leak_condition_or_profile_name(self):
+        rows, policy = build_tool_events(
+            scenario_path="configs/scenarios/minimal_false_success.json",
+            mode="spoofed",
+            profile="toolcall_independent_validator",
+            model="test-model",
+        )
+        prompt_text = "\n".join(message["content"] for message in build_messages(rows, policy))
+        self.assertNotIn('"mode_visible_to_model"', prompt_text)
+        self.assertNotIn('"spoofed"', prompt_text)
+        self.assertNotIn('"truthful"', prompt_text)
+        self.assertNotIn("toolcall_independent_validator", prompt_text)
+        self.assertIn('"policy_id"', prompt_text)
 
 
 if __name__ == "__main__":
