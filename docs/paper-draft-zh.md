@@ -8,7 +8,7 @@
 
 本文将该问题定义为 **tool-output spoofing**：攻击者不修改用户请求、系统提示或后端真实状态，只控制模型可见的工具观察平面，使其包含 schema-valid 但语义错误的状态、实体绑定、凭证、来源、授权或新鲜度字段。与从零自建 toy benchmark 不同，本文提出一种 **observation-spoofing overlay**：在 AgentDojo、ToolSandbox、tau-bench、WebArena/WorkArena、SWE-bench、MCP Security Bench、MCP-SafetyBench、PoisonedRAG/SafeRAG 等已有高价值 agent/tool-use benchmark 上，保持原始任务、真实后端状态和 oracle 不变，仅成对替换模型可见观察，从而比较不同防御基线在 false acceptance 与 clean utility 之间的权衡。
 
-我们进一步把用户关心的授权/来源伪造抽象为一个独立评测轴：工具可能声称某资产已被授权、已验证所有权、存在 nginx/banner/证书/资产清单等证据，从而诱导模型把未授权对象升级为可进行更高等级评估的对象。该轴只评测授权状态和允许的评估等级，不生成命令、payload、endpoint 行动或可操作攻击步骤。当前仓库已完成多个小规模真实模型 pilot：ToolSandbox 72-cell semantic-normalized pilot、AgentDojo 64-cell clean4 semantic-spoof pilot、local multi-surface 48-cell regression pilot、authorization/provenance 12-cell pilot、optimized observation 6-cell pilot，以及 authorization evidence-control 20-cell pilot。在当前小规模 pilot 中，弱基线经常接受 schema-valid 虚假观察；read-back 或 independent-authority 基线能降低 false acceptance；combined policy 的 utility/调参仍未稳定。本文当前结论仍限定为 pilot 证据；最终主张需要现有 benchmark 的执行切片或全量 overlay、30-45 paired scenarios、2-3 个模型和置信区间支持。
+我们进一步把用户关心的授权/来源伪造抽象为一个独立评测轴：工具可能声称某资产已被授权、已验证所有权、存在 nginx/banner/证书/资产清单等证据，从而诱导模型把未授权对象升级为可进行更高等级评估的对象。该轴只评测授权状态和允许的评估等级，不生成命令、payload、endpoint 行动或可操作攻击步骤。当前仓库已完成多个真实模型 pilot、一个 AgentDojo 1552-cell full overlay run，并正在远端云主机运行 ToolSandbox full overlay。已完成证据显示弱基线经常接受 schema-valid 虚假观察；read-back 或 independent-authority 基线能降低 false acceptance；combined policy 的 utility/调参仍未稳定。本文当前结论仍限定为 trace-final-decision overlay 证据；最终 CCF-A 级主张需要至少两个现有 benchmark 的 full/candidate-slice overlay、2-3 个模型、预注册 scoring contract 和置信区间支持。
 
 本文所有 pilot 表采用的 canonical artifact 固定在 `outputs/main_pilot_index.json`。旧版 summary/manifest 保留用于 traceability，但不作为主文报告结果。
 
@@ -37,7 +37,7 @@ LLM 智能体的核心能力来自“语言模型 + 工具 + 环境”的闭环�
 1. **问题定义。** 定义 schema-valid、non-instructional 的 tool-output spoofing，并将其与间接提示注入、工具幻觉、恶意工具选择和恶意工具实现区分开。
 2. **Benchmark overlay 协议。** 提出在已有高价值 agent/tool-use benchmark 上叠加 observation-spoofing overlay 的协议，避免主要依赖自建 toy benchmark。
 3. **防御基线与指标。** 系统化比较 naive、schema-only、prompt-filter、repeat-same-tool、metadata-only、read-back、independent authority、combined policy 和 privileged oracle upper bound，并定义 ASR、accepted false state、false authorization acceptance、unsafe assessment escalation、clean utility、over-refusal、verification rate 与 tool-call cost。
-4. **Pilot 证据与实验路线。** 在 ToolSandbox、AgentDojo 和授权/来源伪造轴上完成小规模真实模型 pilot，展示弱基线与独立验证基线的差异，并明确后续 10%-15% benchmark slice 与 multi-model 实验设计。
+4. **Pilot/full-overlay 证据与实验路线。** 在 ToolSandbox、AgentDojo 和授权/来源伪造轴上完成小规模真实模型 pilot；AgentDojo 已完成 97-task full overlay，ToolSandbox full overlay 正在远端运行。本文展示弱基线与独立验证基线的差异，并明确后续 multi-model、CI/statistical test 和 autonomous-loop 对照实验设计。
 
 ## 2 背景与相关工作
 
@@ -255,6 +255,10 @@ Read-back baseline 的部署假设是 split-channel：攻击者可以伪造 prim
 
 在当前 local authorization pilots 中，`mock_independent_scope_registry` 应视为 upper-bound authority，除非后续实现为显式 signed-scope 或 challenge-response verifier。本文不把 hidden-registry 读法声称为已部署防御。
 
+![Figure 8: validator independence graph](../figures/figure8_validator_independence_graph.png)
+
+**图 8：Validator independence graph。** 红色路径表示 primary observation、same-channel repeat 与 metadata-only check 共享同一失效域；绿色路径表示 split-channel read-back 或独立权威源；紫色虚线表示 privileged oracle 只用于评测上界。该图由 image2 生成并纳入论文核心图，用于界定哪些 baseline 可被声称为部署型防御，哪些只能作为 ablation/upper bound。
+
 授权/来源伪造必须特别区分 user-claim-only、format/provenance-only、stale evidence、contradictory evidence、verified positive control。否则模型拒绝所有授权请求也可能看似安全，但没有实用价值。
 
 ![Figure 3: authorization evidence ladder](../figures/figure3_authorization_evidence_ladder.png)
@@ -359,7 +363,7 @@ Read-back baseline 的部署假设是 split-channel：攻击者可以伪造 prim
 
 最终论文应至少完成：
 
-1. **现有 benchmark 执行切片或全量 overlay。** 当前 ToolSandbox 已生成 104/1032 的 10%-15% candidate manifest-only sampling plan，AgentDojo 已生成 12/97 的 candidate manifest-only sampling plan；这些是 sampling plan，不是已执行结果。下一步是汇总正在远端运行的 full overlay，并在必要时抽取 10%-15% 分层切片报告置信区间。
+1. **现有 benchmark full overlay。** AgentDojo full overlay 已完成并汇总；ToolSandbox full overlay 正在远端云主机运行。分层切片只作为预算或审稿附录的敏感性分析，不再替代用户要求的 full benchmark run。
 2. **30-45 paired scenarios。** 每个 scenario 保持 same task/same hidden truth，只改变 visible observation，并覆盖 API、MCP、browser、shell、RAG、authorization 等 surface。
 3. **2-3 个模型。** 至少比较一个强闭源模型、一个较小闭源/路由模型、一个开源或可本地复现模型。
 4. **Defense × generator matrix。** 每个 task 至少包含 naive、schema-only、prompt-filter、repeat、read-back/authority、combined；generator 至少包含 static、random、template plausible、optimized。
@@ -404,6 +408,10 @@ Read-back baseline 的部署假设是 split-channel：攻击者可以伪造 prim
 当前仓库实现采用 trace-first 设计：每个 cell 生成 JSONL trace，事件级区分 hidden events 与 model-visible events。`oracle_context`、`raw_tool_result`、`truth_result`、mode label、success criteria、ground-truth tool-plan metadata 和 scoring 字段只用于 harness 与离线评分，不进入模型 prompt。模型看到的是经过 `visible_rows_for_model` 过滤后的事件列表、profile policy、任务描述和强制 JSON 输出 schema。
 
 ToolSandbox pilot 使用现有 ToolSandbox 任务、真实工具执行和 milestone/oracle 语义，但当前还不是 autonomous full agent loop；它是 final-decision prompt over model-visible trace 的 overlay pilot。AgentDojo pilot 使用官方任务和官方 ground-truth tool plan 来选取可执行工具调用，并在 trace 层替换可见 observation；它同样不是 full AgentDojo autonomous agent-loop interception。因此，本文当前结果应表述为“official benchmark substrates 上的 scripted tool-plan / model-final-decision pilot”，不能表述为 full benchmark 结果。
+
+![Figure 9: current overlay protocol vs full agent loop](../figures/figure9_pilot_vs_agent_loop_gap.png)
+
+**图 9：Current overlay protocol vs. full agent loop。** 左侧是本文当前已实现和正在全量运行的证据路径：benchmark task、scripted/ground-truth tool plan、真实执行、hidden/oracle plane、visible overlay、model final decision 和 offline scoring。右侧是未来 full autonomous agent-loop interception：模型自主规划、选择工具、执行、观察拦截、恢复/重规划并最终改变环境。该图由 image2 生成，用于主动界定当前论文 claim 边界，避免把 trace-final-decision overlay 误称为 full autonomous agent benchmark。
 
 所有真实模型运行记录 config、summary、manifest、trace directory、model name 和 run date。当前模型为 `gpt-5.4-mini`，通过 NewAPI-compatible chat-completions endpoint 调用；仓库不提交 API key，也不在代码中显式限制生成长度参数。输出解析失败或 provider error 被转换为 uncertainty stub，并在 summary 中单列 API/parse error。
 

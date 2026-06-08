@@ -12,7 +12,7 @@ Publicly downloadable PDFs collected for the literature audit.
 ## Notes
 
 - No datasets, model weights, or benchmark corpora should be stored here.
-- Some PDFs are duplicated across lanes because different subagents downloaded
-  the same core paper for independent review.
-- `topsec-nlp/text/` contains `pdftotext`-style extracts for quick grep and
-  triage.
+- Keep one canonical copy per paper whenever practical; duplicate lane copies
+  were removed during repository cleanup.
+- These PDFs are retained only as source literature for review traceability and
+  are not relicensed by this repository.

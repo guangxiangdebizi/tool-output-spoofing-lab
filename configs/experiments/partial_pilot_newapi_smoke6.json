@@ -1,6 +1,6 @@
 {
   "experiment_id": "partial_pilot_newapi_smoke6",
-  "description": "Earlier six-scenario real-model smoke pilot. Kept for reproducibility of docs/partial-pilot-results.md.",
+  "description": "Earlier six-scenario real-model smoke pilot retained as a local debugging config, not as manuscript evidence.",
   "provider": {
     "base_url_env": "NEWAPI_BASE_URL",
     "api_key_env": "NEWAPI_API_KEY",

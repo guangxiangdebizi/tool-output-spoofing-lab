@@ -10,18 +10,19 @@ not a claim that the listed gaps are solved.
   schema-valid, non-instructional, semantically false tool observations.
 - The overlay protocol is clear: keep hidden truth and the original benchmark
   oracle fixed, and replace only the model-visible observation plane.
-- Current pilots show that weak baselines can accept false observations, while
-  read-back or authority-style validators can reduce false acceptance in the
-  tested settings.
+- Current pilots and the completed AgentDojo 1552-cell full overlay show that
+  weak baselines can accept false observations, while read-back or
+  authority-style validators can reduce false acceptance in the tested
+  trace-final-decision setting.
 - The prompt-leakage audit is a strong artifact-level control: current pilot
   prompts do not obviously expose hidden oracle, mode labels, raw results, or
   expected scores.
 
 ## Claims that are not yet supported
 
-- Full benchmark-level evaluation. Current canonical completed evidence is
-  still small: ToolSandbox 72 cells over 6 tasks and AgentDojo 64 cells over 4
-  tasks.
+- Two-substrate full benchmark-level evaluation. AgentDojo 97-task full overlay
+  is complete, but ToolSandbox full overlay is still running and the paper still
+  lacks multi-model full/candidate-slice evidence.
 - Full autonomous LLM-agent risk. The current runners evaluate model final
   decisions over scripted tool-plan traces, not autonomous planning,
   tool-selection, recovery, and long-horizon agent loops.
@@ -61,13 +62,39 @@ not a claim that the listed gaps are solved.
 
 | Figure | Purpose |
 | --- | --- |
-| End-to-end evaluation harness dataflow | Show benchmark task, real execution, hidden truth, overlay, model-visible trace, model decision, and oracle scoring. |
-| Current pilot vs full agent-loop gap | Distinguish scripted trace final-decision evaluation from future autonomous agent-loop interception. |
-| Validator independence graph | Show failure-domain sharing among primary tool, repeat same-channel, metadata-only, read-back, independent authority, and privileged oracle. |
+| End-to-end evaluation harness dataflow | Show benchmark task, real execution, hidden truth, overlay, model-visible trace, model decision, and oracle scoring. Partially covered by Figure 7/9; still needs a camera-ready deterministic vector version. |
+| Current pilot vs full agent-loop gap | Covered by `figures/figure9_pilot_vs_agent_loop_gap.png`; should be redrawn as vector before final submission if image text artifacts remain. |
+| Validator independence graph | Covered by `figures/figure8_validator_independence_graph.png`; should be redrawn as vector before final submission if image text artifacts remain. |
 | Per-substrate overlay instantiation | Show which parts are implemented for ToolSandbox/AgentDojo and which remain planned for tau/Web/SWE/RAG. |
 | Scoring pipeline and projection boundary | Pre-register exact-primary vs restricted read-back projection and show forbidden paths. |
 | Defense policy lattice | Order baselines by evidence strength, deployability, hidden access, and cost. |
 | Experimental matrix completion heatmap | Mark done pilot, running, planned, and missing cells across substrates, models, baselines, and generators. |
+
+## Latest strict reviewer update
+
+A reused CCF-A reviewer subagent restated the main decision as: the project is
+promising and now has real full-overlay evidence on AgentDojo, but it is still
+not a CCF-A full paper until ToolSandbox full results, multi-model robustness,
+pre-registered scoring, and statistical tests are integrated. The manuscript
+should therefore avoid the phrase "full agent benchmark" unless an autonomous
+agent-loop interception experiment is added. The safest current framing is:
+
+> Observation-spoofing overlay protocol plus first full-substrate evidence that
+> schema-valid, non-instructional false tool observations are a real
+> trace-final-decision failure mode; read-back/split-channel validation is a
+> strong candidate defense, but deployability and clean utility require further
+> evidence.
+
+Priority route from the reviewer:
+
+1. Finish ToolSandbox full overlay and report it separately from AgentDojo.
+2. Add confidence intervals and paired tests before making comparative claims.
+3. Add at least one additional model only after the `gpt-5.4-mini` full
+   ToolSandbox+AgentDojo result is merged and inspected.
+4. Replace or supplement raster concept figures with camera-ready vector figures
+   for final submission.
+5. Keep AgentDojo as portability/full-substrate evidence unless clean utility is
+   repaired enough to support defense-effectiveness claims.
 
 ## Required experiments and tables
 

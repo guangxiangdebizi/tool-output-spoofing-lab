@@ -77,7 +77,8 @@ One-sentence paper positioning:
 
 ## Deep-read confirmed differentiators
 
-From `secondary-research/deep-dive/deep-read-untrusted-feedback.md`:
+Consolidated from the internal subagent readouts that were used to produce this
+canonical audit:
 
 - Trust No Tool is direct, but its core variable is trajectory-conditioned
   final-action risk under hidden triggers, not a field-level truth/visible
@@ -87,9 +88,6 @@ From `secondary-research/deep-dive/deep-read-untrusted-feedback.md`:
 - MCP-SafetyBench covers function-return injection/data tampering, but the
   benchmark is broad MCP safety rather than a local multi-surface veracity
   benchmark.
-
-From `secondary-research/deep-dive/deep-read-ipi-rag.md`:
-
 - AgentDojo and InjecAgent force us to treat prompt-injection-through-tools as
   already well benchmarked.
 - Greshake et al. block any claim that indirect external content control is

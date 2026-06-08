@@ -3,7 +3,7 @@
 Current pushed baseline commit:
 
 ```text
-8bf9079 add prompt leakage audit and core paper figures
+68c248b add agentdojo full overlay results
 ```
 
 ## Current full benchmark run
@@ -19,8 +19,10 @@ Remote run shape:
   `outputs/toolsandbox_full_manifest.json`, currently running as 2 stable task
   shards after high-concurrency shards hit exit 137 on the remote host.
 - AgentDojo: `configs/experiments/agentdojo_model_full.json`, full
-  `outputs/agentdojo_full_manifest.json`, 2 task shards.
-- Merge after completion with `scripts/merge_model_shards.py`.
+  `outputs/agentdojo_full_manifest.json`, completed 1552/1552 cells and pushed
+  merged summary/manifest/CI artifacts.
+- Merge ToolSandbox after completion with `scripts/merge_model_shards.py`, then
+  run `scripts/summarize_model_results_with_ci.py` and update the paper tables.
 
 ## What is intentionally not pushed
 
