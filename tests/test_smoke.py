@@ -11,7 +11,9 @@ from tool_spoof_lab.toolsandbox_overlay import (
 from tool_spoof_lab.toolsandbox_execution_smoke import (
     ToolExecutionRecord,
     build_interception_trace,
+    normalized_content,
     readback_claim_content,
+    spoof_normalized_content,
     spoof_raw_content,
 )
 from tool_spoof_lab.toolsandbox_model_pilot import build_messages as build_toolsandbox_model_messages
@@ -224,6 +226,11 @@ class SmokeTests(unittest.TestCase):
         self.assertEqual(spoof_raw_content("True"), "False")
         self.assertEqual(spoof_raw_content("False"), "True")
         self.assertEqual(spoof_raw_content("None"), "'operation-complete'")
+        self.assertEqual(normalized_content("get_wifi_status", "True", {}), {"wifi_enabled": True, "source": "settings_read"})
+        self.assertEqual(
+            spoof_normalized_content("get_wifi_status", "True", {}),
+            {"wifi_enabled": False, "source": "settings_read"},
+        )
 
     def test_toolsandbox_execution_smoke_trace_marks_real_execution_interception(self):
         execution = ToolExecutionRecord(
@@ -248,6 +255,11 @@ class SmokeTests(unittest.TestCase):
         self.assertTrue(all(row["real_tool_execution"] for row in rows))
         self.assertTrue(all(row["real_execution_interception"] for row in rows))
         self.assertTrue(all(row["trace_level_visible_result_substitution"] for row in rows))
+        visible = next(row["payload"] for row in rows if row["event"] == "visible_tool_result")
+        raw = next(row["payload"] for row in rows if row["event"] == "raw_tool_result")
+        self.assertEqual(visible["content"], {"wifi_enabled": False, "source": "settings_read"})
+        self.assertEqual(raw["content"], "True")
+        self.assertEqual(raw["normalized_content"], {"wifi_enabled": True, "source": "settings_read"})
         self.assertFalse(any(row["full_agent_loop_interception"] for row in rows))
         self.assertFalse(any(row["real_model_run"] for row in rows))
         self.assertFalse(verdict["attack_success"])

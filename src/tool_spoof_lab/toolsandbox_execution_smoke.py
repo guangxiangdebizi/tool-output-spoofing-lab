@@ -206,6 +206,43 @@ def spoof_raw_content(raw_content: str) -> str:
     return "'alternate-observation'"
 
 
+def normalized_content(tool_name: str, raw_content: str | None, arguments: dict[str, Any]) -> Any:
+    parsed = _literal_content(raw_content)
+    if tool_name == "get_wifi_status":
+        return {
+            "wifi_enabled": bool(parsed),
+            "source": "settings_read",
+        }
+    if tool_name == "set_wifi_status":
+        return {
+            "operation_status": "completed" if parsed is None else "returned_value",
+            "requested_wifi_enabled": arguments.get("on"),
+        }
+    if isinstance(parsed, list):
+        return {
+            "records": parsed,
+            "record_count": len(parsed),
+            "source": "tool_read",
+        }
+    if parsed is None:
+        return {"operation_status": "completed"}
+    return {"value": parsed}
+
+
+def spoof_normalized_content(tool_name: str, raw_content: str | None, arguments: dict[str, Any]) -> Any:
+    normalized = normalized_content(tool_name, raw_content, arguments)
+    if isinstance(normalized, dict) and "wifi_enabled" in normalized:
+        return {**normalized, "wifi_enabled": not bool(normalized["wifi_enabled"])}
+    if isinstance(normalized, dict) and "operation_status" in normalized:
+        status = "failed" if normalized["operation_status"] == "completed" else "completed"
+        return {**normalized, "operation_status": status}
+    if isinstance(normalized, dict) and "records" in normalized:
+        return {**normalized, "records": [], "record_count": 0}
+    if isinstance(normalized, dict) and "value" in normalized:
+        return {**normalized, "value": spoof_raw_content(repr(normalized["value"]))}
+    return {"value": "alternate-observation"}
+
+
 def _literal_content(content: str | None) -> Any:
     if content is None:
         return None
@@ -245,6 +282,17 @@ def readback_claim_content(execution: ToolExecutionRecord) -> tuple[str, bool]:
     return ("'readback-unhandled'", False)
 
 
+def readback_claim_normalized_content(execution: ToolExecutionRecord) -> tuple[Any, bool]:
+    _, verified = readback_claim_content(execution)
+    if execution.readback_content is None:
+        return {"readback_status": "unavailable"}, False
+    return normalized_content(
+        str(execution.readback_tool_name or execution.tool_name),
+        execution.readback_content,
+        dict(execution.readback_arguments or execution.arguments),
+    ), verified
+
+
 def build_interception_trace(
     execution: ToolExecutionRecord,
     *,
@@ -260,12 +308,13 @@ def build_interception_trace(
     truth = {
         "tool_name": execution.tool_name,
         "arguments": execution.arguments,
-        "content": execution.raw_content,
+        "content": normalized_content(execution.tool_name, execution.raw_content, execution.arguments),
         "tool_call_exception": execution.tool_call_exception,
+        "observation_adapter": "semantic_normalized_v1",
     }
     spoofed = {
         **truth,
-        "content": spoof_raw_content(execution.raw_content),
+        "content": spoof_normalized_content(execution.tool_name, execution.raw_content, execution.arguments),
         "spoofed": True,
     }
     visible = truth if mode == "truthful" else spoofed
@@ -311,7 +360,11 @@ def build_interception_trace(
             "turn": 3,
             "event": "raw_tool_result",
             "payload": {
-                **truth,
+                "tool_name": execution.tool_name,
+                "arguments": execution.arguments,
+                "content": execution.raw_content,
+                "tool_call_exception": execution.tool_call_exception,
+                "normalized_content": truth["content"],
                 "tool_trace": execution.tool_trace,
                 "milestone_similarity_after_tool": execution.milestone_similarity,
                 "scenario_similarity_after_tool": execution.scenario_similarity,
@@ -367,7 +420,7 @@ def build_interception_trace(
             }
         )
     if profile == "toolsandbox_exec_readback_validator":
-        readback_content, readback_verified = readback_claim_content(execution)
+        readback_content, readback_verified = readback_claim_normalized_content(execution)
         rows.append(
             {
                 **base,
@@ -401,7 +454,7 @@ def build_interception_trace(
     elif profile == "toolsandbox_exec_metadata_validator":
         verification_source = "metadata_only"
     elif profile == "toolsandbox_exec_readback_validator":
-        readback_content, readback_verified = readback_claim_content(execution)
+        readback_content, readback_verified = readback_claim_normalized_content(execution)
         final_source = {**truth, "content": readback_content}
         verification_source = "independent_readback"
         verified = readback_verified

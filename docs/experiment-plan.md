@@ -425,6 +425,34 @@ The read-back validator assumes a split trust boundary: the primary observation
 can be spoofed, but the canonical state/read-back path is still available. If
 the whole ToolSandbox backend is compromised, it is not independent.
 
+ToolSandbox observation adapter ablation:
+
+The result-bearing pilot now distinguishes two model-visible observation
+adapters:
+
+1. **Raw-content adapter**: exposes low-level ToolSandbox/Python returns such
+   as `True`, `False`, `None`, and list repr strings.
+2. **Semantic-normalized adapter**: deterministically maps the same raw
+   execution into neutral JSON-like fields such as
+   `{"wifi_enabled": true, "source": "settings_read"}`.
+
+The semantic-normalized adapter is applied symmetrically to truthful and
+spoofed conditions. It changes only the model-visible observation surface, not
+ToolSandbox execution, raw tool traces, state, or milestone oracles.
+
+Required ablation for paper tables:
+
+```text
+same tasks x same model x same baselines
+raw-content observation vs semantic-normalized observation
+report ASR / clean utility / FPR / effective verification
+```
+
+The 24-cell real-model smoke shows the semantic adapter improves weak-baseline
+attack signal without changing the hidden oracle: naive, repeat-same-tool, and
+metadata-only spoofed ASR rose from 1/2 to 2/2, while schema-only stayed 2/2 and
+read-back / privileged validators stayed 0/2.
+
 Current 10%-15% ToolSandbox sampling manifest design:
 
 ```bash
