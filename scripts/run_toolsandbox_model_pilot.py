@@ -28,6 +28,92 @@ from tool_spoof_lab.toolsandbox_model_pilot import (
 from tool_spoof_lab.toolsandbox_real_probe import load_manifest
 
 
+TOOL_EVENT_NAMES = {
+    "toolsandbox_tool_call",
+    "visible_tool_result",
+    "repeat_tool_call",
+    "validator_call",
+}
+
+
+def model_trace_path(out_dir: Path, task_id: str, mode: str, profile: str, model: str) -> Path:
+    return out_dir / f"{task_id}.{mode}.{profile}.{model}.toolsandbox_model.trace.jsonl"
+
+
+def load_reusable_trace(trace_path: Path) -> tuple[list[dict[str, Any]] | None, str | None]:
+    if not trace_path.exists():
+        return None, "missing"
+    try:
+        rows = load_jsonl(trace_path)
+    except (OSError, json.JSONDecodeError, UnicodeDecodeError) as exc:
+        return None, f"unreadable:{type(exc).__name__}"
+    if not rows:
+        return None, "empty"
+
+    final_row = next((row for row in reversed(rows) if row.get("event") == "structured_final"), None)
+    if final_row is None:
+        return None, "missing_structured_final"
+    if not isinstance(final_row.get("payload"), dict):
+        return None, "bad_structured_final"
+
+    final_decision_source = str(final_row.get("final_decision_source", ""))
+    if final_decision_source != "model_chat_completion":
+        return None, f"non_model_final:{final_decision_source or 'missing'}"
+    if not bool(final_row.get("model_call_executed", False)):
+        return None, "model_call_not_executed"
+    return rows, None
+
+
+def prompt_hash_from_trace(rows: list[dict[str, Any]]) -> str:
+    prompt_rows = [row for row in rows if row.get("event") != "structured_final"]
+    try:
+        messages = build_messages(prompt_rows)
+    except (KeyError, TypeError, ValueError):
+        messages = [{"role": "user", "content": json.dumps(prompt_rows, ensure_ascii=False, sort_keys=True)}]
+    return sha256_text(json.dumps(messages, ensure_ascii=False, sort_keys=True))
+
+
+def existing_trace_record(
+    *,
+    trace_path: Path,
+    rows: list[dict[str, Any]],
+    task_id: str,
+    mode: str,
+    profile: str,
+    model: str,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    score = score_structured_trace(rows)
+    final_row = next((row for row in reversed(rows) if row.get("event") == "structured_final"), rows[-1])
+    final_decision_source = str(final_row.get("final_decision_source", "existing_trace"))
+    prompt_hash = prompt_hash_from_trace(rows)
+    scored_row = {
+        **score,
+        "trace": str(trace_path),
+        "model": model,
+        "api_error": None,
+        "parse_error": None,
+        "prompt_hash": prompt_hash,
+        "harness_expected_structured_score": score,
+        "skipped_existing": True,
+    }
+    manifest_row = {
+        "trace": str(trace_path),
+        "task_id": task_id,
+        "mode": mode,
+        "profile": profile,
+        "model": model,
+        "prompt_hash": prompt_hash,
+        "api_error": None,
+        "parse_error": None,
+        "model_call_executed": bool(final_row.get("model_call_executed", False)),
+        "final_decision_source": final_decision_source,
+        "skipped_existing": True,
+        "tool_events": [row["event"] for row in rows if row.get("event") in TOOL_EVENT_NAMES],
+        "model_visible_events": [row["event"] for row in visible_rows_for_model(rows)],
+    }
+    return scored_row, manifest_row
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Run a ToolSandbox model-policy pilot over real tool-execution observations."
@@ -92,16 +178,66 @@ def main() -> None:
     execution_cache: dict[str, ToolExecutionRecord] = {}
     unsupported_tasks: list[dict[str, Any]] = []
     unsupported_task_ids: set[str] = set()
+    invalid_existing_traces: list[dict[str, Any]] = []
+    invalid_existing_trace_keys: set[str] = set()
 
     out_dir = Path(args.out_dir)
     scored: list[dict[str, Any]] = []
     manifest_rows: list[dict[str, Any]] = []
     cell_count = 0
 
+    def note_invalid_existing(trace_path: Path, task_id: str, mode: str, profile: str, model: str, reason: str) -> None:
+        key = str(trace_path)
+        if reason == "missing" or key in invalid_existing_trace_keys:
+            return
+        invalid_existing_trace_keys.add(key)
+        invalid_existing_traces.append(
+            {
+                "trace": key,
+                "task_id": task_id,
+                "mode": mode,
+                "profile": profile,
+                "model": model,
+                "reason": reason,
+            }
+        )
+
     for model in provider["models"]:
         for task_id in task_ids:
+            if args.limit_cells is not None and cell_count >= args.limit_cells:
+                break
             if task_id in unsupported_task_ids:
                 continue
+            task_cells = [
+                (mode, profile, model_trace_path(out_dir, task_id, mode, profile, model))
+                for mode in config["modes"]
+                for profile in profiles
+            ]
+            if args.skip_existing:
+                existing_task_rows: dict[tuple[str, str], list[dict[str, Any]]] = {}
+                for mode, profile, trace_path in task_cells:
+                    existing_rows, reason = load_reusable_trace(trace_path)
+                    if existing_rows is None:
+                        note_invalid_existing(trace_path, task_id, mode, profile, model, str(reason))
+                        break
+                    existing_task_rows[(mode, profile)] = existing_rows
+                else:
+                    for mode, profile, trace_path in task_cells:
+                        if args.limit_cells is not None and cell_count >= args.limit_cells:
+                            break
+                        scored_row, manifest_row = existing_trace_record(
+                            trace_path=trace_path,
+                            rows=existing_task_rows[(mode, profile)],
+                            task_id=task_id,
+                            mode=mode,
+                            profile=profile,
+                            model=model,
+                        )
+                        scored.append(scored_row)
+                        manifest_rows.append(manifest_row)
+                        cell_count += 1
+                    continue
+
             if task_id not in execution_cache:
                 try:
                     execution_cache[task_id] = execute_toolsandbox_tool(
@@ -123,6 +259,24 @@ def main() -> None:
                 for profile in profiles:
                     if args.limit_cells is not None and cell_count >= args.limit_cells:
                         break
+                    trace_path = model_trace_path(out_dir, task_id, mode, profile, model)
+                    if args.skip_existing:
+                        existing_rows, reason = load_reusable_trace(trace_path)
+                        if existing_rows is not None:
+                            scored_row, manifest_row = existing_trace_record(
+                                trace_path=trace_path,
+                                rows=existing_rows,
+                                task_id=task_id,
+                                mode=mode,
+                                profile=profile,
+                                model=model,
+                            )
+                            scored.append(scored_row)
+                            manifest_rows.append(manifest_row)
+                            cell_count += 1
+                            continue
+                        note_invalid_existing(trace_path, task_id, mode, profile, model, str(reason))
+
                     scripted_rows = build_interception_trace(execution, mode=mode, profile=profile, model=model)
                     harness_expected_score = score_structured_trace(scripted_rows)
                     rows = [row for row in scripted_rows if row["event"] != "structured_final"]
@@ -140,62 +294,6 @@ def main() -> None:
                         )
                     messages = build_messages(rows)
                     prompt_hash = sha256_text(json.dumps(messages, ensure_ascii=False, sort_keys=True))
-                    trace_path = out_dir / f"{task_id}.{mode}.{profile}.{model}.toolsandbox_model.trace.jsonl"
-                    if args.skip_existing and trace_path.exists():
-                        existing_rows = load_jsonl(trace_path)
-                        if not existing_rows:
-                            raise RuntimeError(f"existing trace is empty: {trace_path}")
-                        existing_score = score_structured_trace(existing_rows)
-                        final_row = next((row for row in reversed(existing_rows) if row.get("event") == "structured_final"), existing_rows[-1])
-                        final_decision_source = str(final_row.get("final_decision_source", "existing_trace"))
-                        api_error = (
-                            "existing_api_error_uncertainty_stub"
-                            if final_decision_source == "api_error_uncertainty_stub"
-                            else None
-                        )
-                        parse_error = None
-                        model_call_executed = bool(final_row.get("model_call_executed", False))
-                        scored.append(
-                            {
-                                **existing_score,
-                                "trace": str(trace_path),
-                                "model": model,
-                                "api_error": api_error,
-                                "parse_error": parse_error,
-                                "prompt_hash": prompt_hash,
-                                "harness_expected_structured_score": harness_expected_score,
-                                "skipped_existing": True,
-                            }
-                        )
-                        manifest_rows.append(
-                            {
-                                "trace": str(trace_path),
-                                "task_id": task_id,
-                                "mode": mode,
-                                "profile": profile,
-                                "model": model,
-                                "prompt_hash": prompt_hash,
-                                "api_error": api_error,
-                                "parse_error": parse_error,
-                                "model_call_executed": model_call_executed,
-                                "final_decision_source": final_decision_source,
-                                "skipped_existing": True,
-                                "tool_events": [
-                                    row["event"]
-                                    for row in existing_rows
-                                    if row.get("event")
-                                    in {
-                                        "toolsandbox_tool_call",
-                                        "visible_tool_result",
-                                        "repeat_tool_call",
-                                        "validator_call",
-                                    }
-                                ],
-                                "model_visible_events": [row["event"] for row in visible_rows_for_model(existing_rows)],
-                            }
-                        )
-                        cell_count += 1
-                        continue
                     api_error = None
                     parse_error = None
                     if args.dry_run:
@@ -305,6 +403,8 @@ def main() -> None:
         "executable_task_count": len(execution_cache),
         "unsupported_task_count": len(unsupported_tasks),
         "unsupported_tasks": unsupported_tasks,
+        "invalid_existing_trace_count": len(invalid_existing_traces),
+        "invalid_existing_traces": invalid_existing_traces,
         "total_available_scenarios": source_manifest.get("total_available_scenarios"),
         "selected_fraction": (
             len(task_ids) / float(source_manifest["total_available_scenarios"])
