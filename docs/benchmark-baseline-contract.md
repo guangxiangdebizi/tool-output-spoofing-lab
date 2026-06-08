@@ -42,8 +42,8 @@ different model-visible observation plane
 
 | Priority | Substrate | Current artifact | Paper role | Remaining requirement |
 | --- | --- | --- | --- | --- |
-| P0 | ToolSandbox | real manifest, execution smoke, 24-cell real-model semantic pilot, 10% stratified manifest | first stateful tool-use substrate | execute a 10%-15% stratified model slice or clearly mark current run as pilot |
-| P0 | AgentDojo | real manifest, execution smoke, 32-cell real-model plausible pilot | first security benchmark substrate | raise clean utility by adapter tuning and run more tasks |
+| P0 | ToolSandbox | real manifest, execution smoke, 72-cell real-model semantic pilot, 10% stratified manifest | first stateful tool-use substrate | execute a 10%-15% stratified model slice or clearly mark current run as pilot |
+| P0 | AgentDojo | real manifest, execution smoke, 64-cell real-model clean4 pilot | first security benchmark substrate | raise clean utility by adapter tuning and run more tasks |
 | P0 | tau-bench | design only | realistic business API substrate | implement order/refund/reservation status overlay |
 | P1 | WebArena/WorkArena | design only | browser/UI observation spoofing | implement DOM/a11y/success-banner overlay |
 | P1 | SWE-bench/SWE-agent | design only | shell/test-result spoofing | implement stdout/exit-code/test-summary overlay |
@@ -190,6 +190,8 @@ Current state:
 - strong problem framing;
 - correct shift away from toy benchmark as main evidence;
 - useful ToolSandbox and AgentDojo pilot signals;
+- largest current gpt-5.4-mini real-model expansion: ToolSandbox 72 cells,
+  AgentDojo 64 cells, and local multi-surface 48 cells;
 - authorization/provenance axis matches the intended hypothesis;
 - baseline taxonomy is now explicit.
 

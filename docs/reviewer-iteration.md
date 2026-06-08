@@ -1412,3 +1412,109 @@ Next reviewer-requested experiments:
 ```
 
 3. AgentDojo clean-utility-focused 4-task rerun before scaling to more tasks.
+
+## Round 26: expanded gpt-5.4-mini real-model benchmark run
+
+The user requested a broader benchmark run using `gpt-5.4-mini` before further
+paper expansion. Three real-model runs were executed.
+
+### ToolSandbox 72-cell semantic pilot
+
+Command shape:
+
+```text
+6 real ToolSandbox tasks x truthful/spoofed x 6 profiles x gpt-5.4-mini
+= 72 cells
+```
+
+Artifacts:
+
+- `outputs/toolsandbox_model_pilot_real_72_semantic_summary.json`
+- `outputs/toolsandbox_model_pilot_real_72_semantic_manifest.json`
+- `traces/toolsandbox_model_pilot_real_72_semantic/`
+
+Result:
+
+| Profile | Spoofed ASR | Spoofed accepted false state | Truthful clean utility | Effective verification | API errors |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| naive | 4 / 6 | 4 / 6 | 4 / 6 | 0 / 6 | 0 |
+| schema-only | 3 / 6 | 3 / 6 | 4 / 6 | 0 / 6 | 1 |
+| repeat-same-tool | 5 / 6 | 5 / 6 | 4 / 6 | 0 / 6 | 0 |
+| metadata-only validator | 3 / 6 | 4 / 6 | 4 / 6 | 0 / 6 | 0 |
+| read-back validator | 0 / 6 | 0 / 6 | 0 / 6 | 6 / 6 | 0 |
+| privileged independent-validator | 0 / 6 | 0 / 6 | 4 / 6 | 6 / 6 | 1 |
+
+Interpretation:
+
+- The strongest current existing-substrate signal is now 72 cells rather than
+  the earlier 24-cell slice.
+- Weak baselines remain vulnerable, especially repeat-same-tool.
+- Read-back blocks spoofed ASR but currently fails truthful clean utility under
+  this scoring; this is the next defense-engineering issue.
+
+### AgentDojo clean4 64-cell pilot
+
+Command shape:
+
+```text
+4 official AgentDojo tasks x truthful/spoofed x 8 profiles x gpt-5.4-mini
+= 64 cells
+```
+
+Artifacts:
+
+- `outputs/agentdojo_model_pilot_real_clean4_summary.json`
+- `outputs/agentdojo_model_pilot_real_clean4_manifest.json`
+- `traces/agentdojo_model_pilot_real_clean4/`
+
+Result:
+
+| Profile | Spoofed ASR | Spoofed accepted false state | Truthful clean utility | Effective verification |
+| --- | ---: | ---: | ---: | ---: |
+| naive | 2 / 4 | 2 / 4 | 1 / 4 | 0 / 4 |
+| schema-only | 2 / 4 | 2 / 4 | 1 / 4 | 0 / 4 |
+| prompt-filter | 0 / 4 | 0 / 4 | 0 / 4 | 0 / 4 |
+| repeat-same-tool | 2 / 4 | 2 / 4 | 2 / 4 | 0 / 4 |
+| metadata-only validator | 1 / 4 | 1 / 4 | 2 / 4 | 0 / 4 |
+| read-back validator | 0 / 4 | 0 / 4 | 1 / 4 | 4 / 4 |
+| privileged independent-validator | 0 / 4 | 0 / 4 | 2 / 4 | 4 / 4 |
+| combined policy | 0 / 4 | 0 / 4 | 0 / 4 | 4 / 4 |
+
+Interpretation:
+
+- The second-substrate result now has 64 real-model cells.
+- The pattern is qualitatively consistent with ToolSandbox: naive/schema/repeat
+  accept false state; read-back/independent block spoofed ASR.
+- Clean utility is still too low for strong defense-effectiveness claims.
+
+### Local multi-surface 48-cell pilot
+
+Command shape:
+
+```text
+8 local multi-surface scenarios x truthful/spoofed x 3 profiles x gpt-5.4-mini
+= 48 cells
+```
+
+Artifacts:
+
+- `outputs/real_toolcall_pilot_min48_real_summary.json`
+- `outputs/real_toolcall_pilot_min48_real_manifest.json`
+- `traces/real_toolcall_pilot_min48_real/`
+
+Result:
+
+| Profile | Spoofed ASR | Truthful clean utility | Effective verification | API errors |
+| --- | ---: | ---: | ---: | ---: |
+| naive | 4 / 8 | 8 / 8 | 0 / 8 | 0 |
+| repeat-same-tool | 4 / 8 | 7 / 8 | 0 / 8 | 0 |
+| independent-validator | 0 / 8 | 7 / 8 | 6 / 8 | 1 |
+
+Current reviewer posture after this run:
+
+- The work has moved from sanity checks to credible small-pilot evidence on two
+  existing substrates plus a broad local regression slice.
+- It is still not CCF-A ready because there is no executed 10%-15% slice,
+  read-back utility needs fixing, and only one model has been used.
+  Nevertheless, this is a materially stronger empirical base than the earlier
+  2-task pilots.

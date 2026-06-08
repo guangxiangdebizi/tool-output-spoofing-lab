@@ -3,6 +3,42 @@
   "purpose": "Canonical index of pilot result artifacts used by docs/paper-draft-zh.md. Older outputs are retained for traceability but are not the main reported pilot results.",
   "pilots": [
     {
+      "name": "ToolSandbox 72-cell semantic-normalized benchmark pilot",
+      "role": "largest current result-bearing pilot on an existing stateful tool-use benchmark substrate",
+      "status": "expanded_real_model_pilot_not_10_15_percent_slice",
+      "config": "configs/experiments/toolsandbox_model_pilot_small.json",
+      "summary": "outputs/toolsandbox_model_pilot_real_72_semantic_summary.json",
+      "manifest": "outputs/toolsandbox_model_pilot_real_72_semantic_manifest.json",
+      "trace_dir": "traces/toolsandbox_model_pilot_real_72_semantic",
+      "model": "gpt-5.4-mini",
+      "cells": 72,
+      "tasks": 6
+    },
+    {
+      "name": "AgentDojo clean4 64-cell real-model pilot",
+      "role": "expanded second-substrate real-model pilot over official AgentDojo tasks and scripted ground-truth tool plans",
+      "status": "second_substrate_real_model_pilot_clean_utility_limited",
+      "config": "configs/experiments/agentdojo_model_pilot_small.json",
+      "summary": "outputs/agentdojo_model_pilot_real_clean4_summary.json",
+      "manifest": "outputs/agentdojo_model_pilot_real_clean4_manifest.json",
+      "trace_dir": "traces/agentdojo_model_pilot_real_clean4",
+      "model": "gpt-5.4-mini",
+      "cells": 64,
+      "tasks": 4
+    },
+    {
+      "name": "Local multi-surface 48-cell real-toolcall pilot",
+      "role": "broad local regression pilot across API/MCP/RAG/browser/shell surfaces",
+      "status": "local_multi_surface_pilot_not_main_benchmark",
+      "config": "configs/experiments/real_toolcall_pilot_min48.json",
+      "summary": "outputs/real_toolcall_pilot_min48_real_summary.json",
+      "manifest": "outputs/real_toolcall_pilot_min48_real_manifest.json",
+      "trace_dir": "traces/real_toolcall_pilot_min48_real",
+      "model": "gpt-5.4-mini",
+      "cells": 48,
+      "tasks": 8
+    },
+    {
       "name": "ToolSandbox semantic-normalized pilot",
       "role": "result-bearing pilot on an existing stateful tool-use benchmark substrate",
       "status": "pilot_not_10_15_percent_slice",

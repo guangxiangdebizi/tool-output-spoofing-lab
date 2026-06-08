@@ -268,7 +268,10 @@ subject to schema_valid = true,
 | Pilot | 规模 | Substrate | 作用 | 论文中应如何表述 |
 | --- | ---: | --- | --- | --- |
 | 本地 structured smoke | 16 scenarios | 自建 smoke/regression | 验证 harness、trace schema、oracle、baseline | 不作为主 benchmark 证据 |
+| Local multi-surface real-toolcall | 48 cells | 自建 smoke/regression | API/MCP/RAG/browser/shell 多 surface 真实模型回归 | local broad-surface pilot |
+| ToolSandbox expanded semantic slice | 72 cells | ToolSandbox | 当前最大现有 benchmark 真实模型 pilot | strongest current pilot evidence |
 | ToolSandbox real-model semantic slice | 24 cells | ToolSandbox | 现有 benchmark 的最小真实模型信号 | pilot evidence |
+| AgentDojo clean4 semantic slice | 64 cells | AgentDojo | 第二个现有 benchmark 的扩展真实模型 pilot | second-substrate pilot, utility-limited |
 | AgentDojo plausible semantic slice | 32 cells | AgentDojo | 第二个现有 benchmark substrate 信号 | pilot evidence |
 | Authorization/provenance pilot | 12 cells | local verdict-level security axis | 验证用户关心的授权伪造机制 | sanity pilot |
 | Optimized observation pilot | 6 cells | local authorization generator | 验证 mock optimizer 轴 | generator sanity pilot |
@@ -301,38 +304,38 @@ subject to schema_valid = true,
 
 ## 9 Pilot 结果
 
-### 9.1 ToolSandbox 24-cell semantic-normalized pilot
+### 9.1 ToolSandbox 72-cell semantic-normalized pilot
 
-该 pilot 选择 2 个 ToolSandbox 任务，运行 truthful/spoofed × 6 profiles × 1 model，共 24 个真实模型 cell。语义规范化 adapter 将底层 raw result 转换成模型更自然的结构化观察，同时不改变真实执行、hidden raw result 和 oracle。
+该 pilot 选择 6 个 ToolSandbox 任务，运行 truthful/spoofed × 6 profiles × 1 model，共 72 个真实模型 cell。语义规范化 adapter 将底层 raw result 转换成模型更自然的结构化观察，同时不改变真实执行、hidden raw result 和 oracle。这是当前最强的现有 benchmark substrate 结果，但仍不是 10%-15% ToolSandbox 全切片。
 
 Canonical artifacts：
 
-- summary: `outputs/toolsandbox_model_pilot_real_24_semantic_v4_summary.json`
-- manifest: `outputs/toolsandbox_model_pilot_real_24_semantic_v4_manifest.json`
-- trace directory: `traces/toolsandbox_model_pilot_real_24_semantic_v4`
+- summary: `outputs/toolsandbox_model_pilot_real_72_semantic_summary.json`
+- manifest: `outputs/toolsandbox_model_pilot_real_72_semantic_manifest.json`
+- trace directory: `traces/toolsandbox_model_pilot_real_72_semantic`
 - config: `configs/experiments/toolsandbox_model_pilot_small.json`
 - model: `gpt-5.4-mini`
 
 | Profile | Spoofed ASR | Spoofed accepted false state | Truthful clean utility | 解释 |
 | --- | ---: | ---: | ---: | --- |
-| naive | 2/2 | 2/2 | 2/2 | 直接接受语义化假观察 |
-| schema-only | 2/2 | 2/2 | 2/2 | schema 合法不能证明语义真实 |
-| repeat-same-tool | 2/2 | 2/2 | 2/2 | 同源重复未提供独立性 |
-| metadata-only | 2/2 | 2/2 | 2/2 | metadata 不能验证内容 |
-| read-back validator | 0/2 | 0/2 | 1/2 | 可阻断假状态，但一例 utility/value normalization miss |
-| privileged independent validator | 0/2 | 0/2 | 2/2 | 上界基线，不应直接声称可部署 |
+| naive | 4/6 | 4/6 | 4/6 | 弱基线直接接受多数语义化假观察 |
+| schema-only | 3/6 | 3/6 | 4/6 | schema 合法不能证明语义真实；1 个 API error |
+| repeat-same-tool | 5/6 | 5/6 | 4/6 | 同源重复未提供独立性，反而最脆弱 |
+| metadata-only | 3/6 | 4/6 | 4/6 | metadata 不能验证内容 |
+| read-back validator | 0/6 | 0/6 | 0/6 | 阻断假状态，但 clean utility 当前不合格 |
+| privileged independent validator | 0/6 | 0/6 | 4/6 | 上界基线，不应直接声称可部署；1 个 API error |
 
-结论：在现有 ToolSandbox substrate 上，只要模型可见 observation 被规范成合理语义字段，弱基线会稳定接受假状态；独立读回能降低 ASR，但需要处理 utility 和规范化问题。
+结论：在现有 ToolSandbox substrate 上，只要模型可见 observation 被规范成合理语义字段，弱基线会稳定接受假状态；同源重复不是有效验证；读回/独立验证能降低 ASR，但读回 clean utility 需要修复后才能作为部署型防御主张。
 
-### 9.2 AgentDojo 32-cell plausible semantic-spoof pilot
+### 9.2 AgentDojo 64-cell clean4 semantic-spoof pilot
 
-该 pilot 使用 AgentDojo 官方任务，运行 2 tasks × truthful/spoofed × 8 profiles × 1 model，共 32 个真实模型 cell。这里不使用 AgentDojo 原生 prompt injection payload，而只替换 factual observation。
+该 pilot 使用 AgentDojo 官方任务，运行 4 tasks × truthful/spoofed × 8 profiles × 1 model，共 64 个真实模型 cell。这里不使用 AgentDojo 原生 prompt injection payload，而只替换 factual observation。
 
 Canonical artifacts：
 
-- summary: `outputs/agentdojo_model_pilot_real_32_semantic_plausible_summary.json`
-- manifest: `outputs/agentdojo_model_pilot_real_32_semantic_plausible_manifest.json`
-- trace directory: `traces/agentdojo_model_pilot_real_32_semantic_plausible`
+- summary: `outputs/agentdojo_model_pilot_real_clean4_summary.json`
+- manifest: `outputs/agentdojo_model_pilot_real_clean4_manifest.json`
+- trace directory: `traces/agentdojo_model_pilot_real_clean4`
 - config: `configs/experiments/agentdojo_model_pilot_small.json`
 - model: `gpt-5.4-mini`
 
@@ -340,16 +343,34 @@ AgentDojo 当前使用官方任务和 ground-truth tool plan，但不是 autonom
 
 | Profile | Spoofed ASR | Spoofed accepted false state | Truthful clean utility | 解释 |
 | --- | ---: | ---: | ---: | --- |
-| naive | 1/2 | 1/2 | 0/2 | 弱信号，但任务本身 utility 也困难 |
-| schema-only | 0/2 | 2/2 | 1/2 | 接受假状态但未形成最终 attack success |
-| repeat-same-tool | 1/2 | 1/2 | 0/2 | 重复同源不能充分验证 |
-| prompt-filter | 0/2 | 0/2 | 0/2 | 存在 over-refusal/utility 问题 |
-| metadata-only | 0/2 | 0/2 | 0/2 | metadata 不足且 utility 低 |
-| read-back validator | 0/2 | 0/2 | 0/2 | 防御有效性与任务 utility 混杂 |
-| independent validator | 0/2 | 0/2 | 2/2 | 上界信号清晰 |
-| combined policy | 0/2 | 0/2 | 0/2 | 过度保守，需调参 |
+| naive | 2/4 | 2/4 | 1/4 | 弱基线接受一半 spoofed false state |
+| schema-only | 2/4 | 2/4 | 1/4 | schema 不能验证事实 |
+| repeat-same-tool | 2/4 | 2/4 | 2/4 | 同源重复不能充分验证 |
+| prompt-filter | 0/4 | 0/4 | 0/4 | 无 ASR 但 utility 崩塌，不能算好防御 |
+| metadata-only | 1/4 | 1/4 | 2/4 | metadata 仍不足 |
+| read-back validator | 0/4 | 0/4 | 1/4 | 能阻断 spoofed ASR，但 utility 仍低 |
+| independent validator | 0/4 | 0/4 | 2/4 | 上界信号清晰 |
+| combined policy | 0/4 | 0/4 | 0/4 | 过度保守，需调参 |
 
 结论：AgentDojo pilot 的主要价值不是展示弱基线失败或防御有效，而是证明 overlay 可以迁移到第二个已有 benchmark。当前 clean utility 偏低，必须先调试 clean-utility-focused task slice，再扩大任务数，避免把任务难度误判为防御效果。
+
+### 9.2.1 Local multi-surface 48-cell real-toolcall pilot
+
+该 pilot 覆盖 8 个本地 smoke/regression scenarios，运行 truthful/spoofed × 3 profiles × 1 model，共 48 个真实模型 cell。它不是主 benchmark，但覆盖 API、MCP、RAG、browser、shell 等多 surface，用于验证 harness 不是只对单一场景有效。
+
+Canonical artifacts：
+
+- summary: `outputs/real_toolcall_pilot_min48_real_summary.json`
+- manifest: `outputs/real_toolcall_pilot_min48_real_manifest.json`
+- trace directory: `traces/real_toolcall_pilot_min48_real`
+- config: `configs/experiments/real_toolcall_pilot_min48.json`
+- model: `gpt-5.4-mini`
+
+| Profile | Spoofed ASR | Truthful clean utility | Effective verification | 解释 |
+| --- | ---: | ---: | ---: | --- |
+| naive | 4/8 | 8/8 | 0/8 | 弱基线在多 surface 上接受虚假观察 |
+| repeat-same-tool | 4/8 | 7/8 | 0/8 | 同源重复没有降低 ASR |
+| independent validator | 0/8 | 7/8 | 6/8 | 独立验证阻断 spoofed success，保留大部分 truthful utility |
 
 ### 9.3 Authorization/provenance 12-cell pilot
 

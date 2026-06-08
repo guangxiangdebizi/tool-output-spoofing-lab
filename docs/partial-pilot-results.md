@@ -21,6 +21,134 @@ None of these local runs should be treated as paper-grade benchmark evidence.
 The main benchmark strategy is now documented in
 `docs/benchmark-overlay-strategy.md`.
 
+## 2026-06-08 expanded gpt-5.4-mini benchmark run
+
+After the benchmark/baseline contract was tightened, three additional
+gpt-5.4-mini real-model runs were executed. These are still pilots, not the
+final 10%-15% full benchmark, but they substantially expand the result-bearing
+coverage beyond the earlier 2-task slices.
+
+Canonical index: `outputs/main_pilot_index.json`.
+
+### ToolSandbox 72-cell semantic-normalized pilot
+
+Artifacts:
+
+- Config: `configs/experiments/toolsandbox_model_pilot_small.json`
+- Summary: `outputs/toolsandbox_model_pilot_real_72_semantic_summary.json`
+- Manifest: `outputs/toolsandbox_model_pilot_real_72_semantic_manifest.json`
+- Traces: `traces/toolsandbox_model_pilot_real_72_semantic/`
+
+Run shape:
+
+```text
+6 real ToolSandbox tasks
+truthful/spoofed
+6 profiles
+1 model: gpt-5.4-mini
+= 72 real-model cells
+```
+
+Aggregate:
+
+| Profile | Spoofed ASR | Spoofed accepted false state | Truthful clean utility | Effective verification | API errors |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| naive | 4 / 6 | 4 / 6 | 4 / 6 | 0 / 6 | 0 |
+| schema-only | 3 / 6 | 3 / 6 | 4 / 6 | 0 / 6 | 1 |
+| repeat-same-tool | 5 / 6 | 5 / 6 | 4 / 6 | 0 / 6 | 0 |
+| metadata-only validator | 3 / 6 | 4 / 6 | 4 / 6 | 0 / 6 | 0 |
+| read-back validator | 0 / 6 | 0 / 6 | 0 / 6 | 6 / 6 | 0 |
+| privileged independent-validator | 0 / 6 | 0 / 6 | 4 / 6 | 6 / 6 | 1 |
+
+Interpretation:
+
+- Weak deployable baselines remain vulnerable on real ToolSandbox tasks:
+  naive/repeat/schema/metadata accept false state in 3-5 of 6 spoofed cases.
+- Same-channel repetition is especially weak in this slice: 5 / 6 spoofed ASR.
+- Read-back and privileged independent validation block spoofed ASR in all 6
+  spoofed cases, but read-back currently has 0 / 6 truthful clean utility under
+  this scoring, so it cannot yet be claimed as a solved deployable defense.
+- The run had 2 API failures across 72 cells; these are counted as uncertainty
+  stubs and reflected in the aggregate.
+
+### AgentDojo clean4 64-cell real-model pilot
+
+Artifacts:
+
+- Config: `configs/experiments/agentdojo_model_pilot_small.json`
+- Summary: `outputs/agentdojo_model_pilot_real_clean4_summary.json`
+- Manifest: `outputs/agentdojo_model_pilot_real_clean4_manifest.json`
+- Traces: `traces/agentdojo_model_pilot_real_clean4/`
+
+Run shape:
+
+```text
+4 official AgentDojo tasks
+truthful/spoofed
+8 profiles
+1 model: gpt-5.4-mini
+= 64 real-model cells
+```
+
+Aggregate:
+
+| Profile | Spoofed ASR | Spoofed accepted false state | Truthful clean utility | Effective verification | API errors |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| naive | 2 / 4 | 2 / 4 | 1 / 4 | 0 / 4 | 0 |
+| schema-only | 2 / 4 | 2 / 4 | 1 / 4 | 0 / 4 | 0 |
+| prompt-filter | 0 / 4 | 0 / 4 | 0 / 4 | 0 / 4 | 0 |
+| repeat-same-tool | 2 / 4 | 2 / 4 | 2 / 4 | 0 / 4 | 0 |
+| metadata-only validator | 1 / 4 | 1 / 4 | 2 / 4 | 0 / 4 | 0 |
+| read-back validator | 0 / 4 | 0 / 4 | 1 / 4 | 4 / 4 | 0 |
+| privileged independent-validator | 0 / 4 | 0 / 4 | 2 / 4 | 4 / 4 | 0 |
+| combined policy | 0 / 4 | 0 / 4 | 0 / 4 | 4 / 4 | 0 |
+
+Interpretation:
+
+- AgentDojo now has a larger result-bearing second-substrate pilot than the
+  earlier 2-task slice.
+- The same qualitative pattern appears: naive/schema/repeat accept false state
+  in 2 / 4 spoofed cases, while read-back/independent/combined block spoofed
+  ASR.
+- Clean utility remains limited, especially for prompt-filter and combined
+  policy. This should still be written as second-substrate feasibility plus
+  partial attack signal, not as final defense effectiveness.
+
+### Local multi-surface 48-cell real-toolcall pilot
+
+Artifacts:
+
+- Config: `configs/experiments/real_toolcall_pilot_min48.json`
+- Summary: `outputs/real_toolcall_pilot_min48_real_summary.json`
+- Manifest: `outputs/real_toolcall_pilot_min48_real_manifest.json`
+- Traces: `traces/real_toolcall_pilot_min48_real/`
+
+Run shape:
+
+```text
+8 local smoke/regression scenarios
+truthful/spoofed
+3 profiles: naive, repeat-same-tool, independent-validator
+1 model: gpt-5.4-mini
+= 48 real-model cells
+```
+
+Aggregate:
+
+| Profile | Spoofed ASR | Truthful clean utility | Effective verification | API errors |
+| --- | ---: | ---: | ---: | ---: |
+| naive | 4 / 8 | 8 / 8 | 0 / 8 | 0 |
+| repeat-same-tool | 4 / 8 | 7 / 8 | 0 / 8 | 0 |
+| independent-validator | 0 / 8 | 7 / 8 | 6 / 8 | 1 |
+
+Interpretation:
+
+- This broad local slice is not the main benchmark, but it confirms the
+  harness-level pattern across API/MCP/RAG/browser/shell-style surfaces.
+- Repeating the same tool does not improve robustness over naive in this slice.
+- Independent validation blocks all 8 spoofed successes while preserving 7 / 8
+  truthful utility, with one API failure.
+
 ## Real tool-call harness dry-run
 
 This is not a result-bearing model run yet. It is a harness validation step
