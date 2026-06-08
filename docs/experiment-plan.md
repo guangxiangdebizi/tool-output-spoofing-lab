@@ -171,7 +171,9 @@ truthful/spoofed modes
 
 Recommended first substrates:
 
-1. ToolSandbox: easiest state snapshot / milestone oracle; this is the P0 first adapter.
+1. ToolSandbox: easiest state snapshot / milestone oracle; this is the P0 first
+   adapter. Current repo has an adapter-contract smoke scaffold, but not the
+   real package integration yet.
 2. AgentDojo: strongest security benchmark positioning.
 3. tau-bench / tau2: strongest realistic tool-calling API story.
 
@@ -199,6 +201,18 @@ configs/experiments/real_toolcall_pilot_min48.json
 
 This 48-cell config is not the final benchmark; it is the cheapest real-model
 check before moving the same harness to existing benchmark overlays.
+
+ToolSandbox adapter-contract smoke:
+
+```text
+configs/benchmark_overlays/toolsandbox_overlay_smoke.json
+scripts/run_toolsandbox_overlay_smoke.py
+src/tool_spoof_lab/toolsandbox_overlay.py
+```
+
+This validates the ToolSandbox mapping contract with fixtures. It must be
+replaced by real ToolSandbox tasks/state snapshots before being counted as
+benchmark evidence.
 
 ## Go/no-go thresholds
 

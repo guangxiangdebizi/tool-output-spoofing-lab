@@ -101,6 +101,11 @@ Recommended order:
    - Milestone DAG already behaves like an oracle.
    - Goal: prove observation spoofing can be inserted without breaking clean
      task evaluation.
+   - Current repo status: adapter-contract smoke scaffold implemented in
+     `src/tool_spoof_lab/toolsandbox_overlay.py`,
+     `scripts/run_toolsandbox_overlay_smoke.py`, and
+     `configs/benchmark_overlays/toolsandbox_overlay_smoke.json`. This is not
+     yet the real ToolSandbox package integration.
 2. **AgentDojo overlay smoke**
    - Strongest security benchmark positioning.
    - Goal: show non-instructional false observations are different from
@@ -142,6 +147,24 @@ Example:
   execution context remains unchanged;
 - independent validator: read execution context snapshot or milestone state;
 - metrics: ASR, clean utility, FPR, effective validation, tool-event overhead.
+
+Current adapter-contract smoke command:
+
+```bash
+PYTHONPATH=src:. /usr/bin/python3.11 scripts/run_toolsandbox_overlay_smoke.py \
+  --config configs/benchmark_overlays/toolsandbox_overlay_smoke.json \
+  --out-dir traces/toolsandbox_overlay_smoke \
+  --summary outputs/toolsandbox_overlay_smoke_summary.json
+```
+
+The current execution environment does not have the ToolSandbox package
+installed, so this scaffold uses ToolSandbox-shaped fixtures. The next step is
+to replace fixtures with real ToolSandbox tasks and state snapshots. To prevent
+fixture smoke traces from contaminating paper-grade result aggregation, every
+row emitted by the current scaffold is marked with `adapter_contract=true`,
+`fixture=true`, and `real_benchmark_run=false`; real ToolSandbox runs must flip
+those provenance fields and record package version, task id, state snapshot, and
+evaluator configuration.
 
 ### AgentDojo overlay
 

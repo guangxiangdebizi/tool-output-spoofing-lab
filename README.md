@@ -68,6 +68,7 @@ PYTHONPATH=src /usr/bin/python3.11 -m tool_spoof_lab.oracle --trace traces/minim
 PYTHONPATH=src /usr/bin/python3.11 scripts/run_mvp_matrix.py --config configs/experiments/mvp_matrix.json --out-dir traces
 PYTHONPATH=src:. /usr/bin/python3.11 scripts/run_structured_partial.py --config configs/experiments/mvp_matrix.json --out-dir traces/structured_15scenario_partial --summary outputs/structured_partial_summary.json
 PYTHONPATH=src:. /usr/bin/python3.11 scripts/run_real_toolcall_pilot.py --config configs/experiments/real_toolcall_pilot_small.json --out-dir traces/real_toolcall_pilot_dry --summary outputs/real_toolcall_pilot_dry_summary.json --manifest outputs/real_toolcall_pilot_dry_manifest.json --dry-run --sleep 0
+PYTHONPATH=src:. /usr/bin/python3.11 scripts/run_toolsandbox_overlay_smoke.py --config configs/benchmark_overlays/toolsandbox_overlay_smoke.json --out-dir traces/toolsandbox_overlay_smoke --summary outputs/toolsandbox_overlay_smoke_summary.json
 PYTHONPATH=src:. /usr/bin/python3.11 -m unittest discover -s tests -v
 ```
 

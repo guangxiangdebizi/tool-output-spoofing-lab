@@ -361,3 +361,41 @@ Environment note from this run:
 This appears to be a remote Alibaba Cloud VM rather than a local laptop. The
 current shell did not expose `NEWAPI_API_KEY` or `OPENAI_API_KEY`, so result-
 bearing API experiments were not run in this turn.
+
+## Round 8: ToolSandbox adapter-contract scaffold
+
+The first existing-benchmark substrate work has started with ToolSandbox.
+
+Added:
+
+- `configs/benchmark_overlays/toolsandbox_overlay_smoke.json`
+- `src/tool_spoof_lab/toolsandbox_overlay.py`
+- `scripts/run_toolsandbox_overlay_smoke.py`
+
+The current environment does not have ToolSandbox installed, so this is an
+adapter-contract smoke scaffold rather than a real ToolSandbox benchmark run.
+It verifies that ToolSandbox-shaped state snapshots / milestone oracles can be
+mapped into the unified trace format:
+
+```text
+state snapshot / milestone oracle -> hidden truth
+agent-visible tool return         -> observation plane
+snapshot read                     -> independent validator
+```
+
+Smoke status:
+
+- `scripts/run_toolsandbox_overlay_smoke.py` completed.
+- `tests/test_smoke.py` includes ToolSandbox overlay contract tests.
+- naive profile is vulnerable on spoofed observation.
+- independent validator uses the state snapshot and blocks attack success.
+
+Round 8 reviewer risk: fixture traces could contaminate real benchmark result
+aggregation if they only say `substrate=ToolSandbox`. Fix: all emitted
+adapter-contract rows now include row-level provenance fields
+`adapter_contract=true`, `fixture=true`, and `real_benchmark_run=false`. Real
+ToolSandbox integrations must flip these fields and include package/task/evaluator
+metadata.
+
+Remaining P0: install/use the real ToolSandbox package and replace fixtures with
+10-15 real ToolSandbox tasks and state snapshots.

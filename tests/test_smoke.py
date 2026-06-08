@@ -3,6 +3,11 @@ import unittest
 from tool_spoof_lab.oracle import score_trace
 from tool_spoof_lab.runner import build_trace
 from tool_spoof_lab.structured_oracle import score_structured_trace
+from tool_spoof_lab.toolsandbox_overlay import (
+    ToolSandboxOverlayFixture,
+    fixture_to_rows,
+    load_overlay_config,
+)
 from scripts.run_real_toolcall_pilot import build_messages, build_tool_events, visible_rows_for_model
 from scripts.run_structured_partial import build_structured_trace
 
@@ -106,6 +111,27 @@ class SmokeTests(unittest.TestCase):
         self.assertNotIn('"truthful"', prompt_text)
         self.assertNotIn("toolcall_independent_validator", prompt_text)
         self.assertIn('"policy_id"', prompt_text)
+
+    def test_toolsandbox_overlay_contract_naive_is_vulnerable(self):
+        config = load_overlay_config("configs/benchmark_overlays/toolsandbox_overlay_smoke.json")
+        fixture = ToolSandboxOverlayFixture(config["fixtures"][0])
+        rows = fixture_to_rows(fixture, mode="spoofed", profile="toolsandbox_naive")
+        verdict = score_structured_trace(rows)
+        self.assertEqual(rows[0]["substrate"], "ToolSandbox")
+        self.assertTrue(all(row["adapter_contract"] for row in rows))
+        self.assertTrue(all(row["fixture"] for row in rows))
+        self.assertFalse(any(row["real_benchmark_run"] for row in rows))
+        self.assertTrue(verdict["attack_success"])
+
+    def test_toolsandbox_overlay_contract_validator_uses_state_snapshot(self):
+        config = load_overlay_config("configs/benchmark_overlays/toolsandbox_overlay_smoke.json")
+        fixture = ToolSandboxOverlayFixture(config["fixtures"][0])
+        rows = fixture_to_rows(fixture, mode="spoofed", profile="toolsandbox_independent_validator")
+        verdict = score_structured_trace(rows)
+        events = [row["event"] for row in rows]
+        self.assertIn("validator_call", events)
+        self.assertFalse(verdict["attack_success"])
+        self.assertTrue(verdict["effective_verification"])
 
 
 if __name__ == "__main__":

@@ -97,6 +97,7 @@
 本地 smoke 场景配置在 `configs/experiments/mvp_matrix.json`。overlay 设计配置在：
 
 - `configs/benchmark_overlays/high_value_benchmark_overlay.json`
+- `configs/benchmark_overlays/toolsandbox_overlay_smoke.json`
 - `docs/benchmark-overlay-strategy.md`
 
 本地 smoke 可复现命令：
@@ -136,6 +137,20 @@ PYTHONPATH=src:. /usr/bin/python3.11 scripts/run_real_toolcall_pilot.py \
   --manifest outputs/real_toolcall_pilot_dry_manifest.json \
   --dry-run --sleep 0
 ```
+
+ToolSandbox overlay adapter-contract smoke：
+
+```bash
+PYTHONPATH=src:. /usr/bin/python3.11 scripts/run_toolsandbox_overlay_smoke.py \
+  --config configs/benchmark_overlays/toolsandbox_overlay_smoke.json \
+  --out-dir traces/toolsandbox_overlay_smoke \
+  --summary outputs/toolsandbox_overlay_smoke_summary.json
+```
+
+当前环境还没有安装真实 ToolSandbox package，所以这一步只验证 adapter contract：
+ToolSandbox-shaped fixture 的 hidden state / milestone oracle / spoofed
+observation / independent validator 能被转换成统一 trace schema。下一步要接真实
+ToolSandbox tasks。
 
 ## 5. Baseline 设计
 
@@ -289,6 +304,34 @@ dry-run 证明 harness、trace、manifest 和 summary 路径可复现，并且�
 需要带 API key 先跑 reviewer 建议的 48-cell minimum pilot，然后把同样 harness 迁移到
 ToolSandbox/AgentDojo/tau-bench overlay tasks，扩到 30-45 paired scenarios 和至少两个模型。
 
+### 6.5 ToolSandbox overlay adapter-contract smoke
+
+为回应“主 benchmark 必须基于现有 benchmark substrate”的意见，本轮开始实现第一个
+substrate：ToolSandbox。当前新增：
+
+- `configs/benchmark_overlays/toolsandbox_overlay_smoke.json`
+- `src/tool_spoof_lab/toolsandbox_overlay.py`
+- `scripts/run_toolsandbox_overlay_smoke.py`
+
+由于当前环境未安装 ToolSandbox package，这还不是真实 ToolSandbox benchmark run，而是
+adapter-contract smoke：用 ToolSandbox-shaped fixtures 验证映射关系是否正确：
+
+```text
+ToolSandbox state snapshot / milestone oracle -> hidden truth
+agent-visible tool result                     -> observation plane
+state snapshot validator                      -> independent validator
+```
+
+为避免后续聚合时把 fixture smoke 误算进正式结果，每条 trace row 都带
+`adapter_contract=true`、`fixture=true`、`real_benchmark_run=false`。真实
+ToolSandbox run 必须把这些 provenance 字段反向标记，并记录 package version、
+真实 task id、state snapshot 和 evaluator config。
+
+adapter smoke 已跑通，生成 `outputs/toolsandbox_overlay_smoke_summary.json`。单测覆盖：
+
+- naive 在 spoofed ToolSandbox-shaped observation 上 vulnerable；
+- independent-validator 使用 state snapshot 后不再 attack success。
+
 ## 7. 当前能支持的 claim 和不能支持的 claim
 
 当前本地 smoke/regression 能支持：
@@ -323,7 +366,7 @@ ToolSandbox/AgentDojo/tau-bench overlay tasks，扩到 30-45 paired scenarios �
 
 要从当前 Weak Reject / borderline 推到 Weak Accept，需要把主实验迁移到现有 benchmark overlay：
 
-1. 先实现 **ToolSandbox overlay adapter**，因为它最适合 state snapshot / milestone oracle；
+1. 把当前 **ToolSandbox overlay adapter contract** 接到真实 ToolSandbox package/tasks；
 2. 再选第二个 substrate（建议 AgentDojo 或 tau-bench）；
 3. 每个 substrate 先做 10-15 个 overlay tasks；
 4. 至少 2 个模型；
