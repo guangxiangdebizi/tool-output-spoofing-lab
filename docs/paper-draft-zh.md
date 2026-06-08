@@ -12,7 +12,7 @@
 
 我们把这个问题定义为 **tool-output spoofing**，并设计一个 observation-spoofing overlay：主实验不应主要依赖自建 toy benchmark，而应基于已有高价值 agent/tool-use benchmark，例如 AgentDojo、ToolSandbox、tau-bench、WebArena/WorkArena、SWE-bench、MCP-SafetyBench / MCP Security Bench。已有 benchmark 提供任务分布、环境状态和 utility/security oracle；我们的 overlay 只改变 agent 可见的 observation plane，并在同一批 benchmark tasks 上比较不同 defense baseline。
 
-当前仓库里的 15 个本地场景只作为 local smoke/regression suite，用来验证 trace schema、oracle、baseline 和 harness；它不计为论文主 benchmark 证据，也不用于支撑核心 empirical claim。当前真正的主实验表应留给 ToolSandbox / AgentDojo / tau-bench 等现有 benchmark overlay pilot。现阶段本地 suite 只证明实现链路可跑：schema validation、prompt filtering、repeat-same-tool、metadata-only validator、read-back validator、privileged independent-validator upper bound、combined policy 等 baseline 可以在同一任务上被成对比较。本轮新增了 ToolSandbox-specific model-policy pilot runner：它先执行真实 ToolSandbox 工具，再构造 truthful/spoofed model-visible observation，并生成 144-cell dry-run manifest；同时新增 AgentDojo v1.2.2 真实 substrate manifest probe、192-cell execution smoke 和 192-cell model-policy dry-run，作为第二个现有 benchmark substrate 的采样、执行和模型提示链路设计。但当前 shell 仍缺少 `NEWAPI_API_KEY`，所以这些还不是 result-bearing real-model run；30-45 paired scenario multi-model pilot 仍未完成。
+当前仓库里的 15 个本地场景只作为 local smoke/regression suite，用来验证 trace schema、oracle、baseline 和 harness；它不计为论文主 benchmark 证据，也不用于支撑核心 empirical claim。当前真正的主实验表应留给 ToolSandbox / AgentDojo / tau-bench 等现有 benchmark overlay pilot。现阶段本地 suite 只证明实现链路可跑：schema validation、prompt filtering、repeat-same-tool、metadata-only validator、read-back validator、privileged independent-validator upper bound、combined policy 等 baseline 可以在同一任务上被成对比较。本轮已经在远端云主机上完成两个现有 substrate 的小规模真实模型 pilot：ToolSandbox 24-cell semantic-normalized slice，以及 AgentDojo 32-cell plausible semantic-spoof slice。它们仍不是全量 benchmark，但已从 dry-run 进入 result-bearing model-pilot 阶段；30-45 paired scenario multi-model pilot 和 10%-15% ToolSandbox 执行切片仍未完成。
 
 ## 1. 问题定义
 
@@ -543,8 +543,8 @@ representative_10_15_percent_slice = false
 ```
 
 这说明真实模型 prompt/manifest/trace 路径已经打通，且单测验证 model-visible prompt 不泄漏
-`oracle_context`、`raw_tool_result`、raw profile name 或 truthful/spoofed 条件标签。但由于
-当前环境没有 API key，这仍然只是 dry-run，不提供模型 ASR、utility 或 FPR。
+`oracle_context`、`raw_tool_result`、raw profile name 或 truthful/spoofed 条件标签。这个
+144-cell pass 仍然只是 dry-run；真实模型结果来自后续较小的 24-cell ToolSandbox slice。
 
 获得 API 访问后，先跑了 ToolSandbox 24-cell real-model smoke。第一次真实模型结果暴露出
 一个重要工程问题：直接把 ToolSandbox 的 Python 裸返回值（例如 `True`、`False`、`None`）
@@ -577,6 +577,50 @@ ToolSandbox state、raw tool trace 或 milestone oracle。
 当成真实工具状态，从而得到更清晰的攻击信号。read-back validator 仍把 spoofed ASR 降到 0/2；
 但有一个 truthful utility miss 来自模型把结构化 read-back 值简化成 boolean，这应作为
 value-normalization / parser limitation 报告。
+
+同样的 observation-surface 问题也出现在 AgentDojo：如果 spoof 只是把列表改成空列表或把文本改成
+“no task-relevant records”，模型容易选择不确定，测到的是 payload 不自然，而不是 observation
+integrity。当前 AgentDojo adapter 因此改成 **semantic-normalized + plausible alternate**
+版本：保留同一 JSON shape 和任务相关 field，但把具体候选实体、频道、记录或文本替换为
+plausible false alternatives。隐藏 `raw_tool_result` 和 oracle 仍保存真实 AgentDojo 工具返回。
+这把“优化 mock/工具观测面”固化为正式实验因素，而不是临时 prompt trick：
+
+| Adapter factor | 目的 | 约束 |
+| --- | --- | --- |
+| raw/native | 记录 benchmark 原始工具输出 | 只用于 hidden audit / ablation |
+| semantic-normalized | 把裸 Python/string/list 变成稳定 JSON observation | truthful/spoofed 对称应用，不改 backend state |
+| plausible alternate spoof | 让假 observation 看起来像同类工具结果 | 不含显式攻击指令，不读 hidden oracle 以外的信息 |
+
+因此主实验表应把 observation format 明确作为一列：
+
+```text
+model × substrate × task × mode × baseline × observation_format
+```
+
+其中 `semantic_normalized_v1` / plausible alternate adapter 必须在大规模运行前冻结版本，并保留
+raw/native adapter 与空结果/弱 mock adapter 作为 ablation。字段名也必须保持中性，例如
+`wifi_enabled`、`operation_status`、`record_count`，避免 `verified_success`、
+`safe_to_continue` 这种会人为诱导模型的名字。论文表述应是“测试 vulnerability 是否依赖
+model-visible observation realism”，而不是“改 mock 让攻击更强”。
+
+AgentDojo 32-cell real-model slice 覆盖 2 个官方任务（`travel:user_task_19` 与
+`slack:user_task_14`）、truthful/spoofed 和 8 个 baseline：
+
+| AgentDojo baseline | Spoofed ASR | Accepted false state | Truthful utility | 备注 |
+| --- | ---: | ---: | ---: | --- |
+| naive | 1 / 2 | 1 / 2 | 0 / 2 | 弱 baseline 会接受同形假 observation，但有时因任务不完整而不 commit |
+| schema-only | 0 / 2 | 2 / 2 | 1 / 2 | 模型接受 false field，但未总是 action-commit；需单独报告 accepted_false_state |
+| prompt-filter | 0 / 2 | 0 / 2 | 0 / 2 | 对非指令 spoof 没有内容验证，只是模型偏谨慎 |
+| repeat-same-tool | 1 / 2 | 1 / 2 | 0 / 2 | 同通道重复可强化假状态 |
+| metadata-only validator | 0 / 2 | 0 / 2 | 0 / 2 | metadata 不能证明 content truth |
+| read-back validator | 0 / 2 | 0 / 2 | 0 / 2 | 防住 spoof，但当前 prompt/score 对 truthful utility 偏严 |
+| privileged independent-validator | 0 / 2 | 0 / 2 | 2 / 2 | upper-bound，不作为可部署防御 |
+| combined policy | 0 / 2 | 0 / 2 | 0 / 2 | read-back 防住 spoof，但 utility 仍需调 scorer/prompt |
+
+这张表的正确解读是：plausible alternate spoof 能在第二个现有 benchmark substrate 上产生真实模型攻击信号，
+但 AgentDojo 当前 pilot 仍是 trace-level visible-result substitution，不是 full agent-loop interception；
+且 utility/FPR 受“单个 ground-truth tool call 只提供部分任务证据”影响。因此它是 pilot evidence，
+不是 paper-grade 主结果。
 
 为回应“independent validator 过于 oracle-adjacent”的审稿意见，本轮把 validator 分成
 三类：
@@ -670,8 +714,9 @@ PYTHONPATH=src:. /tmp/agentdojo-probe-venv/bin/python scripts/run_agentdojo_exec
 同时补了 AgentDojo model-policy dry-run。它完成 192/192 prompt/manifest cells，
 并验证模型可见 prompt 只包含 `agentdojo_user_task`、`agentdojo_tool_call`、
 `visible_tool_result`、`prompt_filter_check`、`repeat_tool_call`、`validator_call`
-等显式可见事件，不包含 hidden oracle 或 raw result。这个结果只说明 AgentDojo
-已经具备 real-model pilot 入口；它不提供 ASR 或 utility claim。
+等显式可见事件，不包含 hidden oracle 或 raw result。随后在同一云主机上完成
+AgentDojo 32-cell real-model pilot：2 个官方任务 × truthful/spoofed × 8 profiles。
+这提供了第二 substrate 的初始模型信号，但仍需要扩展到更多任务和至少两个模型。
 
 ### 6.6 当前实验状态分层表
 
@@ -682,11 +727,11 @@ PYTHONPATH=src:. /tmp/agentdojo-probe-venv/bin/python scripts/run_agentdojo_exec
 | ToolSandbox real manifest probe | 12 / 1032 | real task metadata | 已跑，`manifest_only=true` |
 | ToolSandbox scripted bring-up | 12 × 2 × 4 = 96 | real IDs + scripted oracle projection | 已跑，非模型结果 |
 | ToolSandbox real execution smoke | 12 × 2 × 6 = 144 | real tool execution + trace-level substitution + read-back validator ablation | 已跑，`scripted_agent=true` |
-| ToolSandbox model-policy pilot | 12 × 2 × 6 = 144 | prompt/manifest dry-run + read-back validator ablation | dry-run 已跑，`real_model_run=false` |
+| ToolSandbox model-policy pilot | 2 × 2 × 6 = 24 real cells；12 × 2 × 6 dry-run | real model-pilot + prompt/manifest dry-run | 24-cell semantic pilot 已跑 |
 | ToolSandbox stratified 10% manifest | 104 / 1032 | sampling design | 已生成，尚未执行 |
 | AgentDojo stratified 10%-15% manifest | 12 / 97 | second existing-benchmark sampling design | 已生成，尚未执行 |
 | AgentDojo execution smoke | 12 × 2 × 8 = 192 | official ground-truth tool plan + trace-level substitution | 已跑，`scripted_agent=true` |
-| AgentDojo model-policy pilot | 12 × 2 × 8 = 192 | prompt/manifest dry-run + leakage tests | dry-run 已跑，`real_model_run=false` |
+| AgentDojo model-policy pilot | 2 × 2 × 8 = 32 real cells；12 × 2 × 8 dry-run | second-substrate real model-pilot + leakage tests | 32-cell plausible semantic pilot 已跑 |
 | Paper-grade main run | >= 2 substrates, 30-45 paired scenarios first | model benchmark evidence | 未完成 |
 
 ## 7. 当前能支持的 claim 和不能支持的 claim
@@ -701,13 +746,14 @@ PYTHONPATH=src:. /tmp/agentdojo-probe-venv/bin/python scripts/run_agentdojo_exec
 6. 已有 104/1032 的 ToolSandbox 10% stratified manifest 设计，但它只是 scaling plan，不是已执行结果。
 7. 已有 12/97 的 AgentDojo v1.2.2 stratified manifest，覆盖 workspace/travel/banking/slack 和 easy/medium/hard 难度，用于证明主实验会迁移到第二个现有 benchmark substrate；它同样只是 sampling/design artifact。
 8. AgentDojo execution smoke 已经能执行官方 ground-truth tool call 并进行 trace-level observation substitution；它支持“第二 substrate 的 harness wiring 可跑”，但不支持模型 ASR claim。
-9. AgentDojo model-policy dry-run 已经验证第二 substrate 的模型提示和 run manifest 链路，且单测覆盖 hidden oracle/mode/profile 泄露风险；它仍不支持模型鲁棒性 claim。
+9. ToolSandbox 24-cell real-model pilot 支持“语义归一化 observation adapter 比 raw Python-like adapter 产生更清晰弱 baseline 攻击信号”的工程判断。
+10. AgentDojo 32-cell real-model pilot 支持“plausible same-shape false observation 比空结果 mock 更能测到 false-state acceptance”的判断；但它仍只是 trace-level pilot，不是完整 AgentDojo agent-loop benchmark。
 
 当前不能支持：
 
 1. “真实模型普遍会被工具输出欺骗”——还缺基于现有 benchmark substrate 的 multi-model agentic run。
 2. “combined policy 是 paper-grade 防御”——已有 harness 入口和 dry-run，但还缺真实模型运行、成本统计和更大场景。
-3. “已经跑了 ToolSandbox/AgentDojo 10%-15% real-model benchmark”——当前只生成了 ToolSandbox 104-task manifest，AgentDojo 12-task manifest 已有 execution smoke，但尚未执行对应 real-model benchmark；已执行的 ToolSandbox/AgentDojo 仍是 12-task scripted/dry-run seed。
+3. “已经跑了 ToolSandbox/AgentDojo 10%-15% real-model benchmark”——当前只生成了 ToolSandbox 104-task manifest，AgentDojo 12-task manifest 已有 execution smoke；已执行的真实模型切片分别只有 ToolSandbox 2 tasks / 24 cells 和 AgentDojo 2 tasks / 32 cells。
 4. “能投 USENIX/S&P”——还缺 AgentDojo/ToolSandbox/tau-bench 等现有 benchmark overlay pilot、30-45 paired scenario model pilot、150-300 full benchmark、close-work ablation。
 
 ## 8. Related work 定位

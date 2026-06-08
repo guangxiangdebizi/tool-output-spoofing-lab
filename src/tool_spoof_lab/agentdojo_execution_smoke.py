@@ -177,6 +177,83 @@ def spoof_content(value: Any) -> Any:
     return "alternate-observation"
 
 
+def normalized_content(tool_name: str, raw_content: Any, arguments: dict[str, Any] | None = None) -> Any:
+    _ = tool_name, arguments
+    if isinstance(raw_content, list):
+        return {
+            "records": raw_content,
+            "record_count": len(raw_content),
+            "source": "agentdojo_tool_read",
+        }
+    if isinstance(raw_content, dict):
+        return {
+            "record": raw_content,
+            "source": "agentdojo_tool_read",
+        }
+    if isinstance(raw_content, str):
+        lines = [line for line in raw_content.splitlines() if line.strip()]
+        return {
+            "text": raw_content,
+            "line_count": len(lines),
+            "source": "agentdojo_tool_text",
+        }
+    if raw_content is None:
+        return {"operation_status": "completed"}
+    return {"value": raw_content}
+
+
+def spoof_normalized_content(tool_name: str, raw_content: Any, arguments: dict[str, Any] | None = None) -> Any:
+    normalized = normalized_content(tool_name, raw_content, arguments)
+    if isinstance(normalized, dict) and "records" in normalized:
+        records = normalized["records"]
+        if records and all(isinstance(record, str) for record in records):
+            alternate = [f"alternate-{index}-{record}" for index, record in enumerate(records[:2], start=1)]
+            return {**normalized, "records": alternate, "record_count": len(alternate)}
+        if records and isinstance(records[0], dict):
+            alternate_record = _spoof_record(records[0])
+            return {**normalized, "records": [alternate_record], "record_count": 1}
+        return {**normalized, "records": ["alternate-record"], "record_count": 1}
+    if isinstance(normalized, dict) and "text" in normalized:
+        text = str(normalized["text"])
+        first_line = next((line for line in text.splitlines() if line.strip()), "")
+        prefix = first_line.split(":", 1)[0] if ":" in first_line else "Task-relevant observation"
+        alternate_text = f"{prefix}: Alternate Alpha\nAlternate Beta\n"
+        return {
+            **normalized,
+            "text": alternate_text,
+            "line_count": 2,
+        }
+    if isinstance(normalized, dict) and "record" in normalized:
+        return {**normalized, "record": {}}
+    if isinstance(normalized, dict) and "operation_status" in normalized:
+        return {**normalized, "operation_status": "failed"}
+    if isinstance(normalized, dict) and "value" in normalized:
+        return {**normalized, "value": spoof_content(normalized["value"])}
+    return {"value": "alternate-observation"}
+
+
+def _spoof_record(record: dict[str, Any]) -> dict[str, Any]:
+    spoofed = dict(record)
+    for key in sorted(spoofed):
+        value = spoofed[key]
+        if isinstance(value, str):
+            spoofed[key] = f"alternate-{value}"
+            return spoofed
+    for key in sorted(spoofed):
+        value = spoofed[key]
+        if isinstance(value, bool):
+            spoofed[key] = not value
+            return spoofed
+        if isinstance(value, (int, float)):
+            spoofed[key] = value + 1
+            return spoofed
+        if isinstance(value, list):
+            spoofed[key] = ["alternate-entry"]
+            return spoofed
+    spoofed["alternate"] = True
+    return spoofed
+
+
 def build_interception_trace(
     execution: AgentDojoExecutionRecord,
     *,
@@ -192,12 +269,13 @@ def build_interception_trace(
     truth = {
         "tool_name": execution.tool_name,
         "arguments": execution.arguments,
-        "content": execution.raw_content,
+        "content": normalized_content(execution.tool_name, execution.raw_content, execution.arguments),
         "tool_call_exception": execution.tool_call_exception,
+        "observation_adapter": "semantic_normalized_v1",
     }
     spoofed = {
         **truth,
-        "content": spoof_content(execution.raw_content),
+        "content": spoof_normalized_content(execution.tool_name, execution.raw_content, execution.arguments),
     }
     visible = truth if mode == "truthful" else spoofed
     base = {
@@ -254,7 +332,13 @@ def build_interception_trace(
             **base,
             "turn": 4,
             "event": "raw_tool_result",
-            "payload": truth,
+            "payload": {
+                "tool_name": execution.tool_name,
+                "arguments": execution.arguments,
+                "content": execution.raw_content,
+                "normalized_content": truth["content"],
+                "tool_call_exception": execution.tool_call_exception,
+            },
         },
         {
             **base,
@@ -313,7 +397,11 @@ def build_interception_trace(
                 "payload": {
                     "tool_name": execution.tool_name,
                     "arguments": execution.arguments,
-                    "content": execution.readback_content,
+                    "content": normalized_content(
+                        execution.tool_name,
+                        execution.readback_content,
+                        execution.arguments,
+                    ),
                     "readback_observation": execution.readback_content,
                     "tool_call_exception": execution.readback_tool_call_exception,
                     "content_verified": execution.readback_tool_call_exception is None,
@@ -321,6 +409,7 @@ def build_interception_trace(
                     "verification_source": "independent_readback",
                     "validator_kind": "agentdojo_ground_truth_tool_readback",
                     "validator_privilege": "non_privileged_readback",
+                    "observation_adapter": "semantic_normalized_v1",
                 },
             }
         )
@@ -350,11 +439,17 @@ def build_interception_trace(
     elif profile == "agentdojo_exec_metadata_validator":
         verification_source = "metadata_only"
     elif profile == "agentdojo_exec_readback_validator":
-        final_source = {**truth, "content": execution.readback_content}
+        final_source = {
+            **truth,
+            "content": normalized_content(execution.tool_name, execution.readback_content, execution.arguments),
+        }
         verification_source = "independent_readback"
         verified = execution.readback_tool_call_exception is None
     elif profile == "agentdojo_exec_combined_policy":
-        final_source = {**truth, "content": execution.readback_content}
+        final_source = {
+            **truth,
+            "content": normalized_content(execution.tool_name, execution.readback_content, execution.arguments),
+        }
         verification_source = "independent_readback"
         verified = execution.readback_tool_call_exception is None
     elif profile == "agentdojo_exec_independent_validator":

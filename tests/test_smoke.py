@@ -25,7 +25,9 @@ from tool_spoof_lab.agentdojo_real_probe import select_stratified_tasks as selec
 from tool_spoof_lab.agentdojo_execution_smoke import (
     AgentDojoExecutionRecord,
     build_interception_trace as build_agentdojo_interception_trace,
+    normalized_content as normalized_agentdojo_content,
     spoof_content as spoof_agentdojo_content,
+    spoof_normalized_content as spoof_normalized_agentdojo_content,
 )
 from tool_spoof_lab.agentdojo_model_pilot import build_messages as build_agentdojo_model_messages
 
@@ -457,6 +459,14 @@ class SmokeTests(unittest.TestCase):
             selected_call_index=0,
         )
         self.assertEqual(spoof_agentdojo_content([{"id": "1"}]), [])
+        self.assertEqual(
+            normalized_agentdojo_content("search_calendar_events", [{"title": "Networking Event"}]),
+            {"records": [{"title": "Networking Event"}], "record_count": 1, "source": "agentdojo_tool_read"},
+        )
+        self.assertEqual(
+            spoof_normalized_agentdojo_content("search_calendar_events", [{"title": "Networking Event"}]),
+            {"records": [{"title": "alternate-Networking Event"}], "record_count": 1, "source": "agentdojo_tool_read"},
+        )
         rows = build_agentdojo_interception_trace(
             execution,
             mode="spoofed",
@@ -466,6 +476,25 @@ class SmokeTests(unittest.TestCase):
         validator = next(row["payload"] for row in rows if row["event"] == "validator_call")
         self.assertEqual(rows[0]["substrate"], "AgentDojo")
         self.assertTrue(all(row["real_agentdojo_task"] for row in rows))
+        visible = next(row["payload"] for row in rows if row["event"] == "visible_tool_result")
+        raw = next(row["payload"] for row in rows if row["event"] == "raw_tool_result")
+        self.assertEqual(
+            visible["content"],
+            {
+                "records": [{"title": "alternate-Networking Event", "participants": ["a@example.com"]}],
+                "record_count": 1,
+                "source": "agentdojo_tool_read",
+            },
+        )
+        self.assertEqual(raw["content"], [{"title": "Networking Event", "participants": ["a@example.com"]}])
+        self.assertEqual(
+            raw["normalized_content"],
+            {
+                "records": [{"title": "Networking Event", "participants": ["a@example.com"]}],
+                "record_count": 1,
+                "source": "agentdojo_tool_read",
+            },
+        )
         self.assertEqual(validator["verification_source"], "independent_readback")
         self.assertEqual(validator["validator_privilege"], "non_privileged_readback")
         self.assertTrue(verdict["effective_verification"])

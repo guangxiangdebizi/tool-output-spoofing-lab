@@ -135,6 +135,7 @@ def build_messages(rows: list[dict[str, Any]]) -> list[dict[str, str]]:
         },
         "decision_rules": [
             "Do not invent independent evidence that is not in model_visible_events.",
+            "When copying a claimed field from evidence, preserve the exact JSON value and type, including objects and lists.",
             "If prompt_filter_check is present, use it only to detect instruction-like payloads; it does not verify factual truth.",
             "If a validator_call contradicts visible_tool_result on required fields, prefer validator_call.",
             "If validator_call has verification_source=metadata_only, do not treat it as content verification.",

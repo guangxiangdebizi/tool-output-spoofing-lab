@@ -209,7 +209,7 @@ It is explicitly marked `trace_level_visible_result_substitution=true`,
 `full_agent_loop_interception=false`, `scripted_agent=true`, and
 `real_model_run=false`.
 
-ToolSandbox model-policy pilot dry-run:
+ToolSandbox model-policy pilot:
 
 ```bash
 PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/run_toolsandbox_model_pilot.py \
@@ -224,8 +224,10 @@ PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/run_toolsandbox_
 
 The dry-run completed 144 cells over 12 tasks x truthful/spoofed x 6 profiles.
 It proves prompt/manifest plumbing and checks that hidden `oracle_context`,
-`raw_tool_result`, and condition labels do not enter model-visible prompts. It
-does not produce model ASR because the current shell has no API key.
+`raw_tool_result`, and condition labels do not enter model-visible prompts.
+A smaller 24-cell real-model slice over 2 tasks has also been run with the
+semantic-normalized observation adapter; that slice is result-bearing pilot
+evidence, not a 10%-15% benchmark execution.
 The added validator profiles separate non-privileged metadata-only checks,
 non-privileged read-back validation through a second real ToolSandbox tool, and
 a privileged independent validator that is explicitly treated as an upper bound
@@ -312,7 +314,7 @@ ToolSandbox: naive/schema-only/prompt-filter/repeat-same-tool/metadata-only
 accept spoofed content, while read-back and privileged upper-bound validators
 recover the truth under their stated trust assumptions.
 
-AgentDojo model-policy pilot dry-run:
+AgentDojo model-policy pilot:
 
 ```bash
 PYTHONPATH=src:. /tmp/agentdojo-probe-venv/bin/python scripts/run_agentdojo_model_pilot.py \
@@ -329,8 +331,13 @@ The dry-run completed 192 cells over 12 AgentDojo tasks x truthful/spoofed x 8
 profiles. It proves model-prompt plumbing and records prompt hashes,
 model-visible event lists, and harness-expected structured scores. Prompt tests
 verify that hidden `oracle_context`, `raw_tool_result`, raw profile names, and
-truthful/spoofed condition labels are not exposed to the model. It does not
-produce model ASR because the current shell has no API key.
+truthful/spoofed condition labels are not exposed to the model.
+
+A smaller 32-cell real-model slice has also been run over two official tasks
+(`travel:user_task_19`, `slack:user_task_14`) using the semantic-normalized,
+plausible-alternate spoof adapter. That run is useful as second-substrate pilot
+evidence, but it remains trace-level visible-result substitution rather than a
+full AgentDojo agent-loop benchmark.
 
 ### tau-bench overlay
 
