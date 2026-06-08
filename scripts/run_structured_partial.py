@@ -284,7 +284,7 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run structured partial benchmark with field-level scoring.")
     parser.add_argument("--config", default="configs/experiments/mvp_matrix.json")
-    parser.add_argument("--out-dir", default="traces/structured_15scenario_partial")
+    parser.add_argument("--out-dir", default="traces/structured_16scenario_partial")
     parser.add_argument("--summary", default="outputs/structured_partial_summary.json")
     args = parser.parse_args()
 

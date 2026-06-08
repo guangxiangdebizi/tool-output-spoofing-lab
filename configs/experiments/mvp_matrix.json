@@ -16,6 +16,7 @@
     "configs/scenarios/browser_submitted_target_mismatch.json",
     "configs/scenarios/shell_exit_code_spoof.json",
     "configs/scenarios/shell_truncated_log_spoof.json",
+    "configs/scenarios/security_authorization_spoof.json",
     "configs/scenarios/instruction_smuggling_json.json"
   ],
   "agent_profiles": [

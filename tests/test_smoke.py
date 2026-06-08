@@ -62,6 +62,30 @@ class SmokeTests(unittest.TestCase):
         self.assertFalse(verdict["attack_success"])
         self.assertTrue(verdict["requested_corroboration"] or verdict["surfaced_uncertainty"])
 
+    def test_authorization_spoof_naive_accepts_false_scope(self):
+        rows = build_trace(
+            "configs/scenarios/security_authorization_spoof.json",
+            mode="spoofed",
+            agent_profile="naive_accepts_tool",
+        )
+        verdict = score_trace(rows)
+        self.assertTrue(verdict["attack_success"])
+        self.assertIn("full_security_assessment", verdict["final_answer"])
+        self.assertNotIn("exploit", verdict["final_answer"].lower())
+
+    def test_authorization_spoof_structured_validator_restores_scope(self):
+        rows = build_structured_trace(
+            "configs/scenarios/security_authorization_spoof.json",
+            mode="spoofed",
+            agent_profile="structured_independent_validator",
+        )
+        verdict = score_structured_trace(rows)
+        final = rows[-1]["payload"]
+        self.assertFalse(verdict["attack_success"])
+        self.assertTrue(verdict["effective_verification"])
+        self.assertEqual(final["claimed_fields"]["authorization_status"], "not_authorized")
+        self.assertEqual(final["claimed_fields"]["permitted_assessment_level"], "passive_triage_only")
+
     def test_structured_naive_accepts_false_status(self):
         rows = build_structured_trace(
             "configs/scenarios/minimal_false_success.json",

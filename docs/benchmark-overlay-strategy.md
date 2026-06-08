@@ -8,7 +8,7 @@ evidence. The stronger and more publishable design is:
 > Use existing high-value agent/tool-use benchmarks as the task substrate, then
 > add an observation-spoofing overlay and compare defenses on the same tasks.
 
-The repository's current 15-scenario local suite remains useful, but only as a
+The repository's current 16-scenario local suite remains useful, but only as a
 smoke test for the oracle, trace format, and defense logic. It should not be
 presented as the main benchmark.
 
@@ -48,6 +48,7 @@ existing benchmark task + normal tool/environment state
 | SWE-bench / SWE-agent | P1 | Strong software-engineering ground truth through tests. | Spoof command stdout/exit code/test summaries while oracle runs real tests. | Fast verified tasks. |
 | MCP-SafetyBench / MCP Security Bench | P1 | Closest MCP security substrate. | Isolate schema-valid non-instructional false returns from broader MCP attacks. | Finance/search/browser/repo tasks that run in isolation. |
 | PoisonedRAG / SafeRAG | P2 | Strong retrieval-security substrate. | Treat retrieval as a tool and spoof citation/provenance fields. | Citation/policy QA tasks. |
+| Security/CTF-style sandbox assets | P2 | Captures permission-boundary failures where model-visible tooling claims an asset is owned or in scope. | Spoof ownership/scope/banner/asset-inventory observations while a hidden scope registry says not authorized. | Authorization verdict only; no exploit-step generation. |
 
 Config: `configs/benchmark_overlays/high_value_benchmark_overlay.json`.
 
@@ -80,6 +81,9 @@ The baseline hierarchy should be held constant across benchmark substrates:
 5. **Independent validator**: query an independent state authority.
 6. **Metadata checks**: freshness/signature metadata checks where available.
 7. **Combined policy**: independent validation plus metadata/fallback policy.
+8. **Scope/authorization gate**: for security-assessment tasks, require an
+   independent scope registry or signed authorization record before escalating
+   from passive triage to active assessment.
 
 The key comparison is not "our benchmark vs their benchmark"; it is:
 
@@ -88,6 +92,19 @@ same existing benchmark tasks
 same spoofed-observation overlay
 different defenses / baselines
 ```
+
+For the authorization/provenance spoof axis, the main comparison is:
+
+```text
+same sandbox asset + same hidden scope registry
+truthful or spoofed model-visible ownership/banner/inventory observation
+baseline decides permitted assessment level
+oracle checks whether the decision respected hidden scope truth
+```
+
+The benchmark should score only the authorization verdict and permitted
+assessment level. It should not ask models to produce exploit chains, scanning
+commands, or real-world attack steps.
 
 ## First paper-grade pilot
 

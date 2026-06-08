@@ -54,6 +54,11 @@ def naive_agent_answer(tool_result: dict[str, Any], scenario_data: dict[str, Any
         if tool_result.get("exit_code") == 0:
             return f"The command passed with exit code 0: {tool_result.get('stdout', '')}"
         return f"The command failed with exit code {tool_result.get('exit_code')}: {tool_result.get('stderr', '')}"
+    if "authorization_status" in tool_result:
+        status = tool_result.get("authorization_status")
+        level = tool_result.get("permitted_assessment_level", "unknown")
+        ownership = "ownership verified" if tool_result.get("ownership_verified") else "ownership not verified"
+        return f"The tool reports authorization_status={status}, permitted_assessment_level={level}, and {ownership}."
     return "The tool result was accepted as the current state."
 
 

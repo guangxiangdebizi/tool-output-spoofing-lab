@@ -35,7 +35,7 @@ Add our layer for:
 - baseline/defense comparison; and
 - field-level observation-integrity scoring.
 
-The current 15-scenario local suite is a smoke test only. It verifies trace
+The current 16-scenario local suite is a smoke test only. It verifies trace
 schema, oracle logic, and baseline behavior; it is not the final paper
 benchmark.
 
@@ -75,7 +75,7 @@ See `docs/benchmark-overlay-strategy.md` and
 
 ## Completed local smoke/regression pilot as of 2026-06-08
 
-The repository now contains a 15-scenario deterministic local smoke suite. It
+The repository now contains a 16-scenario deterministic local smoke suite. It
 is not the main paper benchmark and should not be counted as paper-grade
 benchmark evidence. Its role is to validate trace schema, oracle logic, and
 baseline behavior before adapting existing benchmark substrates.
@@ -89,23 +89,24 @@ Composition:
 | RAG/search | 3 | forged provenance, warning stripping, fake authority |
 | Browser form | 2 | fake success banner, submitted-target mismatch |
 | Shell/tests | 2 | exit-code spoof, truncated log |
+| Security authorization | 1 | ownership/scope/asset-inventory authorization spoof |
 | Instruction-smuggling control | 1 | embedded imperative text in JSON |
 
 Executed matrix:
 
 ```text
-15 scenarios x 2 modes x 5 deterministic baselines = 150 cells
+16 scenarios x 2 modes x 5 deterministic baselines = 160 cells
 ```
 
 Spoofed ASR in this deterministic slice:
 
 | Baseline | Spoofed ASR |
 | --- | ---: |
-| naive accept | 15 / 15 |
-| schema only | 15 / 15 |
-| prompt filter only | 14 / 15 |
-| provenance/corroboration policy | 0 / 15 |
-| cross-tool verifier | 0 / 15 |
+| naive accept | 16 / 16 |
+| schema only | 16 / 16 |
+| prompt filter only | 15 / 16 |
+| provenance/corroboration policy | 0 / 16 |
+| cross-tool verifier | 0 / 16 |
 
 This validates the benchmark mechanics and baseline separation, especially the
 distinction between instruction-smuggling filters and semantic observation

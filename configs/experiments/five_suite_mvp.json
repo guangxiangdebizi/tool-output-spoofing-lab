@@ -31,6 +31,12 @@
       "attacks": ["exit_code_spoof", "stale_file_read", "false_success"],
       "mvp_scenarios": ["configs/scenarios/shell_exit_code_spoof.json"],
       "priority": "P1"
+    },
+    {
+      "name": "security_authorization",
+      "attacks": ["authorization_provenance_spoof", "ownership_spoof", "scope_registry_mismatch"],
+      "mvp_scenarios": ["configs/scenarios/security_authorization_spoof.json"],
+      "priority": "P0"
     }
   ],
   "agent_profiles": [

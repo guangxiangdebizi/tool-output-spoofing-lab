@@ -10,6 +10,13 @@ observations. This lab studies the failure mode where the tool side returns
 mocked or spoofed data and the agent converts that untrusted observation into
 an incorrect report, decision, or action.
 
+One important axis is authorization/provenance spoofing: a tool may falsely
+report that a sandbox asset is owned, in scope, or backed by nginx/banner,
+certificate, or asset-inventory evidence. The benchmark records whether an
+agent escalates from passive triage to active assessment based on that
+unverified observation. Local scenarios score authorization verdicts only; they
+do not ask models to produce exploit steps.
+
 The intended research question is narrow:
 
 > If the prompt is benign but the tool result is adversarial or fabricated,
@@ -66,7 +73,7 @@ Use Python 3.10+; on this host the default `python` is 3.6, while
 PYTHONPATH=src /usr/bin/python3.11 -m tool_spoof_lab.runner --scenario configs/scenarios/minimal_false_success.json
 PYTHONPATH=src /usr/bin/python3.11 -m tool_spoof_lab.oracle --trace traces/minimal_false_success.spoofed.naive_accepts_tool.trace.jsonl
 PYTHONPATH=src /usr/bin/python3.11 scripts/run_mvp_matrix.py --config configs/experiments/mvp_matrix.json --out-dir traces
-PYTHONPATH=src:. /usr/bin/python3.11 scripts/run_structured_partial.py --config configs/experiments/mvp_matrix.json --out-dir traces/structured_15scenario_partial --summary outputs/structured_partial_summary.json
+PYTHONPATH=src:. /usr/bin/python3.11 scripts/run_structured_partial.py --config configs/experiments/mvp_matrix.json --out-dir traces/structured_16scenario_partial --summary outputs/structured_16scenario_partial_summary.json
 PYTHONPATH=src:. /usr/bin/python3.11 scripts/run_real_toolcall_pilot.py --config configs/experiments/real_toolcall_pilot_small.json --out-dir traces/real_toolcall_pilot_dry --summary outputs/real_toolcall_pilot_dry_summary.json --manifest outputs/real_toolcall_pilot_dry_manifest.json --dry-run --sleep 0
 PYTHONPATH=src:. /usr/bin/python3.11 scripts/run_toolsandbox_overlay_smoke.py --config configs/benchmark_overlays/toolsandbox_overlay_smoke.json --out-dir traces/toolsandbox_overlay_smoke --summary outputs/toolsandbox_overlay_smoke_summary.json
 PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/probe_toolsandbox_real.py --toolsandbox-path /tmp/ToolSandbox --limit 12 --output outputs/toolsandbox_real_manifest.json
