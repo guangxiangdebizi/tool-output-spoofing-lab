@@ -234,6 +234,21 @@ true 10-15% ToolSandbox slice must be stratified separately over categories such
 as single/multi-turn, single/multi-tool, read-only/state mutation,
 distraction/no-distraction, and insufficient-information tasks.
 
+Current scripted bring-up command:
+
+```bash
+PYTHONPATH=src:. /usr/bin/python3.11 scripts/run_toolsandbox_real_bringup.py \
+  --manifest outputs/toolsandbox_real_manifest.json \
+  --out-dir traces/toolsandbox_real_bringup \
+  --summary outputs/toolsandbox_real_bringup_summary.json
+```
+
+This completed 96 cells over real ToolSandbox task IDs and milestone-oracle
+metadata. It is intentionally marked `scripted_oracle_bringup=true`,
+`real_model_run=false`, and `real_execution_interception=false`. It is useful as
+a matrix/provenance check before the executable interception runner, but it is
+not paper-grade ASR evidence.
+
 ## Go/no-go thresholds
 
 Go if literature audit confirms no existing benchmark directly isolates

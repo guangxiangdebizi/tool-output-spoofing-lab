@@ -369,6 +369,43 @@ milestone oracle metadata 来自真实 ToolSandbox benchmark definitions；但�
 attack/defense 结果表，因为模型尚未执行、tool return 尚未被真实拦截。正式 10%-15%
 slice 不能用 12/1032 冒充，必须另做 stratified sampling。
 
+在此 manifest 基础上，本轮又跑了一个 96-cell scripted bring-up：
+
+```bash
+PYTHONPATH=src:. /usr/bin/python3.11 scripts/run_toolsandbox_real_bringup.py \
+  --manifest outputs/toolsandbox_real_manifest.json \
+  --out-dir traces/toolsandbox_real_bringup \
+  --summary outputs/toolsandbox_real_bringup_summary.json
+```
+
+矩阵为：
+
+```text
+12 real ToolSandbox task IDs
+× truthful/spoofed
+× naive / schema-only / repeat-same-tool / independent-validator
+= 96 cells
+```
+
+结果摘要：
+
+```text
+naive spoofed ASR                 = 12/12
+schema-only spoofed ASR           = 12/12
+repeat-same-tool spoofed ASR      = 12/12
+independent-validator spoofed ASR = 0/12
+truthful clean utility            = 12/12 for all four profiles
+```
+
+这个结果只证明 matrix、trace schema、oracle scoring 和同一真实 ToolSandbox task 上
+baseline 对齐可以跑通。它被显式标记为
+`manifest_derived_scripted_bringup=true`、`scripted_oracle_bringup=true`、
+`real_model_run=false`、`real_execution_interception=false`，因此不能作为模型级
+ASR/robustness claim。trace 中的 observation 是 `visible_oracle_projection`，不是
+真实 ToolSandbox tool return；下一步仍必须接 ToolSandbox role/execution 层的真实
+tool-return interception，让 agent-visible observation 被改写，而 execution context /
+milestone evaluator 保持真实。
+
 ## 7. 当前能支持的 claim 和不能支持的 claim
 
 当前本地 smoke/regression 能支持：

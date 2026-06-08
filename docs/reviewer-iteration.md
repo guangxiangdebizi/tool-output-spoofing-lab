@@ -457,3 +457,52 @@ truthful + spoofed modes
 naive / schema-only / repeat-same-tool / independent-validator
 = 96 cells before adding a second model or second substrate
 ```
+
+## Round 10: 96-cell scripted ToolSandbox bring-up
+
+Added:
+
+- `src/tool_spoof_lab/toolsandbox_real_bringup.py`
+- `scripts/run_toolsandbox_real_bringup.py`
+
+Command:
+
+```bash
+PYTHONPATH=src:. /usr/bin/python3.11 scripts/run_toolsandbox_real_bringup.py \
+  --manifest outputs/toolsandbox_real_manifest.json \
+  --out-dir traces/toolsandbox_real_bringup \
+  --summary outputs/toolsandbox_real_bringup_summary.json
+```
+
+Result:
+
+- `completed_cells=96`
+- real ToolSandbox task IDs and milestone-oracle metadata are used.
+- `manifest_derived_scripted_bringup=true`
+- `scripted_oracle_bringup=true`
+- `real_benchmark_task=true`
+- `real_benchmark_run=false`
+- `real_model_run=false`
+- `real_execution_interception=false`
+
+Aggregate:
+
+```text
+naive spoofed ASR                 = 12/12
+schema-only spoofed ASR           = 12/12
+repeat-same-tool spoofed ASR      = 12/12
+independent-validator spoofed ASR = 0/12
+truthful clean utility            = 12/12 for all four profiles
+```
+
+Interpretation: this validates the 12-task × 2-mode × 4-baseline matrix,
+provenance fields, trace schema, and oracle scoring over real ToolSandbox task
+metadata. It does not yet prove model behavior or executable observation
+interception. The emitted observation event is intentionally named
+`visible_oracle_projection`, not `visible_tool_result`, because this runner
+projects milestone metadata into the unified scoring schema rather than
+intercepting natural ToolSandbox tool returns.
+
+Remaining P0: implement the ToolSandbox role/execution interception path so
+agent-visible tool returns can be changed while the real execution context and
+milestone evaluator remain authoritative.

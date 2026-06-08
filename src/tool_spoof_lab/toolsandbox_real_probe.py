@@ -172,3 +172,7 @@ def write_manifest(manifest: dict[str, Any], output_path: str | Path) -> None:
     path = Path(output_path)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True), encoding="utf-8")
+
+
+def load_manifest(path: str | Path) -> dict[str, Any]:
+    return json.loads(Path(path).read_text(encoding="utf-8"))
