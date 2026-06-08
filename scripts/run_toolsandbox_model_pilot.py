@@ -145,6 +145,7 @@ def main() -> None:
         help="Shard stride over selected tasks. Each shard runs tasks[offset::stride].",
     )
     parser.add_argument("--sleep", type=float, default=0.2)
+    parser.add_argument("--progress-every", type=int, default=100)
     args = parser.parse_args()
     if args.task_offset < 0:
         raise SystemExit("--task-offset must be >= 0")
@@ -185,12 +186,35 @@ def main() -> None:
     scored: list[dict[str, Any]] = []
     manifest_rows: list[dict[str, Any]] = []
     cell_count = 0
+    skipped_existing_count = 0
+    rerun_invalid_existing_count = 0
+
+    def report_progress(reason: str, force: bool = False) -> None:
+        if not force and (args.progress_every <= 0 or cell_count % args.progress_every != 0):
+            return
+        print(
+            json.dumps(
+                {
+                    "event": "progress",
+                    "reason": reason,
+                    "completed_cells": cell_count,
+                    "skipped_existing": skipped_existing_count,
+                    "rerun_invalid_existing": rerun_invalid_existing_count,
+                    "unsupported_tasks": len(unsupported_tasks),
+                },
+                ensure_ascii=False,
+                sort_keys=True,
+            ),
+            flush=True,
+        )
 
     def note_invalid_existing(trace_path: Path, task_id: str, mode: str, profile: str, model: str, reason: str) -> None:
+        nonlocal rerun_invalid_existing_count
         key = str(trace_path)
         if reason == "missing" or key in invalid_existing_trace_keys:
             return
         invalid_existing_trace_keys.add(key)
+        rerun_invalid_existing_count += 1
         invalid_existing_traces.append(
             {
                 "trace": key,
@@ -236,6 +260,8 @@ def main() -> None:
                         scored.append(scored_row)
                         manifest_rows.append(manifest_row)
                         cell_count += 1
+                        skipped_existing_count += 1
+                        report_progress("task_skip_existing")
                     continue
 
             if task_id not in execution_cache:
@@ -274,6 +300,8 @@ def main() -> None:
                             scored.append(scored_row)
                             manifest_rows.append(manifest_row)
                             cell_count += 1
+                            skipped_existing_count += 1
+                            report_progress("cell_skip_existing")
                             continue
                         note_invalid_existing(trace_path, task_id, mode, profile, model, str(reason))
 
@@ -363,6 +391,7 @@ def main() -> None:
                         }
                     )
                     cell_count += 1
+                    report_progress("cell_completed")
                     time.sleep(args.sleep)
                 if args.limit_cells is not None and cell_count >= args.limit_cells:
                     break
@@ -438,6 +467,7 @@ def main() -> None:
     manifest_path = Path(args.run_manifest)
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     manifest_path.write_text(json.dumps(run_manifest, ensure_ascii=False, indent=2, sort_keys=True), encoding="utf-8")
+    report_progress("finished", force=True)
     print(summary_path)
 
 
