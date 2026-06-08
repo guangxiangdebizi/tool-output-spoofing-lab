@@ -19,6 +19,15 @@
       "violations": 0
     }
   ],
+  "diagnostics": [
+    {
+      "artifact": "outputs/agentdojo_model_full_stats.json",
+      "name": "AgentDojo full-overlay paired statistics and utility funnel",
+      "role": "reports exact McNemar/binomial sign tests with Holm correction, plus clean-utility and spoofed-security funnel diagnostics",
+      "script": "scripts/analyze_model_full_stats.py",
+      "source_summary": "outputs/agentdojo_model_full_summary.json"
+    }
+  ],
   "index_version": "2026-06-08.agentdojo-full-overlay",
   "pilots": [
     {

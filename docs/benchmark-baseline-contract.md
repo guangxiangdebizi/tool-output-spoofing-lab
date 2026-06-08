@@ -172,6 +172,8 @@ The paper draft should include:
 5. pilot-result table by substrate;
 6. main-experiment plan table with cells and completion status;
 7. limitations table separating completed evidence from planned evidence.
+8. paired statistics table with Wilson intervals, exact paired tests, Holm
+   correction, and utility-funnel diagnosis for every full-overlay substrate.
 
 ## 8. Prompt-leakage and artifact invariants
 
@@ -205,9 +207,11 @@ Not yet CCF-A ready:
 - ToolSandbox full overlay is not yet complete, merged, audited, or
   statistically summarized;
 - AgentDojo full overlay is complete but clean utility is too low for aggregate
-  defense-effectiveness claims;
+  defense-effectiveness claims; paired stats and utility-funnel diagnostics now
+  exist in `outputs/agentdojo_model_full_stats.json`;
 - too few models;
 - AgentDojo clean utility is too low in the current pilot;
 - independent validators must be made deployable or labeled as upper bounds;
 - generator ablations are local-only;
-- no confidence intervals or statistical tests yet.
+- ToolSandbox still lacks confidence intervals and statistical tests until the
+  remote full run is merged.

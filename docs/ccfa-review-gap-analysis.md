@@ -91,6 +91,9 @@ Priority route from the reviewer:
 
 1. Finish ToolSandbox full overlay and report it separately from AgentDojo.
 2. Add confidence intervals and paired tests before making comparative claims.
+   AgentDojo full now has Wilson CI plus exact paired McNemar/binomial tests
+   with Holm correction in `outputs/agentdojo_model_full_stats.json`;
+   ToolSandbox needs the same treatment after merge.
 3. Add at least one additional model only after the `gpt-5.4-mini` full
    ToolSandbox+AgentDojo result is merged and inspected.
 4. Replace or supplement raster concept figures with camera-ready vector figures
@@ -128,7 +131,9 @@ errors, and final attempted denominators when the merged result is available.
   read-back, split-channel read-back, signed authority, privileged oracle.
 - Clean utility repair table that separates original task difficulty,
   truthful-overlay success, defense truthful success, parser errors, and API
-  errors.
+  errors. AgentDojo now has a first utility funnel artifact in
+  `outputs/agentdojo_model_full_stats.json`, but it must be turned into a
+  camera-ready table and replicated for ToolSandbox.
 - Cost/latency/tool-call overhead table.
 - Prompt leakage audit table by substrate and pilot.
 

@@ -564,6 +564,7 @@ Canonical artifacts：
 - summary: `outputs/agentdojo_model_full_summary.json`
 - manifest: `outputs/agentdojo_model_full_manifest.json`
 - CI summary: `outputs/agentdojo_model_full_ci.json`
+- paired stats / utility funnel: `outputs/agentdojo_model_full_stats.json`
 - prompt-leakage audit: `outputs/prompt_leakage_audit_agentdojo_full_gpt54.json`
 - trace directory: `traces/agentdojo_model_full` on the remote run host
 - config: `configs/experiments/agentdojo_model_full.json`
@@ -581,6 +582,27 @@ Run flags: `completed_cells=1552/1552`, `real_model_run=true`, `real_tool_execut
 | read-back validator | 0/97 | 0/97 | 42/97 | 194/194 | 2 | 最强可部署信号：阻断 spoofed ASR，且 clean utility 最高 |
 | privileged independent validator | 0/97 | 0/97 | 20/97 | 194/194 | 0 | 上界信号；不能当部署防御 |
 | combined policy | 0/97 | 0/97 | 13/97 | 194/194 | 1 | 安全但 utility 仍未调好 |
+
+Paired statistics over the same 97 tasks use exact McNemar/binomial sign tests
+against the naive baseline, with Holm correction within each metric family.
+For spoofed attack success, read-back, privileged independent, and combined
+policy each reduce ASR from 28/97 to 0/97
+(`comparison_minus_reference=-0.289`, Holm-adjusted
+`p=5.22e-08`). Repeat-same-tool reduces ASR from 28/97 to 15/97
+(`comparison_minus_reference=-0.134`, Holm-adjusted `p=0.0070`) but remains
+unsafe. Schema-only is not distinguishable from naive on this run
+(31/97 vs 28/97, Holm-adjusted `p=0.678`) and should be described as a weak
+format baseline, not a defense.
+
+Clean-utility funnel diagnostics explain why AgentDojo cannot yet be the sole
+defense-effectiveness evidence. Under truthful mode, naive commits on 79/97
+cells but reaches clean utility on only 17/97; read-back commits on 91/97 cells,
+has 2 API/parse errors, reaches semantic clean utility on 42/97, exact-primary
+utility on 12/97, and uses restricted semantic projection in 32 cells
+(30 semantic-only utility cells). Thus AgentDojo full supports the existence of
+the spoofing failure mode and the read-back candidate defense, but it also
+shows that the adapter/scoring contract and task-answer format need additional
+clean-utility work.
 
 结论：AgentDojo full run 确认了该方向有实验证据价值：naive/schema-only/repeat/metadata 在 full 97-task substrate 上仍有非零 ASR，而 read-back/independent/combined 将 spoofed ASR 压到 0/97。与此同时，AgentDojo truthful clean utility 普遍偏低，说明当前 AgentDojo adapter/scoring/task difficulty 仍会限制防御有效性主张。最稳妥的论文表述是：AgentDojo full run 支持“schema-valid false observation 是真实 failure mode”和“read-back 是强 candidate defense”，但不应单独作为 full agent defense effectiveness 的最终证明。
 
