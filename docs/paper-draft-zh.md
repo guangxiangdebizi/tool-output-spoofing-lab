@@ -135,6 +135,15 @@ U_i = \mathbb{1}\left[m_i=\mathrm{truthful}\land d_i \text{ commits to the truth
 
 纯自建场景容易被审稿人质疑为 toy distribution：任务太短、工具接口过于人为、oracle 太简单、结果难与已有研究比较。因此本文采用 overlay 策略：已有 benchmark 提供任务、工具、状态和 oracle；本文只提供观察平面的 truthful/spoofed 变换、防御基线和评测指标。
 
+![Figure 10: end-to-end harness dataflow](../figures/figure10_end_to_end_harness_dataflow.svg)
+
+**图 10：End-to-end observation-spoofing overlay harness。** 该 camera-ready
+SVG 明确区分 official benchmark、真实执行、oracle-only hidden plane、
+model-visible overlay、defense profile、model decision 和 offline scoring。
+红色虚线区域只供离线评分使用，不进入模型 prompt；蓝色虚线区域才是模型可见
+输入。该图用于回应审稿人关于“到底复用了 benchmark 哪些部分、拦截点在哪里”
+的可审计性问题。
+
 ![Figure 2: benchmark and baseline matrix](../figures/figure2_benchmark_baseline_matrix.png)
 
 **图 2：Benchmark/baseline 矩阵。** 主实验以现有 benchmark substrate 为行，以防御基线和 observation generator 为列，形成 paired truthful/spoofed 比较。
@@ -311,6 +320,16 @@ Read-back baseline 的部署假设是 split-channel：攻击者可以伪造 prim
 
 所有比例默认以 attempted cells 为分母。API error 被转换为 uncertainty stub 并单列报告；它不会被解释为成功拒绝，在 truthful 条件下也不计入 clean utility。
 
+![Figure 11: scoring projection boundary](../figures/figure11_scoring_projection_boundary.svg)
+
+**图 11：Scoring pipeline and restricted read-back projection boundary。** 该
+camera-ready SVG 预注册 exact-primary 与 restricted read-back projection 的
+边界：exact-primary 要求模型 claim 与 primary truthful result 字段形状一致；
+restricted projection 只允许 whole object、`value/text/wifi_enabled` 或
+`records[*]` 中预声明键。Projection scoring 只修正 truthful read-back utility，
+不改变 spoofed ASR；hidden oracle、raw result 和 ground-truth plan 不能进入模型
+prompt 或 projection scoring。
+
 更形式化地，令 benchmark cell 集合为 \(C\)，其中每个 cell \(i\) 有 mode \(m_i \in \{\mathrm{truthful}, \mathrm{spoofed}\}\)、profile \(p_i\)、模型结构化输出 \(o_i\)、隐藏真值 \(h_i\) 和评测函数 \(S(o_i,h_i)\)。设 \(A_i=1\) 表示模型在 spoofed 条件下接受了虚假状态或错误授权，\(U_i=1\) 表示模型在 truthful 条件下完成任务或返回正确状态，\(V_i=1\) 表示验证步骤有效改变或确认了结论，则：
 
 \[
@@ -362,6 +381,15 @@ Read-back baseline 的部署假设是 split-channel：攻击者可以伪造 prim
 | Authorization/provenance pilot | 12 cells | local verdict-level security axis | 验证用户关心的授权伪造机制 | sanity pilot |
 | Optimized observation pilot | 6 cells | local authorization generator | 验证 mock optimizer 轴 | generator sanity pilot |
 | Authorization control slice | 20 cells | local evidence ladder controls | 验证弱证据不应被过度解释 | control pilot |
+
+![Figure 12: experiment completion heatmap](../figures/figure12_experiment_completion_heatmap.svg)
+
+**图 12：Experiment matrix completion heatmap。** 该 camera-ready SVG 把
+substrate × evidence gate 的完成状态可视化：AgentDojo full overlay、full
+leakage audit、CI 和 paired stats 已完成；ToolSandbox full overlay 正在运行，
+完成后 monitor 会自动生成 merge/CI/audit/stats；multi-model 与 autonomous-loop
+仍是 CCF-A full-paper claim 前的缺口。该图防止把 pilot、running full run 和
+planned work 混写成同一级证据。
 
 ### 8.2 主实验计划
 

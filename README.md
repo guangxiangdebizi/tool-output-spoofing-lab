@@ -23,6 +23,9 @@ Additional paper figures are available in:
 - `figures/figure7_observation_spoofing_overlay.png`
 - `figures/figure8_validator_independence_graph.png`
 - `figures/figure9_pilot_vs_agent_loop_gap.png`
+- `figures/figure10_end_to_end_harness_dataflow.svg`
+- `figures/figure11_scoring_projection_boundary.svg`
+- `figures/figure12_experiment_completion_heatmap.svg`
 
 One important axis is authorization/provenance spoofing: a tool may falsely
 report that a sandbox asset is owned, in scope, or backed by nginx/banner,

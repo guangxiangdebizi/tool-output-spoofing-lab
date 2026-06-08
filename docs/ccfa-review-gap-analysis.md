@@ -64,13 +64,13 @@ not a claim that the listed gaps are solved.
 
 | Figure | Purpose |
 | --- | --- |
-| End-to-end evaluation harness dataflow | Show benchmark task, real execution, hidden truth, overlay, model-visible trace, model decision, and oracle scoring. Partially covered by Figure 7/9; still needs a camera-ready deterministic vector version. |
+| End-to-end evaluation harness dataflow | Covered by `figures/figure10_end_to_end_harness_dataflow.svg`; keep this as the camera-ready deterministic vector version. |
 | Current pilot vs full agent-loop gap | Covered by `figures/figure9_pilot_vs_agent_loop_gap.png`; should be redrawn as vector before final submission if image text artifacts remain. |
 | Validator independence graph | Covered by `figures/figure8_validator_independence_graph.png`; should be redrawn as vector before final submission if image text artifacts remain. |
 | Per-substrate overlay instantiation | Show which parts are implemented for ToolSandbox/AgentDojo and which remain planned for tau/Web/SWE/RAG. |
-| Scoring pipeline and projection boundary | Pre-register exact-primary vs restricted read-back projection and show forbidden paths. |
+| Scoring pipeline and projection boundary | Covered by `figures/figure11_scoring_projection_boundary.svg`; still need to keep the scoring contract frozen before final multi-model runs. |
 | Defense policy lattice | Order baselines by evidence strength, deployability, hidden access, and cost. |
-| Experimental matrix completion heatmap | Mark done pilot, running, planned, and missing cells across substrates, models, baselines, and generators. |
+| Experimental matrix completion heatmap | Covered by `figures/figure12_experiment_completion_heatmap.svg`; update the ToolSandbox status after the remote run finishes. |
 
 ## Latest strict reviewer update
 

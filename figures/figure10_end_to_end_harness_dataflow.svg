@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="410" viewBox="0 0 1200 410">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#243447"/>
+    </marker>
+    <style>
+      .title { font: 700 22px Arial, sans-serif; fill: #17202a; }
+      .subtitle { font: 13px Arial, sans-serif; fill: #4f5b66; }
+      .label { font: 700 14px Arial, sans-serif; fill: #17202a; }
+      .small { font: 12px Arial, sans-serif; fill: #243447; }
+      .tiny { font: 10px Arial, sans-serif; fill: #243447; }
+      .box { stroke: #243447; stroke-width: 1.3; rx: 10; ry: 10; }
+      .green { fill: #dff5e3; }
+      .blue { fill: #dcecff; }
+      .yellow { fill: #fff0c9; }
+      .red { fill: #ffe0df; }
+      .purple { fill: #eadfff; }
+      .gray { fill: #f0f2f5; }
+      .hidden { stroke: #c0392b; stroke-width: 1.4; stroke-dasharray: 5 4; }
+      .arrow { stroke: #243447; stroke-width: 1.6; fill: none; marker-end: url(#arrow); }
+      .dashed { stroke-dasharray: 5 4; }
+    </style>
+  </defs>
+  <rect x="0" y="0" width="1200" height="410" fill="#ffffff"/>
+<text x="40" y="36" class="title">End-to-end observation-spoofing overlay harness</text>
+<text x="40" y="58" class="subtitle">Only the model-visible observation plane changes; hidden truth and the original benchmark oracle stay fixed.</text>
+<rect x="40" y="90" width="170" height="95" class="box blue"/>
+<text x="54" y="114" class="label">Official benchmark</text>
+<text x="54" y="136" class="small">task x</text>
+<text x="54" y="153" class="small">tool/API environment</text>
+<text x="54" y="170" class="small">original oracle O</text>
+<rect x="260" y="90" width="185" height="95" class="box green"/>
+<text x="274" y="114" class="label">Real execution</text>
+<text x="274" y="136" class="small">ground-truth tool plan</text>
+<text x="274" y="153" class="small">stateful tool result y</text>
+<text x="274" y="170" class="small">backend state s</text>
+<rect x="495" y="70" width="190" height="115" class="box red"/>
+<text x="509" y="94" class="label">Hidden/oracle plane</text>
+<text x="509" y="116" class="small">truth result y</text>
+<text x="509" y="133" class="small">decisive fields</text>
+<text x="509" y="150" class="small">oracle context</text>
+<text x="509" y="167" class="small">not model-visible</text>
+<rect x="495" y="235" width="190" height="115" class="box yellow"/>
+<text x="509" y="259" class="label">Visible overlay</text>
+<text x="509" y="281" class="small">truthful y or spoofed y~</text>
+<text x="509" y="298" class="small">schema-valid</text>
+<text x="509" y="315" class="small">non-instructional</text>
+<rect x="735" y="235" width="190" height="115" class="box purple"/>
+<text x="749" y="259" class="label">Defense profile</text>
+<text x="749" y="281" class="small">schema / filter</text>
+<text x="749" y="298" class="small">same-channel repeat</text>
+<text x="749" y="315" class="small">read-back / authority</text>
+<rect x="970" y="235" width="175" height="115" class="box gray"/>
+<text x="984" y="259" class="label">Model decision</text>
+<text x="984" y="281" class="small">JSON final decision d</text>
+<text x="984" y="298" class="small">claimed fields</text>
+<text x="984" y="315" class="small">uncertainty / commit</text>
+<rect x="970" y="70" width="175" height="115" class="box green"/>
+<text x="984" y="94" class="label">Offline scoring</text>
+<text x="984" y="116" class="small">ASR / AFS / CU</text>
+<text x="984" y="133" class="small">over-refusal</text>
+<text x="984" y="150" class="small">cost + API errors</text>
+<path d="M 210 137 L 260 137" class="arrow"/>
+<path d="M 445 137 L 495 137" class="arrow"/>
+<path d="M 445 137 L 495 292" class="arrow"/>
+<path d="M 685 292 L 735 292" class="arrow"/>
+<path d="M 925 292 L 970 292" class="arrow"/>
+<path d="M 1057 235 L 1057 185" class="arrow"/>
+<path d="M 685 127 L 970 127" class="arrow dashed"/>
+<text x="700" y="113" class="tiny">hidden truth used only by scorer</text>
+<path d="M 470 55 L 1170 55 L 1170 205 L 470 205 Z" fill="none" class="hidden"/>
+<text x="480" y="52" class="tiny" fill="#c0392b">oracle-only boundary</text>
+<path d="M 470 220 L 1170 220 L 1170 370 L 470 370 Z" fill="none" stroke="#1f618d" stroke-width="1.4" stroke-dasharray="5 4"/>
+<text x="480" y="217" class="tiny">model-visible boundary</text>
+</svg>

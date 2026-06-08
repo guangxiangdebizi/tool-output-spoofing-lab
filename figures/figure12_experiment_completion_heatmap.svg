@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="455" viewBox="0 0 1000 455">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#243447"/>
+    </marker>
+    <style>
+      .title { font: 700 22px Arial, sans-serif; fill: #17202a; }
+      .subtitle { font: 13px Arial, sans-serif; fill: #4f5b66; }
+      .label { font: 700 14px Arial, sans-serif; fill: #17202a; }
+      .small { font: 12px Arial, sans-serif; fill: #243447; }
+      .tiny { font: 10px Arial, sans-serif; fill: #243447; }
+      .box { stroke: #243447; stroke-width: 1.3; rx: 10; ry: 10; }
+      .green { fill: #dff5e3; }
+      .blue { fill: #dcecff; }
+      .yellow { fill: #fff0c9; }
+      .red { fill: #ffe0df; }
+      .purple { fill: #eadfff; }
+      .gray { fill: #f0f2f5; }
+      .hidden { stroke: #c0392b; stroke-width: 1.4; stroke-dasharray: 5 4; }
+      .arrow { stroke: #243447; stroke-width: 1.6; fill: none; marker-end: url(#arrow); }
+      .dashed { stroke-dasharray: 5 4; }
+    </style>
+  </defs>
+  <rect x="0" y="0" width="1000" height="455" fill="#ffffff"/>
+<text x="40" y="36" class="title">Experiment matrix completion heatmap</text>
+<text x="40" y="58" class="subtitle">Status snapshot for the first-model gpt-5.4-mini matrix; ToolSandbox full run was 6272/12384 cells at 2026-06-09 00:10 CST.</text>
+<text x="234" y="84" text-anchor="middle" class="label">real exec</text>
+<text x="364" y="84" text-anchor="middle" class="label">full overlay</text>
+<text x="494" y="84" text-anchor="middle" class="label">leakage audit</text>
+<text x="624" y="84" text-anchor="middle" class="label">CI + paired</text>
+<text x="754" y="84" text-anchor="middle" class="label">multi-model</text>
+<text x="884" y="84" text-anchor="middle" class="label">autonomous</text>
+<text x="45" y="122" class="label">AgentDojo</text>
+<rect x="175" y="95" width="118" height="44" rx="7" ry="7" fill="#dff5e3" stroke="#d0d7de"/><text x="234" y="122" text-anchor="middle" class="tiny">done</text>
+<rect x="305" y="95" width="118" height="44" rx="7" ry="7" fill="#dff5e3" stroke="#d0d7de"/><text x="364" y="122" text-anchor="middle" class="tiny">1552 done</text>
+<rect x="435" y="95" width="118" height="44" rx="7" ry="7" fill="#dff5e3" stroke="#d0d7de"/><text x="494" y="122" text-anchor="middle" class="tiny">done</text>
+<rect x="565" y="95" width="118" height="44" rx="7" ry="7" fill="#dff5e3" stroke="#d0d7de"/><text x="624" y="122" text-anchor="middle" class="tiny">done</text>
+<rect x="695" y="95" width="118" height="44" rx="7" ry="7" fill="#ffe0df" stroke="#d0d7de"/><text x="754" y="122" text-anchor="middle" class="tiny">missing</text>
+<rect x="825" y="95" width="118" height="44" rx="7" ry="7" fill="#ffe0df" stroke="#d0d7de"/><text x="884" y="122" text-anchor="middle" class="tiny">no</text>
+<text x="45" y="184" class="label">ToolSandbox</text>
+<rect x="175" y="157" width="118" height="44" rx="7" ry="7" fill="#dff5e3" stroke="#d0d7de"/><text x="234" y="184" text-anchor="middle" class="tiny">done</text>
+<rect x="305" y="157" width="118" height="44" rx="7" ry="7" fill="#fff0c9" stroke="#d0d7de"/><text x="364" y="184" text-anchor="middle" class="tiny">running</text>
+<rect x="435" y="157" width="118" height="44" rx="7" ry="7" fill="#fff0c9" stroke="#d0d7de"/><text x="494" y="184" text-anchor="middle" class="tiny">pending</text>
+<rect x="565" y="157" width="118" height="44" rx="7" ry="7" fill="#fff0c9" stroke="#d0d7de"/><text x="624" y="184" text-anchor="middle" class="tiny">pending</text>
+<rect x="695" y="157" width="118" height="44" rx="7" ry="7" fill="#ffe0df" stroke="#d0d7de"/><text x="754" y="184" text-anchor="middle" class="tiny">missing</text>
+<rect x="825" y="157" width="118" height="44" rx="7" ry="7" fill="#ffe0df" stroke="#d0d7de"/><text x="884" y="184" text-anchor="middle" class="tiny">no</text>
+<text x="45" y="246" class="label">Local surfaces</text>
+<rect x="175" y="219" width="118" height="44" rx="7" ry="7" fill="#dff5e3" stroke="#d0d7de"/><text x="234" y="246" text-anchor="middle" class="tiny">done</text>
+<rect x="305" y="219" width="118" height="44" rx="7" ry="7" fill="#e8f1ff" stroke="#d0d7de"/><text x="364" y="246" text-anchor="middle" class="tiny">pilot</text>
+<rect x="435" y="219" width="118" height="44" rx="7" ry="7" fill="#dff5e3" stroke="#d0d7de"/><text x="494" y="246" text-anchor="middle" class="tiny">done</text>
+<rect x="565" y="219" width="118" height="44" rx="7" ry="7" fill="#e8f1ff" stroke="#d0d7de"/><text x="624" y="246" text-anchor="middle" class="tiny">pilot only</text>
+<rect x="695" y="219" width="118" height="44" rx="7" ry="7" fill="#ffe0df" stroke="#d0d7de"/><text x="754" y="246" text-anchor="middle" class="tiny">missing</text>
+<rect x="825" y="219" width="118" height="44" rx="7" ry="7" fill="#ffe0df" stroke="#d0d7de"/><text x="884" y="246" text-anchor="middle" class="tiny">no</text>
+<text x="45" y="308" class="label">Authorization</text>
+<rect x="175" y="281" width="118" height="44" rx="7" ry="7" fill="#dff5e3" stroke="#d0d7de"/><text x="234" y="308" text-anchor="middle" class="tiny">done</text>
+<rect x="305" y="281" width="118" height="44" rx="7" ry="7" fill="#e8f1ff" stroke="#d0d7de"/><text x="364" y="308" text-anchor="middle" class="tiny">pilot</text>
+<rect x="435" y="281" width="118" height="44" rx="7" ry="7" fill="#e8f1ff" stroke="#d0d7de"/><text x="494" y="308" text-anchor="middle" class="tiny">prompt ok</text>
+<rect x="565" y="281" width="118" height="44" rx="7" ry="7" fill="#e8f1ff" stroke="#d0d7de"/><text x="624" y="308" text-anchor="middle" class="tiny">pilot only</text>
+<rect x="695" y="281" width="118" height="44" rx="7" ry="7" fill="#ffe0df" stroke="#d0d7de"/><text x="754" y="308" text-anchor="middle" class="tiny">missing</text>
+<rect x="825" y="281" width="118" height="44" rx="7" ry="7" fill="#ffe0df" stroke="#d0d7de"/><text x="884" y="308" text-anchor="middle" class="tiny">no</text>
+<text x="45" y="370" class="label">tau/Web/SWE/RAG</text>
+<rect x="175" y="343" width="118" height="44" rx="7" ry="7" fill="#f0f2f5" stroke="#d0d7de"/><text x="234" y="370" text-anchor="middle" class="tiny">design</text>
+<rect x="305" y="343" width="118" height="44" rx="7" ry="7" fill="#f0f2f5" stroke="#d0d7de"/><text x="364" y="370" text-anchor="middle" class="tiny">planned</text>
+<rect x="435" y="343" width="118" height="44" rx="7" ry="7" fill="#f0f2f5" stroke="#d0d7de"/><text x="494" y="370" text-anchor="middle" class="tiny">planned</text>
+<rect x="565" y="343" width="118" height="44" rx="7" ry="7" fill="#f0f2f5" stroke="#d0d7de"/><text x="624" y="370" text-anchor="middle" class="tiny">planned</text>
+<rect x="695" y="343" width="118" height="44" rx="7" ry="7" fill="#ffe0df" stroke="#d0d7de"/><text x="754" y="370" text-anchor="middle" class="tiny">missing</text>
+<rect x="825" y="343" width="118" height="44" rx="7" ry="7" fill="#ffe0df" stroke="#d0d7de"/><text x="884" y="370" text-anchor="middle" class="tiny">no</text>
+<rect x="45" y="415" width="18" height="18" fill="#dff5e3" stroke="#d0d7de"/><text x="72" y="429" class="small">completed full/canonical artifact</text>
+<rect x="300" y="415" width="18" height="18" fill="#fff0c9" stroke="#d0d7de"/><text x="327" y="429" class="small">running or pending after run completion</text>
+<rect x="600" y="415" width="18" height="18" fill="#e8f1ff" stroke="#d0d7de"/><text x="627" y="429" class="small">pilot / partial evidence</text>
+<rect x="830" y="415" width="18" height="18" fill="#ffe0df" stroke="#d0d7de"/><text x="857" y="429" class="small">missing for CCF-A full-paper claim</text>
+</svg>
