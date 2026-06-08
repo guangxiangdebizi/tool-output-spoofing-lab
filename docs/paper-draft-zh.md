@@ -156,10 +156,12 @@ PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/probe_toolsandbo
   --output outputs/toolsandbox_real_manifest.json
 ```
 
-当前环境还没有安装真实 ToolSandbox package，所以这一步只验证 adapter contract：
-ToolSandbox-shaped fixture 的 hidden state / milestone oracle / spoofed
-observation / independent validator 能被转换成统一 trace schema。下一步要接真实
-ToolSandbox tasks。
+当前仓库没有把 ToolSandbox vendor 成项目依赖；早期 adapter-contract smoke 只使用
+ToolSandbox-shaped fixture，后续真实 manifest/execution smoke 则通过
+`--toolsandbox-path /tmp/ToolSandbox` 和隔离环境 `/tmp/toolsandbox-probe-venv`
+导入 Apple ToolSandbox 源码运行。因此这一段命令分成两类：fixture adapter contract
+用于验证统一 trace schema，real probe/execution smoke 用于验证真实 ToolSandbox task
+metadata 和真实工具执行边界。
 
 ## 5. Baseline 设计
 
@@ -405,6 +407,44 @@ ASR/robustness claim。trace 中的 observation 是 `visible_oracle_projection`�
 真实 ToolSandbox tool return；下一步仍必须接 ToolSandbox role/execution 层的真实
 tool-return interception，让 agent-visible observation 被改写，而 execution context /
 milestone evaluator 保持真实。
+
+随后又实现并运行了一个真实 ToolSandbox tool-execution smoke：
+
+```bash
+PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/run_toolsandbox_execution_smoke.py \
+  --manifest outputs/toolsandbox_real_manifest.json \
+  --toolsandbox-path /tmp/ToolSandbox \
+  --out-dir traces/toolsandbox_execution_smoke \
+  --summary outputs/toolsandbox_execution_smoke_summary.json \
+  --limit-tasks 12
+```
+
+这一步不再只是 milestone metadata projection，而是对 12 个真实 ToolSandbox tasks
+各执行一个真实工具调用，通过 ToolSandbox `ExecutionEnvironment` 得到 raw result 和
+`tool_trace`，再在 trace 层比较 truthful vs spoofed agent-visible return：
+
+```text
+executed_tasks = 12
+completed_cells = 96
+missing_tool_trace = 0
+tool_call_exception = 0
+real_tool_execution = true
+real_execution_interception = true
+trace_level_visible_result_substitution = true
+full_agent_loop_interception = false
+scripted_agent = true
+full_scenario_run = false
+real_model_run = false
+real_benchmark_run = false
+```
+
+这个 smoke 已经证明“真实 ToolSandbox 工具返回 -> agent-visible observation 可被改写
+-> hidden raw result / tool_trace 保持可审计”的边界能跑通。但它仍不是论文主实验：
+工具调用由脚本指定，不是模型 agent 自主选择；也没有跑完整 ToolSandbox scenario
+conversation。这里的 `real_execution_interception=true` 精确定义为
+trace-level visible-result substitution after real ToolSandbox tool execution，不是
+full agent-loop interception；因此同时标记 `full_agent_loop_interception=false`。
+下一步 P0 是把同一 interception boundary 接入真实 agent/model policy。
 
 ## 7. 当前能支持的 claim 和不能支持的 claim
 

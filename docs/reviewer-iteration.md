@@ -506,3 +506,51 @@ intercepting natural ToolSandbox tool returns.
 Remaining P0: implement the ToolSandbox role/execution interception path so
 agent-visible tool returns can be changed while the real execution context and
 milestone evaluator remain authoritative.
+
+## Round 11: Real ToolSandbox tool-execution interception smoke
+
+Added:
+
+- `src/tool_spoof_lab/toolsandbox_execution_smoke.py`
+- `scripts/run_toolsandbox_execution_smoke.py`
+
+Command:
+
+```bash
+PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/run_toolsandbox_execution_smoke.py \
+  --manifest outputs/toolsandbox_real_manifest.json \
+  --toolsandbox-path /tmp/ToolSandbox \
+  --out-dir traces/toolsandbox_execution_smoke \
+  --summary outputs/toolsandbox_execution_smoke_summary.json \
+  --limit-tasks 12
+```
+
+Result:
+
+- `executed_tasks=12`
+- `completed_cells=96`
+- `missing_tool_trace=0`
+- `tool_call_exception=0`
+- `real_tool_execution=true`
+- `real_execution_interception=true`
+- `trace_level_visible_result_substitution=true`
+- `full_agent_loop_interception=false`
+- `scripted_agent=true`
+- `full_scenario_run=false`
+- `real_model_run=false`
+- `real_benchmark_run=false`
+
+This is the first run that executes real ToolSandbox tools through
+`ExecutionEnvironment` and records raw `tool_trace` / raw result before
+constructing truthful or spoofed agent-visible observations. It is stronger than
+the metadata bring-up, but it is still not model evidence because tool calls are
+scripted and the full scenario conversation is not run.
+
+Reviewer precision note: `real_execution_interception=true` in this smoke means
+trace-level visible-result substitution after real ToolSandbox tool execution.
+It does not mean full in-process agent-loop interception, so the summary also
+records `full_agent_loop_interception=false`.
+
+Remaining P0: replace the scripted tool-call plan with a real model/agent policy
+over the same interception boundary, then run the 12-task × 2-mode × 4-baseline
+pilot as a true model-agent experiment.

@@ -71,6 +71,7 @@ PYTHONPATH=src:. /usr/bin/python3.11 scripts/run_real_toolcall_pilot.py --config
 PYTHONPATH=src:. /usr/bin/python3.11 scripts/run_toolsandbox_overlay_smoke.py --config configs/benchmark_overlays/toolsandbox_overlay_smoke.json --out-dir traces/toolsandbox_overlay_smoke --summary outputs/toolsandbox_overlay_smoke_summary.json
 PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/probe_toolsandbox_real.py --toolsandbox-path /tmp/ToolSandbox --limit 12 --output outputs/toolsandbox_real_manifest.json
 PYTHONPATH=src:. /usr/bin/python3.11 scripts/run_toolsandbox_real_bringup.py --manifest outputs/toolsandbox_real_manifest.json --out-dir traces/toolsandbox_real_bringup --summary outputs/toolsandbox_real_bringup_summary.json
+PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/run_toolsandbox_execution_smoke.py --manifest outputs/toolsandbox_real_manifest.json --toolsandbox-path /tmp/ToolSandbox --out-dir traces/toolsandbox_execution_smoke --summary outputs/toolsandbox_execution_smoke_summary.json --limit-tasks 12
 PYTHONPATH=src:. /usr/bin/python3.11 -m unittest discover -s tests -v
 ```
 

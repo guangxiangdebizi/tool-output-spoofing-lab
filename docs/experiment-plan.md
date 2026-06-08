@@ -249,6 +249,29 @@ metadata. It is intentionally marked `scripted_oracle_bringup=true`,
 a matrix/provenance check before the executable interception runner, but it is
 not paper-grade ASR evidence.
 
+Current real ToolSandbox tool-execution smoke:
+
+```bash
+PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/run_toolsandbox_execution_smoke.py \
+  --manifest outputs/toolsandbox_real_manifest.json \
+  --toolsandbox-path /tmp/ToolSandbox \
+  --out-dir traces/toolsandbox_execution_smoke \
+  --summary outputs/toolsandbox_execution_smoke_summary.json \
+  --limit-tasks 12
+```
+
+This executes one real ToolSandbox tool call per selected task through
+`ExecutionEnvironment`, records raw `tool_trace` / raw result, and then tests
+truthful vs spoofed agent-visible return handling. It completed 12 tasks and 96
+cells with `real_tool_execution=true` and `real_execution_interception=true`.
+It is still marked `scripted_agent=true`, `full_scenario_run=false`, and
+`real_model_run=false`. Here `real_execution_interception=true` means
+trace-level visible-result substitution after real ToolSandbox tool execution,
+not full agent-loop interception; therefore the smoke also records
+`full_agent_loop_interception=false`. The next P0 is replacing the scripted
+tool-call plan with a model/agent policy while preserving the same interception
+boundary.
+
 ## Go/no-go thresholds
 
 Go if literature audit confirms no existing benchmark directly isolates

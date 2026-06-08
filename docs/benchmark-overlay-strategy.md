@@ -169,9 +169,11 @@ PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/probe_toolsandbo
   --output outputs/toolsandbox_real_manifest.json
 ```
 
-The current execution environment does not have the ToolSandbox package
-installed, so this scaffold uses ToolSandbox-shaped fixtures. The next step is
-to replace fixtures with real ToolSandbox tasks and state snapshots. To prevent
+The repository still does not vendor ToolSandbox as a project dependency. The
+fixture scaffold uses ToolSandbox-shaped fixtures, while the later real probes
+use a cloned `/tmp/ToolSandbox` source tree through `--toolsandbox-path` and an
+isolated `/tmp/toolsandbox-probe-venv`. The next step is to replace trace-level
+smokes with full agent-loop interception. To prevent
 fixture smoke traces from contaminating paper-grade result aggregation, every
 row emitted by the current scaffold is marked with `adapter_contract=true`,
 `fixture=true`, and `real_benchmark_run=false`; real ToolSandbox runs must flip
