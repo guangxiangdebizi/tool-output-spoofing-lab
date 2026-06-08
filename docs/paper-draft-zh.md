@@ -12,7 +12,7 @@
 
 我们把这个问题定义为 **tool-output spoofing**，并设计一个 observation-spoofing overlay：主实验不应主要依赖自建 toy benchmark，而应基于已有高价值 agent/tool-use benchmark，例如 AgentDojo、ToolSandbox、tau-bench、WebArena/WorkArena、SWE-bench、MCP-SafetyBench / MCP Security Bench。已有 benchmark 提供任务分布、环境状态和 utility/security oracle；我们的 overlay 只改变 agent 可见的 observation plane，并在同一批 benchmark tasks 上比较不同 defense baseline。
 
-当前仓库里的 15 个本地场景只作为 local smoke/regression suite，用来验证 trace schema、oracle、baseline 和 harness；它不计为论文主 benchmark 证据，也不用于支撑核心 empirical claim。当前真正的主实验表应留给 ToolSandbox / AgentDojo / tau-bench 等现有 benchmark overlay pilot。现阶段本地 suite 只证明实现链路可跑：schema validation、prompt filtering、repeat-same-tool、metadata-only validator、read-back validator、privileged independent-validator upper bound、combined policy 等 baseline 可以在同一任务上被成对比较。本轮新增了 ToolSandbox-specific model-policy pilot runner：它先执行真实 ToolSandbox 工具，再构造 truthful/spoofed model-visible observation，并生成 144-cell dry-run manifest。但当前 shell 仍缺少 `NEWAPI_API_KEY`，所以它还不是 result-bearing real-model run；30-45 paired scenario multi-model pilot 仍未完成。
+当前仓库里的 15 个本地场景只作为 local smoke/regression suite，用来验证 trace schema、oracle、baseline 和 harness；它不计为论文主 benchmark 证据，也不用于支撑核心 empirical claim。当前真正的主实验表应留给 ToolSandbox / AgentDojo / tau-bench 等现有 benchmark overlay pilot。现阶段本地 suite 只证明实现链路可跑：schema validation、prompt filtering、repeat-same-tool、metadata-only validator、read-back validator、privileged independent-validator upper bound、combined policy 等 baseline 可以在同一任务上被成对比较。本轮新增了 ToolSandbox-specific model-policy pilot runner：它先执行真实 ToolSandbox 工具，再构造 truthful/spoofed model-visible observation，并生成 144-cell dry-run manifest；同时新增 AgentDojo v1.2.2 真实 substrate manifest probe，生成 12/97 的 10%-15% stratified manifest，作为第二个现有 benchmark 的采样设计。但当前 shell 仍缺少 `NEWAPI_API_KEY`，所以这些还不是 result-bearing real-model run；30-45 paired scenario multi-model pilot 仍未完成。
 
 ## 1. 问题定义
 
@@ -162,6 +162,24 @@ ToolSandbox-shaped fixture，后续真实 manifest/execution smoke 则通过
 导入 Apple ToolSandbox 源码运行。因此这一段命令分成两类：fixture adapter contract
 用于验证统一 trace schema，real probe/execution smoke 用于验证真实 ToolSandbox task
 metadata 和真实工具执行边界。
+
+真实 AgentDojo manifest probe：
+
+```bash
+PYTHONPATH=src:. /tmp/agentdojo-probe-venv/bin/python scripts/probe_agentdojo_real.py \
+  --agentdojo-path /tmp/AgentDojo \
+  --benchmark-version v1.2.2 \
+  --limit 12 \
+  --stratified \
+  --output outputs/agentdojo_real_manifest.json
+```
+
+当前 probe 在 AgentDojo v1.2.2 的 workspace、travel、banking、slack 四个官方 suite
+中枚举到 97 个 user tasks，并生成 12/97 的 stratified manifest
+(`selected_fraction=0.1237`)。selected slice 的 difficulty 是 4 easy / 4 medium /
+4 hard，ground-truth plan 包含 9 个 mutating tasks 和 3 个 read-only tasks。它解决的是
+benchmark 设计层面的“第二个现有 substrate”问题；还没有 AgentDojo observation adapter、
+真实模型调用或 attack/defense 结果。
 
 ## 5. Baseline 设计
 
@@ -533,6 +551,24 @@ insufficient-information、distraction/no-distraction、state dependency、
 canonicalization、read-only/mutation。注意这只是 manifest / sampling 设计，还没有对
 104 个任务执行 model benchmark。
 
+同时补了 AgentDojo v1.2.2 的 10%-15% stratified manifest：
+
+```bash
+PYTHONPATH=src:. /tmp/agentdojo-probe-venv/bin/python scripts/probe_agentdojo_real.py \
+  --agentdojo-path /tmp/AgentDojo \
+  --benchmark-version v1.2.2 \
+  --limit 12 \
+  --stratified \
+  --output outputs/agentdojo_real_manifest.json
+```
+
+当前生成的 AgentDojo manifest 为 12/97 user tasks，`selected_fraction=0.1237`，
+`target_10_15_percent_stratified_manifest=true`，
+`executed_10_15_percent_slice=false`。它记录 official prompt、difficulty、
+ground-truth tool-call plan、suite tool names 和 injection-task count。这个 manifest
+只说明第二个现有 benchmark substrate 已经被定位并抽样；还不能报告 ASR、utility 或
+defense gain。
+
 ### 6.6 当前实验状态分层表
 
 | 层级 | 规模 | 证据强度 | 当前状态 |
@@ -544,6 +580,7 @@ canonicalization、read-only/mutation。注意这只是 manifest / sampling 设�
 | ToolSandbox real execution smoke | 12 × 2 × 6 = 144 | real tool execution + trace-level substitution + read-back validator ablation | 已跑，`scripted_agent=true` |
 | ToolSandbox model-policy pilot | 12 × 2 × 6 = 144 | prompt/manifest dry-run + read-back validator ablation | dry-run 已跑，`real_model_run=false` |
 | ToolSandbox stratified 10% manifest | 104 / 1032 | sampling design | 已生成，尚未执行 |
+| AgentDojo stratified 10%-15% manifest | 12 / 97 | second existing-benchmark sampling design | 已生成，尚未执行 |
 | Paper-grade main run | >= 2 substrates, 30-45 paired scenarios first | model benchmark evidence | 未完成 |
 
 ## 7. 当前能支持的 claim 和不能支持的 claim
@@ -556,12 +593,13 @@ canonicalization、read-only/mutation。注意这只是 manifest / sampling 设�
 4. independent validator / combined policy 在 scripted partial slice 上能显著降低 ASR；metadata-only validator ablation 显示非内容级检查不能验证语义真假；read-back validator 是当前最接近可部署 independent authority 的 ToolSandbox baseline。
 5. ToolSandbox 真实工具执行结果可以被捕获，并在 trace 层构造 truthful/spoofed 可见 observation，同时保留 raw result / tool trace 供 oracle 审计。
 6. 已有 104/1032 的 ToolSandbox 10% stratified manifest 设计，但它只是 scaling plan，不是已执行结果。
+7. 已有 12/97 的 AgentDojo v1.2.2 stratified manifest，覆盖 workspace/travel/banking/slack 和 easy/medium/hard 难度，用于证明主实验会迁移到第二个现有 benchmark substrate；它同样只是 sampling/design artifact。
 
 当前不能支持：
 
 1. “真实模型普遍会被工具输出欺骗”——还缺基于现有 benchmark substrate 的 multi-model agentic run。
 2. “combined policy 是 paper-grade 防御”——已有 harness 入口和 dry-run，但还缺真实模型运行、成本统计和更大场景。
-3. “已经跑了 ToolSandbox 10%-15% benchmark”——当前只生成了 104-task stratified manifest，尚未执行；已执行的仍是 12-task bring-up seed。
+3. “已经跑了 ToolSandbox/AgentDojo 10%-15% benchmark”——当前只生成了 ToolSandbox 104-task manifest 和 AgentDojo 12-task manifest，尚未执行对应 real-model benchmark；已执行的 ToolSandbox 仍是 12-task bring-up/dry-run seed。
 4. “能投 USENIX/S&P”——还缺 AgentDojo/ToolSandbox/tau-bench 等现有 benchmark overlay pilot、30-45 paired scenario model pilot、150-300 full benchmark、close-work ablation。
 
 ## 8. Related work 定位

@@ -1,0 +1,44 @@
+{
+  "overlay_id": "agentdojo_real_probe",
+  "substrate": "AgentDojo",
+  "source_repo": "https://github.com/ethz-spylab/agentdojo",
+  "paper": "https://arxiv.org/abs/2406.13352",
+  "benchmark_version": "v1.2.2",
+  "mode": "manifest_only_probe",
+  "description": "Real AgentDojo 10-15% stratified manifest for planning a tool-output-spoofing overlay. The probe enumerates official user tasks, suites, tools, difficulties, and ground-truth tool-call plans, but does not execute a model or claim attack/defense results.",
+  "recommended_setup": [
+    "git clone --depth 1 https://github.com/ethz-spylab/agentdojo /tmp/AgentDojo",
+    "/usr/bin/python3.11 -m venv /tmp/agentdojo-probe-venv",
+    "/tmp/agentdojo-probe-venv/bin/python -m pip install -e /tmp/AgentDojo"
+  ],
+  "probe_command": "PYTHONPATH=src:. /tmp/agentdojo-probe-venv/bin/python scripts/probe_agentdojo_real.py --agentdojo-path /tmp/AgentDojo --benchmark-version v1.2.2 --limit 12 --stratified --output outputs/agentdojo_real_manifest.json",
+  "suites": [
+    "workspace",
+    "travel",
+    "banking",
+    "slack"
+  ],
+  "target_slice": {
+    "available_user_tasks": 97,
+    "selected_user_tasks": 12,
+    "selected_fraction": 0.1237,
+    "stratification_axes": [
+      "suite",
+      "difficulty",
+      "mutating_vs_read_only_ground_truth",
+      "single_vs_multi_ground_truth_call"
+    ]
+  },
+  "baseline_slice": [
+    "naive",
+    "schema_only",
+    "repeat_same_tool",
+    "readback_or_independent_record_validator",
+    "privileged_upper_bound"
+  ],
+  "modes": [
+    "truthful",
+    "spoofed"
+  ],
+  "paper_grade_next_step": "Implement an executable AgentDojo observation adapter where official AgentDojo tasks and environment checks remain unchanged, while selected tool-observation fields are replaced for the agent-visible channel. Then run the same 12-task slice with real model calls and the same baseline hierarchy as ToolSandbox."
+}

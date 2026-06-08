@@ -74,11 +74,13 @@ PYTHONPATH=src:. /usr/bin/python3.11 scripts/run_toolsandbox_real_bringup.py --m
 PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/run_toolsandbox_execution_smoke.py --manifest outputs/toolsandbox_real_manifest.json --toolsandbox-path /tmp/ToolSandbox --out-dir traces/toolsandbox_execution_smoke --summary outputs/toolsandbox_execution_smoke_summary.json --limit-tasks 12
 PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/run_toolsandbox_model_pilot.py --config configs/experiments/toolsandbox_model_pilot_small.json --manifest outputs/toolsandbox_real_manifest.json --toolsandbox-path /tmp/ToolSandbox --out-dir traces/toolsandbox_model_pilot_dry --summary outputs/toolsandbox_model_pilot_dry_summary.json --run-manifest outputs/toolsandbox_model_pilot_dry_manifest.json --dry-run --sleep 0
 PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/probe_toolsandbox_real.py --toolsandbox-path /tmp/ToolSandbox --limit 104 --stratified --output outputs/toolsandbox_stratified_10pct_manifest.json
+PYTHONPATH=src:. /tmp/agentdojo-probe-venv/bin/python scripts/probe_agentdojo_real.py --agentdojo-path /tmp/AgentDojo --benchmark-version v1.2.2 --limit 12 --stratified --output outputs/agentdojo_real_manifest.json
 PYTHONPATH=src:. /usr/bin/python3.11 -m unittest discover -s tests -v
 ```
 
-The scaffold intentionally avoids installing packages or downloading models on
-this host.
+Generated traces and output manifests stay out of git. External benchmark
+packages are installed only in isolated `/tmp/*-probe-venv` environments on the
+remote cloud host, not vendored into this repository.
 
 ## Current paper direction
 

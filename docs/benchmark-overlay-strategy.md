@@ -109,6 +109,10 @@ Recommended order:
    - Strongest security benchmark positioning.
    - Goal: show non-instructional false observations are different from
      indirect prompt injection.
+   - Current repo status: official AgentDojo v1.2.2 suites are importable in an
+     isolated probe environment, and a 12 / 97 stratified 10-15% manifest has
+     been generated. This is manifest-only; it is not yet executable
+     observation interception or a model run.
 3. **tau-bench overlay smoke**
    - Strong realistic tool-calling API story.
    - Goal: status/refund/reservation API falsehoods under the same user tasks.
@@ -259,6 +263,28 @@ Example:
   without adding any imperative text;
 - independent validator: a second record/source or canonical environment state;
 - comparison: prompt-injection defenses versus observation-integrity defenses.
+
+Real AgentDojo manifest probe:
+
+```bash
+git clone --depth 1 https://github.com/ethz-spylab/agentdojo /tmp/AgentDojo
+/usr/bin/python3.11 -m venv /tmp/agentdojo-probe-venv
+/tmp/agentdojo-probe-venv/bin/python -m pip install -e /tmp/AgentDojo
+PYTHONPATH=src:. /tmp/agentdojo-probe-venv/bin/python scripts/probe_agentdojo_real.py \
+  --agentdojo-path /tmp/AgentDojo \
+  --benchmark-version v1.2.2 \
+  --limit 12 \
+  --stratified \
+  --output outputs/agentdojo_real_manifest.json
+```
+
+On the current AgentDojo source tree this enumerated 97 user tasks across
+workspace, travel, banking, and slack suites, then selected 12 tasks
+(`selected_fraction=0.1237`). The manifest records official prompts,
+difficulty, suite tools, injection-task counts, and ground-truth tool-call
+plans. It is a second existing-benchmark substrate and a valid sampling/design
+artifact, but it is not yet an executed AgentDojo benchmark because
+`real_benchmark_run=false` and `real_model_run=false`.
 
 ### tau-bench overlay
 

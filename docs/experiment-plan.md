@@ -202,6 +202,32 @@ configs/experiments/real_toolcall_pilot_min48.json
 This 48-cell config is not the final benchmark; it is the cheapest real-model
 check before moving the same harness to existing benchmark overlays.
 
+AgentDojo real-substrate manifest probe:
+
+```text
+configs/benchmark_overlays/agentdojo_real_probe.json
+scripts/probe_agentdojo_real.py
+src/tool_spoof_lab/agentdojo_real_probe.py
+```
+
+Current command:
+
+```bash
+PYTHONPATH=src:. /tmp/agentdojo-probe-venv/bin/python scripts/probe_agentdojo_real.py \
+  --agentdojo-path /tmp/AgentDojo \
+  --benchmark-version v1.2.2 \
+  --limit 12 \
+  --stratified \
+  --output outputs/agentdojo_real_manifest.json
+```
+
+This generated a manifest-only 12 / 97 AgentDojo slice
+(`selected_fraction=0.1237`) over workspace, travel, banking, and slack. The
+stratification covers suite, difficulty, mutating/read-only ground-truth plans,
+and single/multiple ground-truth tool calls. It directly addresses the
+"single substrate / local toy benchmark" concern at the design level, but it is
+not yet an AgentDojo execution or real-model benchmark result.
+
 ToolSandbox adapter-contract smoke:
 
 ```text

@@ -19,6 +19,7 @@ from tool_spoof_lab.toolsandbox_real_bringup import PROFILES, build_bringup_trac
 from tool_spoof_lab.toolsandbox_real_probe import DEFAULT_TASKS, select_stratified_task_names, select_task_names
 from scripts.run_real_toolcall_pilot import build_messages, build_tool_events, visible_rows_for_model
 from scripts.run_structured_partial import build_structured_trace
+from tool_spoof_lab.agentdojo_real_probe import select_stratified_tasks as select_agentdojo_stratified_tasks
 
 
 class SmokeTests(unittest.TestCase):
@@ -376,6 +377,51 @@ class SmokeTests(unittest.TestCase):
         self.assertEqual(summary["target_count"], 4)
         self.assertEqual(summary["selected_count"], 4)
         self.assertIn("multi_tool", summary["strata"])
+
+    def test_agentdojo_stratified_selection_counts_target(self):
+        tasks = [
+            {
+                "suite": "workspace",
+                "task_id": "user_task_0",
+                "difficulty": "easy",
+                "read_only_by_ground_truth": True,
+                "ground_truth_call_count": 1,
+            },
+            {
+                "suite": "workspace",
+                "task_id": "user_task_1",
+                "difficulty": "medium",
+                "read_only_by_ground_truth": False,
+                "ground_truth_call_count": 2,
+            },
+            {
+                "suite": "travel",
+                "task_id": "user_task_0",
+                "difficulty": "easy",
+                "read_only_by_ground_truth": False,
+                "ground_truth_call_count": 2,
+            },
+            {
+                "suite": "banking",
+                "task_id": "user_task_0",
+                "difficulty": "hard",
+                "read_only_by_ground_truth": False,
+                "ground_truth_call_count": 2,
+            },
+            {
+                "suite": "slack",
+                "task_id": "user_task_0",
+                "difficulty": "easy",
+                "read_only_by_ground_truth": True,
+                "ground_truth_call_count": 1,
+            },
+        ]
+        selected, summary = select_agentdojo_stratified_tasks(tasks, target_count=3)
+        self.assertEqual(len(selected), 3)
+        self.assertEqual(summary["target_count"], 3)
+        self.assertEqual(summary["selected_count"], 3)
+        self.assertIn("mutation", summary["strata"])
+        self.assertIn("suite:workspace", summary["strata"])
 
 
 if __name__ == "__main__":

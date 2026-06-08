@@ -709,3 +709,39 @@ Read-back validation is the current deployability-oriented ToolSandbox
 baseline; the raw-result validator remains only an upper-bound ablation. The
 next paper-grade step is to run the read-back baseline with real model calls and
 then scale it to the 104-task manifest.
+
+## Round 14: AgentDojo second-substrate manifest
+
+To address the concern that the experiment design was still anchored on a
+single existing benchmark substrate, the repo now includes a real AgentDojo
+manifest probe:
+
+```bash
+PYTHONPATH=src:. /tmp/agentdojo-probe-venv/bin/python scripts/probe_agentdojo_real.py \
+  --agentdojo-path /tmp/AgentDojo \
+  --benchmark-version v1.2.2 \
+  --limit 12 \
+  --stratified \
+  --output outputs/agentdojo_real_manifest.json
+```
+
+Probe result:
+
+- AgentDojo v1.2.2 suites loaded: workspace, travel, banking, slack.
+- Total official user tasks: 97.
+- Selected manifest slice: 12 tasks (`selected_fraction=0.1237`).
+- Selected difficulty distribution: 4 easy, 4 medium, 4 hard.
+- Selected ground-truth plan type: 9 mutating tasks, 3 read-only tasks.
+- Status flags: `manifest_only=true`, `real_benchmark_run=false`,
+  `real_model_run=false`, `executed_10_15_percent_slice=false`.
+
+Interpretation: this materially improves the benchmark design story because the
+paper is no longer scoped only to local scenarios or only to ToolSandbox. It
+does not yet improve empirical strength: there is no AgentDojo observation
+adapter, no executed AgentDojo tool-output spoofing run, and no model ASR.
+
+Required wording: call this a "second existing-benchmark manifest/design
+artifact" or "planned AgentDojo overlay slice", not "AgentDojo benchmark
+results". The baseline comparison should remain "same AgentDojo tasks, same
+official utility/security checks, different observation-integrity baselines"
+once the executable adapter is implemented.

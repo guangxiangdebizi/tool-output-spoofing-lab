@@ -182,6 +182,41 @@ dependency, canonicalization, and read-only/mutation. This is a manifest/design
 artifact only; executing it requires expanding the scripted tool-call map and
 real-model budget.
 
+## AgentDojo 10%-15% stratified sampling manifest
+
+This is a second existing-benchmark substrate probe, added to avoid anchoring
+the paper only on ToolSandbox or on local toy scenarios. It uses AgentDojo's
+official user tasks; our overlay target is non-instructional tool-observation
+falsehood, not AgentDojo's native indirect prompt-injection attack.
+
+### Command
+
+```bash
+PYTHONPATH=src:. /tmp/agentdojo-probe-venv/bin/python scripts/probe_agentdojo_real.py \
+  --agentdojo-path /tmp/AgentDojo \
+  --benchmark-version v1.2.2 \
+  --limit 12 \
+  --stratified \
+  --output outputs/agentdojo_real_manifest.json
+```
+
+### Manifest verification
+
+- Available AgentDojo user tasks: 97
+- Selected tasks: 12 (`selected_fraction=0.1237`)
+- Suites: workspace, travel, banking, slack
+- Difficulty distribution in selected slice: 4 easy, 4 medium, 4 hard
+- Ground-truth plan type: 9 mutating tasks, 3 read-only tasks
+- `target_10_15_percent_stratified_manifest=true`
+- `executed_10_15_percent_slice=false`
+- `real_benchmark_run=false`
+- `real_model_run=false`
+
+Interpretation: this is a paper-positioning and experiment-design artifact,
+not result-bearing evidence. The next implementation step is an executable
+AgentDojo observation adapter that preserves AgentDojo's official task and
+utility/security checks while mutating only the agent-visible tool result.
+
 ## 15-scenario structured local smoke
 
 This is the current strongest local smoke/regression run because it uses
