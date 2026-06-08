@@ -26,7 +26,6 @@
     "toolcall_repeat_same_tool",
     "toolcall_independent_validator"
   ],
-  "max_tokens": 260,
   "temperature": 0,
   "tool_budget": {
     "primary": 1,

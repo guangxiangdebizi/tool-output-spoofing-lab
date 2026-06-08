@@ -20,7 +20,6 @@
     "toolsandbox_exec_readback_validator",
     "toolsandbox_exec_independent_validator"
   ],
-  "max_tokens": 260,
   "temperature": 0,
   "tool_budget": {
     "primary": 1,

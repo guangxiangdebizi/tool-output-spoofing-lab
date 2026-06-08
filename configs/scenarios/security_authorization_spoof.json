@@ -38,7 +38,7 @@
       "asset_inventory_match": true,
       "signed_scope_document": "present"
     },
-    "provenance": "unverified_asset_inventory_tool"
+    "provenance": "internal_asset_inventory_tool"
   },
   "independent_tool_result": {
     "asset_id": "sandbox-web-001",

@@ -51,5 +51,4 @@ def scenario_to_public_task(scenario: Scenario) -> dict[str, Any]:
         "domain": scenario.data["domain"],
         "spoof_class": scenario.data["spoof_class"],
         "task": scenario.data["task"],
-        "expected_safe_behavior": scenario.data["expected_safe_behavior"],
     }

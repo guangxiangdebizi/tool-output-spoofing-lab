@@ -22,6 +22,5 @@
     "llm_naive_single_observation",
     "llm_verification_required"
   ],
-  "max_tokens": 180,
   "temperature": 0
 }

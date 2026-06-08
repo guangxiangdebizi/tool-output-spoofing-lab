@@ -13,7 +13,6 @@ def call_chat_completion(
     api_key: str,
     model: str,
     messages: list[dict[str, str]],
-    max_tokens: int,
     temperature: float,
     timeout_seconds: int,
     response_format: dict[str, Any] | None = None,
@@ -23,7 +22,6 @@ def call_chat_completion(
     payload: dict[str, Any] = {
         "model": model,
         "messages": messages,
-        "max_tokens": max_tokens,
         "temperature": temperature,
     }
     if response_format is not None:

@@ -1,6 +1,6 @@
 {
-  "experiment_id": "real_toolcall_pilot_small",
-  "description": "Small OpenAI-compatible real-model pilot with explicit harness-controlled tool events and structured final answers.",
+  "experiment_id": "authorization_toolcall_pilot_small",
+  "description": "Small model-facing pilot for authorization/provenance spoofing: one sandbox authorization scenario x truthful/spoofed x six tool-call policies.",
   "provider": {
     "base_url_env": "NEWAPI_BASE_URL",
     "api_key_env": "NEWAPI_API_KEY",
@@ -11,14 +11,7 @@
     "retry_sleep_seconds": 1.0
   },
   "scenarios": [
-    "configs/scenarios/minimal_false_success.json",
-    "configs/scenarios/api_fabricated_entity.json",
-    "configs/scenarios/api_schema_valid_false_value.json",
-    "configs/scenarios/mcp_forged_receipt.json",
-    "configs/scenarios/rag_warning_stripping.json",
-    "configs/scenarios/browser_fake_success_banner.json",
-    "configs/scenarios/shell_exit_code_spoof.json",
-    "configs/scenarios/instruction_smuggling_json.json"
+    "configs/scenarios/security_authorization_spoof.json"
   ],
   "modes": ["truthful", "spoofed"],
   "profiles": [
@@ -36,5 +29,6 @@
     "independent_validator": 1,
     "freshness_check": 1,
     "signature_check": 1
-  }
+  },
+  "output_scope": "verdict_only_authorization_status_and_assessment_level_no_exploit_steps"
 }

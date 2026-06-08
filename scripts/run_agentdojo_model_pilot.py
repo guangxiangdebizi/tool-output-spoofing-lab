@@ -115,7 +115,6 @@ def main() -> None:
                                 api_key=str(api_key),
                                 model=model,
                                 messages=messages,
-                                max_tokens=int(config["max_tokens"]),
                                 temperature=float(config["temperature"]),
                                 timeout_seconds=int(provider["timeout_seconds"]),
                                 response_format={"type": "json_object"},

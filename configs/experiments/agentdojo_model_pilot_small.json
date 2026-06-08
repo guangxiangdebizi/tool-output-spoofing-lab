@@ -23,7 +23,6 @@
     "agentdojo_exec_independent_validator",
     "agentdojo_exec_combined_policy"
   ],
-  "max_tokens": 260,
   "temperature": 0,
   "tool_budget": {
     "primary": 1,
