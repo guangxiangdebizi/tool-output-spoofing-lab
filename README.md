@@ -76,6 +76,7 @@ PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/run_toolsandbox_
 PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/probe_toolsandbox_real.py --toolsandbox-path /tmp/ToolSandbox --limit 104 --stratified --output outputs/toolsandbox_stratified_10pct_manifest.json
 PYTHONPATH=src:. /tmp/agentdojo-probe-venv/bin/python scripts/probe_agentdojo_real.py --agentdojo-path /tmp/AgentDojo --benchmark-version v1.2.2 --limit 12 --stratified --output outputs/agentdojo_real_manifest.json
 PYTHONPATH=src:. /tmp/agentdojo-probe-venv/bin/python scripts/run_agentdojo_execution_smoke.py --manifest outputs/agentdojo_real_manifest.json --agentdojo-path /tmp/AgentDojo --benchmark-version v1.2.2 --out-dir traces/agentdojo_execution_smoke --summary outputs/agentdojo_execution_smoke_summary.json --limit-tasks 12
+PYTHONPATH=src:. /tmp/agentdojo-probe-venv/bin/python scripts/run_agentdojo_model_pilot.py --config configs/experiments/agentdojo_model_pilot_small.json --manifest outputs/agentdojo_real_manifest.json --agentdojo-path /tmp/AgentDojo --out-dir traces/agentdojo_model_pilot_dry --summary outputs/agentdojo_model_pilot_dry_summary.json --run-manifest outputs/agentdojo_model_pilot_dry_manifest.json --dry-run --sleep 0
 PYTHONPATH=src:. /usr/bin/python3.11 -m unittest discover -s tests -v
 ```
 

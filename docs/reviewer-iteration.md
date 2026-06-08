@@ -768,10 +768,11 @@ PYTHONPATH=src:. /tmp/agentdojo-probe-venv/bin/python scripts/run_agentdojo_exec
 Result:
 
 - 12 official AgentDojo tasks.
-- 7 profiles: naive, schema-only, prompt-filter, repeat-same-tool, metadata-only validator,
-  read-back validator, privileged independent-validator upper bound.
+- 8 profiles: naive, schema-only, prompt-filter, repeat-same-tool,
+  metadata-only validator, read-back validator, privileged independent-validator
+  upper bound, combined policy.
 - truthful/spoofed modes.
-- 168 / 168 scripted trace cells completed.
+- 192 / 192 scripted trace cells completed.
 - `official_ground_truth_tool_plan=true`.
 - `real_tool_execution=true`.
 - `trace_level_visible_result_substitution=true`.
@@ -790,6 +791,7 @@ Scripted spoofed ASR:
 | `agentdojo_exec_metadata_validator` | 12 / 12 | 0 / 12 |
 | `agentdojo_exec_readback_validator` | 0 / 12 | 12 / 12 |
 | `agentdojo_exec_independent_validator` | 0 / 12 | 12 / 12 |
+| `agentdojo_exec_combined_policy` | 0 / 12 | 12 / 12 |
 
 Reviewer interpretation: this is a meaningful engineering upgrade over a
 manifest-only second substrate. It shows the benchmark/baseline protocol is not
@@ -841,3 +843,102 @@ Reviewer rating ladder:
 - AgentDojo executable smoke + ToolSandbox real-model pilot: Borderline.
 - Two-substrate real-model pilot + read-back validator + CI/cost/statistics:
   possible Weak Accept.
+
+## Round 17: AgentDojo model-policy dry-run
+
+Implemented the AgentDojo counterpart of the ToolSandbox model-policy runner:
+
+- `src/tool_spoof_lab/agentdojo_model_pilot.py`
+- `scripts/run_agentdojo_model_pilot.py`
+- `configs/experiments/agentdojo_model_pilot_small.json`
+
+Command run:
+
+```bash
+PYTHONPATH=src:. /tmp/agentdojo-probe-venv/bin/python scripts/run_agentdojo_model_pilot.py \
+  --config configs/experiments/agentdojo_model_pilot_small.json \
+  --manifest outputs/agentdojo_real_manifest.json \
+  --agentdojo-path /tmp/AgentDojo \
+  --out-dir traces/agentdojo_model_pilot_dry \
+  --summary outputs/agentdojo_model_pilot_dry_summary.json \
+  --run-manifest outputs/agentdojo_model_pilot_dry_manifest.json \
+  --dry-run --sleep 0
+```
+
+Result:
+
+- 12 official AgentDojo tasks.
+- 8 profiles: naive, schema-only, prompt-filter, repeat-same-tool,
+  metadata-only validator, read-back validator, privileged upper-bound
+  independent validator.
+- truthful/spoofed modes.
+- 192 / 192 dry-run prompt cells completed.
+- `model_policy_prompted=true`.
+- `model_call_executed=false`.
+- `final_decision_source=dry_run_uncertainty_stub`.
+- `official_ground_truth_tool_plan=true`.
+- `real_tool_execution=true`.
+- `real_model_run=false`.
+
+Leakage controls added:
+
+- model-visible rows exclude `oracle_context` and `raw_tool_result`;
+- condition id is hashed and does not expose truthful/spoofed labels;
+- profile names are mapped to opaque policy ids such as `AD-P5`;
+- raw profile names such as `agentdojo_exec_independent_validator` are not in
+  the model prompt;
+- read-back prompts may include `readback_observation` because it is a
+  model-visible second-tool result, not hidden oracle state.
+
+Reviewer interpretation: this improves reproducibility and readiness for a
+real-model AgentDojo pilot, but it still does not change the empirical rating
+because `model_call_executed=false`. The next rating-moving step remains a real
+model run on ToolSandbox first, then AgentDojo.
+
+## Round 18: subagent review after AgentDojo model-policy harness
+
+A CCF-A/USENIX/S&P-style reviewer subagent reviewed the AgentDojo model-policy
+harness.
+
+Verdict:
+
+- The AgentDojo model-policy harness is a necessary P0 and materially improves
+  engineering credibility for the second benchmark substrate.
+- A dry-run moves the evidence from executable-smoke-only to model-facing
+  evaluation readiness.
+- It still does not support empirical model claims because
+  `model_call_executed=false`.
+- Rating remains **Borderline-** until at least one real-model pilot runs.
+
+Required leakage/overclaim controls:
+
+- Do not expose `oracle_context`, hidden ground truth, official evaluator
+  labels, raw profile names, `truthful`/`spoofed` labels, or raw tool results
+  outside the baseline-visible event.
+- Use opaque `condition_id` and `policy_id` values.
+- Do not put a generic "tool output may be false" warning into every baseline;
+  that would collapse baseline separation.
+- Remove scripted `structured_final` before model/dry-run final is appended.
+- Always mark dry-runs with `real_model_run=false`,
+  `model_call_executed=false`, `final_decision_source=dry_run_uncertainty_stub`,
+  `scripted_tool_call_plan=true`, and `full_agent_loop_interception=false`.
+
+Reviewer-requested next baselines/metrics:
+
+- The deployability-oriented `combined_policy` baseline is now present for
+  AgentDojo: prompt-filter + metadata + read-back.
+- For result-bearing runs, report ASR, clean utility, false-positive refusal,
+  effective verification, tool-call overhead, cost/latency, parse/API error
+  rate, per-suite breakdown, per-spoof-class breakdown, and bootstrap
+  confidence intervals.
+- Reuse AgentDojo native utility/security checks once the runner moves beyond
+  single-call model-policy traces.
+
+Updated rating ladder:
+
+- AgentDojo model-policy dry-run + ToolSandbox dry-run: Borderline-.
+- One real-model pilot on ToolSandbox plus AgentDojo dry-run: Borderline.
+- Real-model pilots on ToolSandbox and AgentDojo with shared metrics:
+  Borderline+/Weak Accept-.
+- Two-substrate real-model pilots, 2-3 models, combined policy, CI/cost, and
+  near-full agent loop: plausible Weak Accept.

@@ -18,6 +18,7 @@ PROFILES = [
     "agentdojo_exec_metadata_validator",
     "agentdojo_exec_readback_validator",
     "agentdojo_exec_independent_validator",
+    "agentdojo_exec_combined_policy",
 ]
 
 MUTATING_PREFIXES = (
@@ -271,11 +272,11 @@ def build_interception_trace(
                 "payload": {**visible, "tool_call_budget_cost": 1, "verification_source": "same_tool"},
             }
         )
-    if profile == "agentdojo_exec_prompt_filter":
+    if profile in {"agentdojo_exec_prompt_filter", "agentdojo_exec_combined_policy"}:
         rows.append(
             {
                 **base,
-                "turn": 6,
+                "turn": len(rows) + 1,
                 "event": "prompt_filter_check",
                 "payload": {
                     "instruction_like_payload_detected": False,
@@ -286,11 +287,11 @@ def build_interception_trace(
                 },
             }
         )
-    if profile == "agentdojo_exec_metadata_validator":
+    if profile in {"agentdojo_exec_metadata_validator", "agentdojo_exec_combined_policy"}:
         rows.append(
             {
                 **base,
-                "turn": 6,
+                "turn": len(rows) + 1,
                 "event": "validator_call",
                 "payload": {
                     "tool_name": execution.tool_name,
@@ -303,11 +304,11 @@ def build_interception_trace(
                 },
             }
         )
-    if profile == "agentdojo_exec_readback_validator":
+    if profile in {"agentdojo_exec_readback_validator", "agentdojo_exec_combined_policy"}:
         rows.append(
             {
                 **base,
-                "turn": 6,
+                "turn": len(rows) + 1,
                 "event": "validator_call",
                 "payload": {
                     "tool_name": execution.tool_name,
@@ -349,6 +350,10 @@ def build_interception_trace(
     elif profile == "agentdojo_exec_metadata_validator":
         verification_source = "metadata_only"
     elif profile == "agentdojo_exec_readback_validator":
+        final_source = {**truth, "content": execution.readback_content}
+        verification_source = "independent_readback"
+        verified = execution.readback_tool_call_exception is None
+    elif profile == "agentdojo_exec_combined_policy":
         final_source = {**truth, "content": execution.readback_content}
         verification_source = "independent_readback"
         verified = execution.readback_tool_call_exception is None

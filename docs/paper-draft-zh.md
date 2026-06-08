@@ -12,7 +12,7 @@
 
 我们把这个问题定义为 **tool-output spoofing**，并设计一个 observation-spoofing overlay：主实验不应主要依赖自建 toy benchmark，而应基于已有高价值 agent/tool-use benchmark，例如 AgentDojo、ToolSandbox、tau-bench、WebArena/WorkArena、SWE-bench、MCP-SafetyBench / MCP Security Bench。已有 benchmark 提供任务分布、环境状态和 utility/security oracle；我们的 overlay 只改变 agent 可见的 observation plane，并在同一批 benchmark tasks 上比较不同 defense baseline。
 
-当前仓库里的 15 个本地场景只作为 local smoke/regression suite，用来验证 trace schema、oracle、baseline 和 harness；它不计为论文主 benchmark 证据，也不用于支撑核心 empirical claim。当前真正的主实验表应留给 ToolSandbox / AgentDojo / tau-bench 等现有 benchmark overlay pilot。现阶段本地 suite 只证明实现链路可跑：schema validation、prompt filtering、repeat-same-tool、metadata-only validator、read-back validator、privileged independent-validator upper bound、combined policy 等 baseline 可以在同一任务上被成对比较。本轮新增了 ToolSandbox-specific model-policy pilot runner：它先执行真实 ToolSandbox 工具，再构造 truthful/spoofed model-visible observation，并生成 144-cell dry-run manifest；同时新增 AgentDojo v1.2.2 真实 substrate manifest probe，生成 12/97 的 10%-15% stratified manifest，作为第二个现有 benchmark 的采样设计。但当前 shell 仍缺少 `NEWAPI_API_KEY`，所以这些还不是 result-bearing real-model run；30-45 paired scenario multi-model pilot 仍未完成。
+当前仓库里的 15 个本地场景只作为 local smoke/regression suite，用来验证 trace schema、oracle、baseline 和 harness；它不计为论文主 benchmark 证据，也不用于支撑核心 empirical claim。当前真正的主实验表应留给 ToolSandbox / AgentDojo / tau-bench 等现有 benchmark overlay pilot。现阶段本地 suite 只证明实现链路可跑：schema validation、prompt filtering、repeat-same-tool、metadata-only validator、read-back validator、privileged independent-validator upper bound、combined policy 等 baseline 可以在同一任务上被成对比较。本轮新增了 ToolSandbox-specific model-policy pilot runner：它先执行真实 ToolSandbox 工具，再构造 truthful/spoofed model-visible observation，并生成 144-cell dry-run manifest；同时新增 AgentDojo v1.2.2 真实 substrate manifest probe、192-cell execution smoke 和 192-cell model-policy dry-run，作为第二个现有 benchmark substrate 的采样、执行和模型提示链路设计。但当前 shell 仍缺少 `NEWAPI_API_KEY`，所以这些还不是 result-bearing real-model run；30-45 paired scenario multi-model pilot 仍未完成。
 
 ## 1. 问题定义
 
@@ -195,10 +195,29 @@ PYTHONPATH=src:. /tmp/agentdojo-probe-venv/bin/python scripts/run_agentdojo_exec
 
 这个 smoke 使用官方 task 的 `ground_truth()` tool plan 执行一个真实 AgentDojo tool call，
 捕获 raw tool result，然后只改写 agent-visible observation。它已完成
-12 tasks × truthful/spoofed × 7 profiles = 168 cells。它比 manifest-only 更强，因为
+12 tasks × truthful/spoofed × 8 profiles = 192 cells。它比 manifest-only 更强，因为
 已经有 `real_tool_execution=true` 和 `official_ground_truth_tool_plan=true`；但它仍标记为
 `scripted_agent=true`, `full_agent_loop_interception=false`, `real_model_run=false`，
 不能写成真实模型 benchmark。
+
+真实 AgentDojo model-policy dry-run：
+
+```bash
+PYTHONPATH=src:. /tmp/agentdojo-probe-venv/bin/python scripts/run_agentdojo_model_pilot.py \
+  --config configs/experiments/agentdojo_model_pilot_small.json \
+  --manifest outputs/agentdojo_real_manifest.json \
+  --agentdojo-path /tmp/AgentDojo \
+  --out-dir traces/agentdojo_model_pilot_dry \
+  --summary outputs/agentdojo_model_pilot_dry_summary.json \
+  --run-manifest outputs/agentdojo_model_pilot_dry_manifest.json \
+  --dry-run --sleep 0
+```
+
+该 dry-run 已完成 192/192 cells。它删除 scripted `structured_final`，构造模型可见
+prompt，并记录 `prompt_hash`、`model_visible_events` 和
+`harness_expected_structured_score`。单测要求 prompt 不泄露 `oracle_context`、
+`raw_tool_result`、raw profile name 和 truthful/spoofed condition label。由于当前没有
+API key，`model_call_executed=false`，这仍不是模型结果。
 
 ## 5. Baseline 设计
 
@@ -600,7 +619,7 @@ PYTHONPATH=src:. /tmp/agentdojo-probe-venv/bin/python scripts/run_agentdojo_exec
   --limit-tasks 12
 ```
 
-该 smoke 已完成 168/168 cells，baseline 与 ToolSandbox 对齐：
+该 smoke 已完成 192/192 cells，baseline 与 ToolSandbox 对齐：
 
 | AgentDojo baseline | Spoofed ASR scripted score | Effective verification | 解释 |
 | --- | ---: | ---: | --- |
@@ -611,9 +630,16 @@ PYTHONPATH=src:. /tmp/agentdojo-probe-venv/bin/python scripts/run_agentdojo_exec
 | metadata-only validator | 12 / 12 | 0 / 12 | metadata 不能验证 content truth |
 | read-back validator | 0 / 12 | 12 / 12 | split-channel threat model 下的非特权内容级 read-back |
 | privileged independent-validator | 0 / 12 | 12 / 12 | privileged upper-bound ablation |
+| combined policy | 0 / 12 | 12 / 12 | prompt-filter + metadata + read-back 的可部署组合策略 |
 
 这张表只能作为 scripted-agent / harness-expected baseline separation，不是模型鲁棒性结果。
 它的价值是证明同一 baseline hierarchy 能迁移到第二个现有 benchmark substrate。
+
+同时补了 AgentDojo model-policy dry-run。它完成 192/192 prompt/manifest cells，
+并验证模型可见 prompt 只包含 `agentdojo_user_task`、`agentdojo_tool_call`、
+`visible_tool_result`、`prompt_filter_check`、`repeat_tool_call`、`validator_call`
+等显式可见事件，不包含 hidden oracle 或 raw result。这个结果只说明 AgentDojo
+已经具备 real-model pilot 入口；它不提供 ASR 或 utility claim。
 
 ### 6.6 当前实验状态分层表
 
@@ -627,7 +653,8 @@ PYTHONPATH=src:. /tmp/agentdojo-probe-venv/bin/python scripts/run_agentdojo_exec
 | ToolSandbox model-policy pilot | 12 × 2 × 6 = 144 | prompt/manifest dry-run + read-back validator ablation | dry-run 已跑，`real_model_run=false` |
 | ToolSandbox stratified 10% manifest | 104 / 1032 | sampling design | 已生成，尚未执行 |
 | AgentDojo stratified 10%-15% manifest | 12 / 97 | second existing-benchmark sampling design | 已生成，尚未执行 |
-| AgentDojo execution smoke | 12 × 2 × 7 = 168 | official ground-truth tool plan + trace-level substitution | 已跑，`scripted_agent=true` |
+| AgentDojo execution smoke | 12 × 2 × 8 = 192 | official ground-truth tool plan + trace-level substitution | 已跑，`scripted_agent=true` |
+| AgentDojo model-policy pilot | 12 × 2 × 8 = 192 | prompt/manifest dry-run + leakage tests | dry-run 已跑，`real_model_run=false` |
 | Paper-grade main run | >= 2 substrates, 30-45 paired scenarios first | model benchmark evidence | 未完成 |
 
 ## 7. 当前能支持的 claim 和不能支持的 claim
@@ -642,6 +669,7 @@ PYTHONPATH=src:. /tmp/agentdojo-probe-venv/bin/python scripts/run_agentdojo_exec
 6. 已有 104/1032 的 ToolSandbox 10% stratified manifest 设计，但它只是 scaling plan，不是已执行结果。
 7. 已有 12/97 的 AgentDojo v1.2.2 stratified manifest，覆盖 workspace/travel/banking/slack 和 easy/medium/hard 难度，用于证明主实验会迁移到第二个现有 benchmark substrate；它同样只是 sampling/design artifact。
 8. AgentDojo execution smoke 已经能执行官方 ground-truth tool call 并进行 trace-level observation substitution；它支持“第二 substrate 的 harness wiring 可跑”，但不支持模型 ASR claim。
+9. AgentDojo model-policy dry-run 已经验证第二 substrate 的模型提示和 run manifest 链路，且单测覆盖 hidden oracle/mode/profile 泄露风险；它仍不支持模型鲁棒性 claim。
 
 当前不能支持：
 

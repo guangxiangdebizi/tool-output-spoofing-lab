@@ -110,9 +110,9 @@ PYTHONPATH=src:. /tmp/toolsandbox-probe-venv/bin/python scripts/run_toolsandbox_
 
 ### Dry-run verification
 
-- Completed cells: 168 / 168
+- Completed cells: 144 / 144
 - Selected tasks: 12 / 1032 (`selected_fraction=0.0116`)
-- Profiles: naive, schema-only, prompt-filter, repeat-same-tool, metadata-only validator, read-back validator,
+- Profiles: naive, schema-only, repeat-same-tool, metadata-only validator, read-back validator,
   privileged independent-validator upper bound
 - `real_tool_execution=true`
 - `real_execution_interception=true`
@@ -238,10 +238,11 @@ PYTHONPATH=src:. /tmp/agentdojo-probe-venv/bin/python scripts/run_agentdojo_exec
 
 ### Verification
 
-- Completed cells: 168 / 168
+- Completed cells: 192 / 192
 - Selected official AgentDojo tasks: 12 / 97
-- Profiles: naive, schema-only, prompt-filter, repeat-same-tool, metadata-only validator,
-  read-back validator, privileged independent-validator upper bound
+- Profiles: naive, schema-only, prompt-filter, repeat-same-tool,
+  metadata-only validator, read-back validator, privileged independent-validator
+  upper bound, combined policy
 - `real_agentdojo_task=true`
 - `official_ground_truth_tool_plan=true`
 - `real_tool_execution=true`
@@ -261,11 +262,63 @@ Scripted spoofed scoring:
 | `agentdojo_exec_metadata_validator` | 12 / 12 | 0 / 12 |
 | `agentdojo_exec_readback_validator` | 0 / 12 | 12 / 12 |
 | `agentdojo_exec_independent_validator` | 0 / 12 | 12 / 12 |
+| `agentdojo_exec_combined_policy` | 0 / 12 | 12 / 12 |
 
 Interpretation: the second substrate now reproduces the baseline separation
 seen in ToolSandbox under a scripted-agent harness. This strengthens the
 engineering and benchmark-design story, but real claims still require model
 calls and a full agent-loop adapter.
+
+## AgentDojo model-policy pilot dry-run
+
+This is the AgentDojo counterpart of the ToolSandbox model-policy dry-run. It
+does not call a model in the current environment because no API key is present;
+it validates prompt construction, manifest accounting, leakage controls, and
+the handoff from executable AgentDojo tool observations to a structured final
+decision prompt.
+
+### Command
+
+```bash
+PYTHONPATH=src:. /tmp/agentdojo-probe-venv/bin/python scripts/run_agentdojo_model_pilot.py \
+  --config configs/experiments/agentdojo_model_pilot_small.json \
+  --manifest outputs/agentdojo_real_manifest.json \
+  --agentdojo-path /tmp/AgentDojo \
+  --out-dir traces/agentdojo_model_pilot_dry \
+  --summary outputs/agentdojo_model_pilot_dry_summary.json \
+  --run-manifest outputs/agentdojo_model_pilot_dry_manifest.json \
+  --dry-run --sleep 0
+```
+
+### Dry-run verification
+
+- Completed cells: 192 / 192
+- Selected official AgentDojo tasks: 12 / 97
+- Profiles: naive, schema-only, prompt-filter, repeat-same-tool,
+  metadata-only validator, read-back validator, privileged independent-validator
+  upper bound, combined policy
+- `model_policy_prompted=true`
+- `model_call_executed=false`
+- `final_decision_source=dry_run_uncertainty_stub`
+- `scripted_tool_call_plan=true`
+- `autonomous_tool_selection=false`
+- `real_agentdojo_task=true`
+- `official_ground_truth_tool_plan=true`
+- `real_tool_execution=true`
+- `trace_level_visible_result_substitution=true`
+- `real_model_run=false`
+
+The run manifest stores prompt hashes and the exact model-visible event names
+for every cell. Unit tests verify the model prompt excludes hidden
+`oracle_context`, `raw_tool_result`, raw profile names, and truthful/spoofed
+condition labels. The read-back profile intentionally exposes
+`readback_observation` because that is a second visible tool result, not hidden
+oracle state.
+
+Interpretation: this upgrades AgentDojo from executable smoke to model-policy
+dry-run readiness. It still provides no model ASR; all aggregate dry-run
+decisions are uncertainty stubs, and the only result-like field is
+`harness_expected_structured_score`.
 
 ## 15-scenario structured local smoke
 

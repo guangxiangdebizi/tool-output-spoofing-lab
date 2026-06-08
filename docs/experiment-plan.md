@@ -246,8 +246,9 @@ This completed:
 12 official AgentDojo tasks
 truthful/spoofed
 naive / schema-only / prompt-filter / repeat-same-tool /
-metadata-only validator / read-back validator / privileged independent-validator upper bound
-= 168 scripted trace cells
+metadata-only validator / read-back validator / privileged independent-validator upper bound /
+combined policy
+= 192 scripted trace cells
 ```
 
 The runner executes the selected official task's `ground_truth()` tool plan for
@@ -268,9 +269,41 @@ Scripted expected scoring on the 12-task slice:
 | metadata-only validator | 12 / 12 | 0 / 12 | metadata does not verify semantic content |
 | read-back validator | 0 / 12 | 12 / 12 | non-privileged content read-back under split-channel threat model |
 | privileged independent-validator | 0 / 12 | 12 / 12 | upper-bound ablation, not deployable defense |
+| combined policy | 0 / 12 | 12 / 12 | prompt-filter + metadata + read-back deployability-oriented policy |
 
 These are scripted-agent results, not model results. They justify the baseline
 hierarchy and implementation wiring before the real-model AgentDojo pilot.
+
+Current AgentDojo model-policy pilot dry-run:
+
+```bash
+PYTHONPATH=src:. /tmp/agentdojo-probe-venv/bin/python scripts/run_agentdojo_model_pilot.py \
+  --config configs/experiments/agentdojo_model_pilot_small.json \
+  --manifest outputs/agentdojo_real_manifest.json \
+  --agentdojo-path /tmp/AgentDojo \
+  --out-dir traces/agentdojo_model_pilot_dry \
+  --summary outputs/agentdojo_model_pilot_dry_summary.json \
+  --run-manifest outputs/agentdojo_model_pilot_dry_manifest.json \
+  --dry-run --sleep 0
+```
+
+This completed 192 / 192 dry-run cells using the same 12 official AgentDojo
+tasks and eight profiles. The runner removes scripted `structured_final`,
+builds a model-visible prompt, records `prompt_hash`,
+`model_visible_events`, and `harness_expected_structured_score`, then appends a
+dry-run uncertainty final. It records `model_policy_prompted=true`,
+`model_call_executed=false`, `real_model_run=false`,
+`scripted_tool_call_plan=true`, `autonomous_tool_selection=false`, and
+`full_agent_loop_interception=false`.
+
+Prompt leakage tests require:
+
+- no `oracle_context`;
+- no `raw_tool_result`;
+- no truthful/spoofed mode label;
+- no raw profile name such as `agentdojo_exec_independent_validator`;
+- read-back validator may expose `readback_observation`, because it is a
+  model-visible second-tool result rather than hidden oracle state.
 
 ToolSandbox adapter-contract smoke:
 
@@ -360,7 +393,7 @@ This completed 144 dry-run cells:
 ```text
 12 real ToolSandbox tasks
 truthful/spoofed
-naive / schema-only / prompt-filter / repeat-same-tool /
+naive / schema-only / repeat-same-tool /
 metadata-only validator / read-back validator / privileged independent-validator upper bound
 1 configured model id
 = 144 prompt/trace cells

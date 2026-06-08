@@ -117,7 +117,8 @@ def score_structured_trace(rows: list[dict[str, Any]]) -> dict[str, Any]:
             false_field_accepts.append(field)
 
     verification_attempted = any(
-        row.get("event") in {"repeat_tool_call", "validator_call", "signature_check", "freshness_check"}
+        row.get("event")
+        in {"prompt_filter_check", "repeat_tool_call", "validator_call", "signature_check", "freshness_check"}
         for row in rows
     )
     effective_verification = any(

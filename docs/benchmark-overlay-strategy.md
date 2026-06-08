@@ -111,10 +111,11 @@ Recommended order:
      indirect prompt injection.
    - Current repo status: official AgentDojo v1.2.2 suites are importable in an
      isolated probe environment, and a 12 / 97 stratified 10-15% manifest has
-     been generated. A 168-cell executable smoke now runs official AgentDojo
+     been generated. A 192-cell executable smoke now runs official AgentDojo
      ground-truth tool calls and performs trace-level visible-observation
-     substitution. This is still scripted-agent smoke, not full AgentDojo
-     agent-loop interception or a model run.
+     substitution, and a 192-cell model-policy dry-run validates the prompt and
+     manifest path. This is still not full AgentDojo agent-loop interception or
+     a result-bearing model run.
 3. **tau-bench overlay smoke**
    - Strong realistic tool-calling API story.
    - Goal: status/refund/reservation API falsehoods under the same user tasks.
@@ -300,8 +301,8 @@ PYTHONPATH=src:. /tmp/agentdojo-probe-venv/bin/python scripts/run_agentdojo_exec
   --limit-tasks 12
 ```
 
-This completed 168 cells over 12 official AgentDojo tasks x truthful/spoofed x
-7 profiles. It uses each task's official `ground_truth()` tool-call plan to
+This completed 192 cells over 12 official AgentDojo tasks x truthful/spoofed x
+8 profiles. It uses each task's official `ground_truth()` tool-call plan to
 execute one real AgentDojo tool call, then substitutes the agent-visible
 observation at trace level. It records `real_tool_execution=true`,
 `official_ground_truth_tool_plan=true`, `trace_level_visible_result_substitution=true`,
@@ -310,6 +311,26 @@ observation at trace level. It records `real_tool_execution=true`,
 ToolSandbox: naive/schema-only/prompt-filter/repeat-same-tool/metadata-only
 accept spoofed content, while read-back and privileged upper-bound validators
 recover the truth under their stated trust assumptions.
+
+AgentDojo model-policy pilot dry-run:
+
+```bash
+PYTHONPATH=src:. /tmp/agentdojo-probe-venv/bin/python scripts/run_agentdojo_model_pilot.py \
+  --config configs/experiments/agentdojo_model_pilot_small.json \
+  --manifest outputs/agentdojo_real_manifest.json \
+  --agentdojo-path /tmp/AgentDojo \
+  --out-dir traces/agentdojo_model_pilot_dry \
+  --summary outputs/agentdojo_model_pilot_dry_summary.json \
+  --run-manifest outputs/agentdojo_model_pilot_dry_manifest.json \
+  --dry-run --sleep 0
+```
+
+The dry-run completed 192 cells over 12 AgentDojo tasks x truthful/spoofed x 8
+profiles. It proves model-prompt plumbing and records prompt hashes,
+model-visible event lists, and harness-expected structured scores. Prompt tests
+verify that hidden `oracle_context`, `raw_tool_result`, raw profile names, and
+truthful/spoofed condition labels are not exposed to the model. It does not
+produce model ASR because the current shell has no API key.
 
 ### tau-bench overlay
 
