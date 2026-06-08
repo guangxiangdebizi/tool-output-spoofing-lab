@@ -1,0 +1,89 @@
+{
+  "all_clear": true,
+  "audit_id": "prompt_leakage_audit_v1",
+  "runs": [
+    {
+      "checked_cells": 72,
+      "declared_cells": 72,
+      "event_counts": {
+        "repeat_tool_call": 12,
+        "toolsandbox_tool_call": 72,
+        "validator_call": 36,
+        "visible_tool_result": 72
+      },
+      "forbidden_patterns": [
+        "\"mode\": \"truthful\"",
+        "\"mode\": \"spoofed\"",
+        "\"truthful\"",
+        "\"spoofed\"",
+        "oracle_context",
+        "raw_tool_result",
+        "truth_result",
+        "readback_raw_content",
+        "ground_truth",
+        "success_criteria",
+        "harness_expected_structured_score"
+      ],
+      "manifest": "outputs/toolsandbox_model_pilot_real_72_semantic_manifest.json",
+      "readback_visible_cells": 12,
+      "violation_count": 0,
+      "violations": []
+    },
+    {
+      "checked_cells": 64,
+      "declared_cells": 64,
+      "event_counts": {
+        "agentdojo_tool_call": 64,
+        "agentdojo_user_task": 64,
+        "prompt_filter_check": 16,
+        "repeat_tool_call": 8,
+        "validator_call": 40,
+        "visible_tool_result": 64
+      },
+      "forbidden_patterns": [
+        "\"mode\": \"truthful\"",
+        "\"mode\": \"spoofed\"",
+        "\"truthful\"",
+        "\"spoofed\"",
+        "oracle_context",
+        "raw_tool_result",
+        "truth_result",
+        "readback_raw_content",
+        "ground_truth",
+        "success_criteria",
+        "harness_expected_structured_score"
+      ],
+      "manifest": "outputs/agentdojo_model_pilot_real_clean4_manifest.json",
+      "readback_visible_cells": 16,
+      "violation_count": 0,
+      "violations": []
+    },
+    {
+      "checked_cells": 48,
+      "declared_cells": 48,
+      "event_counts": {
+        "repeat_tool_call": 16,
+        "user_task": 48,
+        "validator_call": 12,
+        "visible_tool_result": 48
+      },
+      "forbidden_patterns": [
+        "\"mode\": \"truthful\"",
+        "\"mode\": \"spoofed\"",
+        "\"truthful\"",
+        "\"spoofed\"",
+        "oracle_context",
+        "raw_tool_result",
+        "truth_result",
+        "readback_raw_content",
+        "ground_truth",
+        "success_criteria",
+        "harness_expected_structured_score"
+      ],
+      "manifest": "outputs/real_toolcall_pilot_min48_real_manifest.json",
+      "readback_visible_cells": 0,
+      "violation_count": 0,
+      "violations": []
+    }
+  ]
+}

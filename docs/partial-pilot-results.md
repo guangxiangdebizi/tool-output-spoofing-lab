@@ -30,6 +30,19 @@ coverage beyond the earlier 2-task slices.
 
 Canonical index: `outputs/main_pilot_index.json`.
 
+Prompt leakage audit:
+
+- Script: `scripts/audit_prompt_leakage.py`
+- Artifact: `outputs/prompt_leakage_audit_expanded_gpt54.json`
+- Coverage: ToolSandbox 72 cells, AgentDojo 64 cells, local multi-surface
+  48 cells, for 184 checked model-decision cells.
+- Result: `all_clear=true`, with zero forbidden hidden-oracle/mode/ground-truth
+  patterns in reconstructed model-visible prompts.
+
+This audit does not add benchmark coverage. It verifies the causal boundary
+needed for the pilot claims: hidden truth, raw tool results, oracle context,
+mode labels, success criteria, and expected scores are not model-visible.
+
 ### ToolSandbox 72-cell semantic-normalized pilot
 
 Artifacts:

@@ -1558,3 +1558,44 @@ Remaining reviewer blockers:
 - Repair AgentDojo prompt-filter/combined truthful utility before claiming
   those as deployable defenses.
 - Add run-level prompt leakage audit artifact for the expanded runs.
+
+## Round 28: CCF-A reviewer audit and prompt-leakage boundary
+
+Reviewer posture:
+
+- The direction and artifact are credible, but the current state is still an
+  expanded pilot, not a top-tier-ready benchmark paper.
+- The most important wording fix is to describe ToolSandbox/AgentDojo results as
+  official-substrate, scripted-tool-plan, model-final-decision pilots. They are
+  not yet autonomous full-agent-loop benchmark runs.
+- Read-back projection scoring is acceptable only as an explicit ablation, with
+  exact-primary and restricted-projection utility both reported.
+- The paper needed a trace/leakage-boundary figure, a security-utility figure,
+  formulas for ASR/CU/FAA, and an implementation/reproducibility section.
+
+Implemented response:
+
+- Added `scripts/audit_prompt_leakage.py`, which reconstructs model-visible
+  prompts from the three expanded pilot manifests and scans for hidden-oracle,
+  mode, raw-result, ground-truth, success-criteria, and expected-score leakage.
+- Fixed AgentDojo model-visible payload filtering so historical traces no
+  longer expose plan-selection metadata or validator names containing
+  ground-truth terminology.
+- Added `outputs/prompt_leakage_audit_expanded_gpt54.json`; current result is
+  `all_clear=true` over 184 checked cells with zero forbidden-pattern
+  violations.
+- Added Figure 5 (`figures/figure5_trace_leakage_boundary.svg`) and Figure 6
+  (`figures/figure6_security_utility_tradeoff.svg`).
+- Updated `docs/paper-draft-zh.md` with formal metrics, prompt-leakage audit,
+  implementation/reproducibility notes, and stricter pilot-scope language.
+
+Remaining reviewer blockers:
+
+- Execute a real 10%-15% existing-benchmark slice, or at minimum a 12-task
+  ToolSandbox / 144-cell staged run with naive, repeat, and read-back.
+- Add at least one second-model pilot.
+- Add bootstrap confidence intervals and a stats artifact/figure.
+- Repair AgentDojo clean utility before using prompt-filter or combined policy
+  as positive defense evidence.
+- Replace privileged independent-validator with a deployable signed-scope or
+  independent-authority baseline where possible.

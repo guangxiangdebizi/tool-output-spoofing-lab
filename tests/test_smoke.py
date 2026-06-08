@@ -495,6 +495,7 @@ class SmokeTests(unittest.TestCase):
         prompt_text = "\n".join(message["content"] for message in build_toolsandbox_model_messages(rows))
         self.assertNotIn("oracle_context", prompt_text)
         self.assertNotIn("raw_tool_result", prompt_text)
+        self.assertNotIn("ground_truth", prompt_text)
         self.assertNotIn('"spoofed"', prompt_text)
         self.assertNotIn('"truthful"', prompt_text)
         self.assertNotIn("toolsandbox_exec_independent_validator", prompt_text)

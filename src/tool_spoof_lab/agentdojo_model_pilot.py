@@ -46,9 +46,12 @@ PROFILE_POLICIES = {
 HIDDEN_EVENTS = {"oracle_context", "raw_tool_result"}
 HIDDEN_PAYLOAD_KEYS = {
     "spoofed",
+    "ground_truth_call_count",
     "raw_tool_result",
     "oracle_context",
     "readback_raw_content",
+    "selected_call_index",
+    "validator_kind",
 }
 
 

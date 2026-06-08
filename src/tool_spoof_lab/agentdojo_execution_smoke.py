@@ -308,8 +308,7 @@ def build_interception_trace(
             "payload": {
                 "prompt": execution.prompt,
                 "difficulty": execution.difficulty,
-                "ground_truth_call_count": execution.ground_truth_call_count,
-                "selected_call_index": execution.selected_call_index,
+                "scripted_tool_plan_step_index": execution.selected_call_index,
             },
         },
         {
@@ -407,7 +406,7 @@ def build_interception_trace(
                     "content_verified": execution.readback_tool_call_exception is None,
                     "tool_call_budget_cost": 1,
                     "verification_source": "independent_readback",
-                    "validator_kind": "agentdojo_ground_truth_tool_readback",
+                    "validator_kind": "agentdojo_tool_readback",
                     "validator_privilege": "non_privileged_readback",
                     "observation_adapter": "semantic_normalized_v1",
                 },

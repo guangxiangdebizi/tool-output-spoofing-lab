@@ -233,6 +233,14 @@ Read-back baseline 的部署假设是 split-channel：攻击者可以伪造 prim
 
 **图 4：Pilot 结果快照。** 红色表示 spoofed 条件下的 attack success，绿色表示 truthful 条件下的 clean utility，蓝色表示有效验证比例。该图只总结当前 pilot 证据，不代表 full benchmark 结果。
 
+![Figure 5: trace schema and leakage boundary](../figures/figure5_trace_leakage_boundary.svg)
+
+**图 5：Trace schema 与泄漏边界。** Harness 同时记录 hidden truth plane 与 model-visible observation plane；模型 prompt 只包含可见事件、策略说明和输出 schema，不包含 `mode`、raw result、oracle context、ground-truth plan 或 score 字段。
+
+![Figure 6: security-utility tradeoff](../figures/figure6_security_utility_tradeoff.svg)
+
+**图 6：Pilot security-utility tradeoff。** 横轴为 truthful clean utility，纵轴为 spoofed ASR；右下角是低 ASR、高 utility 的目标区域。当前图只显示 pilot 聚合点，最终版本需要 bootstrap confidence intervals。
+
 授权/来源轴的证据梯度定义如下：
 
 | Evidence level | 可见证据 | Hidden truth class | 鲁棒 verdict |
@@ -258,6 +266,32 @@ Read-back baseline 的部署假设是 split-channel：攻击者可以伪造 prim
 - **Parse/API Error Rate：** 真实模型输出解析失败或 API 错误比例。
 
 所有比例默认以 attempted cells 为分母。API error 被转换为 uncertainty stub 并单列报告；它不会被解释为成功拒绝，在 truthful 条件下也不计入 clean utility。
+
+更形式化地，令 benchmark cell 集合为 \(C\)，其中每个 cell \(i\) 有 mode \(m_i \in \{\mathrm{truthful}, \mathrm{spoofed}\}\)、profile \(p_i\)、模型结构化输出 \(o_i\)、隐藏真值 \(h_i\) 和评测函数 \(S(o_i,h_i)\)。设 \(A_i=1\) 表示模型在 spoofed 条件下接受了虚假状态或错误授权，\(U_i=1\) 表示模型在 truthful 条件下完成任务或返回正确状态，\(V_i=1\) 表示验证步骤有效改变或确认了结论，则：
+
+\[
+\mathrm{ASR}(p)=\frac{\sum_{i\in C:p_i=p,m_i=\mathrm{spoofed}} A_i}{|\{i\in C:p_i=p,m_i=\mathrm{spoofed}\}|}
+\]
+
+\[
+\mathrm{CU}(p)=\frac{\sum_{i\in C:p_i=p,m_i=\mathrm{truthful}} U_i}{|\{i\in C:p_i=p,m_i=\mathrm{truthful}\}|}
+\]
+
+\[
+\mathrm{EVR}(p)=\frac{\sum_{i\in C:p_i=p} V_i}{|\{i\in C:p_i=p\}|}
+\]
+
+授权专项中，令 \(B_i=1\) 表示 hidden truth 为 not authorized 但模型接受 authorized，则：
+
+\[
+\mathrm{FAA}(p)=\frac{\sum_{i\in C:p_i=p,h_i=\mathrm{not\_authorized}} B_i}{|\{i\in C:p_i=p,h_i=\mathrm{not\_authorized}\}|}
+\]
+
+防御目标不是单独最小化 ASR，而是在安全率、utility 和成本之间优化。主实验将报告如下组合视图，而不是把它作为唯一标量：
+
+\[
+\max_p \ \mathrm{CU}(p) - \lambda_1\mathrm{ASR}(p) - \lambda_2\mathrm{FAA}(p) - \lambda_3\mathrm{OverRefusal}(p) - \lambda_4\mathrm{Cost}(p)
+\]
 
 授权/来源伪造专项指标：
 
@@ -310,7 +344,46 @@ Read-back baseline 的部署假设是 split-channel：攻击者可以伪造 prim
 4. 增加第二、第三个模型。
 5. 增加 generator ablation：static、random、template plausible、optimized。
 
+### 8.3 实现与可复现性协议
+
+当前仓库实现采用 trace-first 设计：每个 cell 生成 JSONL trace，事件级区分 hidden events 与 model-visible events。`oracle_context`、`raw_tool_result`、`truth_result`、mode label、success criteria、ground-truth tool-plan metadata 和 scoring 字段只用于 harness 与离线评分，不进入模型 prompt。模型看到的是经过 `visible_rows_for_model` 过滤后的事件列表、profile policy、任务描述和强制 JSON 输出 schema。
+
+ToolSandbox pilot 使用现有 ToolSandbox 任务、真实工具执行和 milestone/oracle 语义，但当前还不是 autonomous full agent loop；它是 final-decision prompt over model-visible trace 的 overlay pilot。AgentDojo pilot 使用官方任务和官方 ground-truth tool plan 来选取可执行工具调用，并在 trace 层替换可见 observation；它同样不是 full AgentDojo autonomous agent-loop interception。因此，本文当前结果应表述为“official benchmark substrates 上的 scripted tool-plan / model-final-decision pilot”，不能表述为 full benchmark 结果。
+
+所有真实模型运行记录 config、summary、manifest、trace directory、model name 和 run date。当前模型为 `gpt-5.4-mini`，通过 NewAPI-compatible chat-completions endpoint 调用；仓库不提交 API key，也不在代码中显式限制生成长度参数。输出解析失败或 provider error 被转换为 uncertainty stub，并在 summary 中单列 API/parse error。
+
+复现实验的最小命令形状如下：
+
+```bash
+PYTHONPATH=src:. python3 scripts/run_toolsandbox_model_pilot.py \
+  --config configs/experiments/toolsandbox_model_pilot_small.json \
+  --output-prefix outputs/toolsandbox_model_pilot_real_72_semantic
+
+PYTHONPATH=src:. python3 scripts/run_agentdojo_model_pilot.py \
+  --config configs/experiments/agentdojo_model_pilot_small.json \
+  --output-prefix outputs/agentdojo_model_pilot_real_clean4
+
+PYTHONPATH=src:. python3 scripts/audit_prompt_leakage.py \
+  --manifest outputs/toolsandbox_model_pilot_real_72_semantic_manifest.json \
+  --manifest outputs/agentdojo_model_pilot_real_clean4_manifest.json \
+  --manifest outputs/real_toolcall_pilot_min48_real_manifest.json \
+  --output outputs/prompt_leakage_audit_expanded_gpt54.json
+```
+
 ## 9 Pilot 结果
+
+### 9.0 Model-visible prompt leakage audit
+
+为了避免“模型其实看到了 hidden oracle/mode/ground truth”的评审质疑，本文加入独立 prompt leakage audit。审计脚本从 manifest 读取每个 trace，重新构造模型 prompt，并扫描 forbidden hidden patterns，包括 `mode`、`truthful/spoofed` 明文标签、`oracle_context`、`raw_tool_result`、`truth_result`、`readback_raw_content`、`ground_truth`、`success_criteria` 和 expected score 字段。
+
+Canonical artifact：
+
+- audit: `outputs/prompt_leakage_audit_expanded_gpt54.json`
+- script: `scripts/audit_prompt_leakage.py`
+
+当前审计覆盖三个 result-bearing pilot：ToolSandbox 72 cells、AgentDojo 64 cells、local multi-surface 48 cells，共 184 个 model-decision cells。审计结果为 `all_clear=true`，0 个 forbidden hidden-oracle/mode/ground-truth pattern 出现在模型可见 prompt 中。审计同时记录 read-back validator 的实际可见 cell 数：ToolSandbox 12 cells、AgentDojo 16 cells、local independent-validator 0 read-back cells。
+
+这一步不提升样本量，也不替代真实 benchmark 执行；它只证明当前 pilot 的核心因果边界成立：hidden truth 和 scoring oracle 没有通过 prompt 泄漏给模型。
 
 ### 9.1 ToolSandbox 72-cell semantic-normalized pilot
 

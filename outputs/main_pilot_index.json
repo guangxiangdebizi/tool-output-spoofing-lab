@@ -1,6 +1,17 @@
 {
   "index_version": "2026-06-08.paper-draft-zh.current",
   "purpose": "Canonical index of pilot result artifacts used by docs/paper-draft-zh.md. Older outputs are retained for traceability but are not the main reported pilot results.",
+  "audits": [
+    {
+      "name": "Expanded pilot model-visible prompt leakage audit",
+      "role": "checks that hidden oracle, mode labels, raw results, ground-truth metadata, and expected scores are absent from reconstructed model-visible prompts",
+      "status": "all_clear",
+      "script": "scripts/audit_prompt_leakage.py",
+      "artifact": "outputs/prompt_leakage_audit_expanded_gpt54.json",
+      "checked_cells": 184,
+      "violations": 0
+    }
+  ],
   "pilots": [
     {
       "name": "ToolSandbox 72-cell semantic-normalized benchmark pilot",
