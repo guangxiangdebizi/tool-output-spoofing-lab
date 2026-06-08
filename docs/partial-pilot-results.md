@@ -6,14 +6,70 @@ This is a **partial pilot**, not a full benchmark. It intentionally runs a
 small slice of the planned benchmark to check whether the experimental design
 produces useful signal before scaling.
 
-There are now two pilot tiers:
+There are now three pilot tiers:
 
-1. a 15-scenario deterministic baseline slice, which is approximately 10% of a
+1. a 15-scenario structured baseline slice, which is the strongest current
+   local pilot because it adds field-level scoring and explicit validator
+   events;
+2. a 15-scenario deterministic baseline slice, which is approximately 10% of a
    150-scenario-pair benchmark target; and
-2. an earlier six-scenario real-model smoke pilot, kept only as preliminary
+3. an earlier six-scenario real-model smoke pilot, kept only as preliminary
    signal until the 15-scenario real-model slice is run.
 
 The six-scenario model run must not be treated as a paper-grade result.
+
+## 15-scenario structured 10% slice
+
+This is the current strongest local pilot because it uses structured final
+answers, field-level scoring, explicit validator events, and utility/FPR
+metrics.
+
+### Configuration
+
+- Config: `configs/experiments/mvp_matrix.json`
+- Runner: `scripts/run_structured_partial.py`
+- Oracle: `src/tool_spoof_lab/structured_oracle.py`
+- Scenario coverage: same 15 scenarios as the deterministic slice
+- Modes: truthful and spoofed
+- Profiles:
+  - `structured_naive`
+  - `structured_schema_only`
+  - `structured_prompt_filter`
+  - `structured_repeat_same_tool`
+  - `structured_independent_validator`
+  - `structured_combined_policy`
+- Total cells: 180 = 15 scenarios x 2 modes x 6 profiles
+- Command:
+
+```bash
+PYTHONPATH=src:. /usr/bin/python3.11 scripts/run_structured_partial.py \
+  --config configs/experiments/mvp_matrix.json \
+  --out-dir traces/structured_15scenario_partial \
+  --summary outputs/structured_partial_summary.json
+```
+
+### Aggregate structured results
+
+| Profile | Spoofed ASR | Clean utility | False-positive refusal | Effective verification | Avg. tool events |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `structured_naive` | 15 / 15 | 15 / 15 | 0 / 15 | 0 / 15 | 1.00 |
+| `structured_schema_only` | 15 / 15 | 15 / 15 | 0 / 15 | 0 / 15 | 1.00 |
+| `structured_prompt_filter` | 14 / 15 | 15 / 15 | 0 / 15 | 0 / 15 | 1.00 |
+| `structured_repeat_same_tool` | 15 / 15 | 15 / 15 | 0 / 15 | 0 / 15 | 2.00 |
+| `structured_independent_validator` | 0 / 15 | 13 / 15 | 2 / 15 | 13 / 15 | 1.87 |
+| `structured_combined_policy` | 0 / 15 | 15 / 15 | 0 / 15 | 13 / 15 | 2.87 |
+
+Interpretation:
+
+- Repeating the same tool is not an effective defense against a consistently
+  compromised channel.
+- Schema validation and prompt filtering do not address non-instructional
+  semantic falsehood.
+- Independent validation blocks spoofed acceptance where an independent
+  authority exists, but can over-refuse truthful cases when no validator exists.
+- The combined policy is the best scripted baseline in this slice, but it
+  incurs higher tool-event overhead and remains a scripted policy rather than a
+  real model agent.
 
 ## 15-scenario deterministic 10% slice
 

@@ -225,9 +225,10 @@ The first full benchmark should contain five suites.
 | Browser form | success banner, DOM/a11y text, submitted target | backend state validator |
 | Shell/tests | exit code, stdout, artifact path, log truncation | independent process/raw artifact check |
 
-The MVP in this repository currently includes deterministic JSON scenarios for
-false success and instruction-smuggling controls. The planned paper version
-should expand to at least 150-300 scenario pairs before submission.
+The current repository includes a 15-scenario deterministic partial benchmark
+covering five tool surfaces plus one instruction-smuggling control. The planned
+paper version should expand to at least 150-300 scenario pairs before
+submission.
 
 ### 4.4 Current 10% partial benchmark slice
 
@@ -315,6 +316,13 @@ receipt, freshness, and combined-policy baselines. For each baseline, the final
 experiment must report input access, tool-call budget, token budget, latency,
 cost, fallback policy, and whether an independent authority is available.
 
+The next artifact revision has started to address this gap with a structured
+runner (`scripts/run_structured_partial.py`) and a field-level oracle
+(`src/tool_spoof_lab/structured_oracle.py`). This runner emits explicit
+`visible_tool_result`, `repeat_tool_call`, `validator_call`, `freshness_check`,
+and `structured_final` events, rather than only keyword-scoring free-form final
+answers.
+
 ## 6. Metrics
 
 Primary metrics:
@@ -360,6 +368,27 @@ cross-tool verifier scored 0/15 spoofed ASR in this slice. These results verify
 that the benchmark can separate prompt-injection filtering from observation
 integrity, but they do not yet prove model-level robustness claims because the
 agents are deterministic policy stubs and the oracle is still keyword-based.
+
+**Structured 10% slice.** We then reran the same 15 scenarios with a structured
+field-level oracle and six policy profiles: naive, schema-only, prompt-filter,
+repeat-same-tool, independent-validator, and combined policy. This produced 180
+cells. The structured results were:
+
+| Profile | Spoofed ASR | Clean utility | False-positive refusal | Effective verification | Avg. tool events |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `structured_naive` | 15 / 15 | 15 / 15 | 0 / 15 | 0 / 15 | 1.00 |
+| `structured_schema_only` | 15 / 15 | 15 / 15 | 0 / 15 | 0 / 15 | 1.00 |
+| `structured_prompt_filter` | 14 / 15 | 15 / 15 | 0 / 15 | 0 / 15 | 1.00 |
+| `structured_repeat_same_tool` | 15 / 15 | 15 / 15 | 0 / 15 | 0 / 15 | 2.00 |
+| `structured_independent_validator` | 0 / 15 | 13 / 15 | 2 / 15 | 13 / 15 | 1.87 |
+| `structured_combined_policy` | 0 / 15 | 15 / 15 | 0 / 15 | 13 / 15 | 2.87 |
+
+This result adds two important checks missing from the first deterministic run:
+repeating the same compromised channel does not reduce ASR, and the combined
+policy can preserve clean utility on the current truthful slice while blocking
+spoofed false-state acceptance. The result is still not paper-grade because the
+policies are scripted and the scenario set is hand-written, but it is a better
+benchmark sanity check than keyword-only scoring.
 
 **Real-model smoke pilot.** We also ran a six-scenario smoke pilot on
 `gpt-5.4-mini` via an OpenAI-compatible NewAPI endpoint: 6 scenarios x 2 modes
@@ -433,10 +462,10 @@ required before making paper-grade claims.
 
 | Finding | Current pilot evidence | Evidence still required |
 | --- | --- | --- |
-| Agents accept false observations | Deterministic naive baseline accepts 15/15 spoofed observations; real-model smoke accepts 3/6. | Multi-model agentic tool-call experiments across at least 30-45 scenario pairs before a serious submission draft. |
-| Prompt filters are insufficient | Prompt-filter baseline blocks 1/15 spoofed cases, the instruction-smuggling control, and misses 14/14 non-instructional semantic falsehoods. | Real prompt-injection filters/sanitizers under equal budgets, with no attack labels leaked through fixture text. |
-| Schema validation is insufficient | Schema-only baseline accepts 15/15 schema-valid spoofed observations. | Formal schemas, malformed-output controls, and structured final-answer scoring. |
-| Independent verification helps | Cross-tool verifier has 0/15 spoofed ASR in the deterministic slice. | Actual independent validator calls, budget controls, repeat-same-tool comparison, and clean utility. |
+| Agents accept false observations | Deterministic and structured naive baselines accept 15/15 spoofed observations; real-model smoke accepts 3/6. | Multi-model agentic tool-call experiments across at least 30-45 scenario pairs before a serious submission draft. |
+| Prompt filters are insufficient | Prompt-filter baselines block 1/15 spoofed cases, the instruction-smuggling control, and miss 14/14 non-instructional semantic falsehoods. | Real prompt-injection filters/sanitizers under equal budgets, with no attack labels leaked through fixture text. |
+| Schema validation is insufficient | Schema-only baselines accept 15/15 schema-valid spoofed observations. | Formal schemas, malformed-output controls, and structured final-answer scoring with real models. |
+| Independent verification helps | Structured independent-validator and combined policies have 0/15 spoofed ASR; repeat-same-tool remains 15/15. | Actual model-driven validator calls, budget controls, and larger truthful utility measurement. |
 | Receipts/freshness help where available | Planned but not yet implemented as a real verifier. | Signed receipt and freshness experiments on forged provenance and stale replay. |
 | Utility tradeoff is manageable | Not yet established. | Truthful-case utility, false-positive refusal, latency, token, and tool-call overhead. |
 

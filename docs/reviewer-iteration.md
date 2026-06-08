@@ -156,3 +156,87 @@ iteration needs:
 7. plausible spoofed fixtures with fewer obvious fake markers; and
 8. close-work comparison or ablation against Trust No Tool / MCP benchmarks
    where feasible.
+
+## Round 3: structured oracle and Chinese working draft
+
+After the Round 2 reviewer noted that the artifact was still keyword-scored and
+did not measure clean utility/FPR, the following changes were made:
+
+- Added `src/tool_spoof_lab/structured_oracle.py` for field-level scoring.
+- Added `scripts/run_structured_partial.py`, which emits explicit
+  `visible_tool_result`, `repeat_tool_call`, `validator_call`,
+  `freshness_check`, and `structured_final` events.
+- Added structured tests in `tests/test_smoke.py`.
+- Ran the 15-scenario structured partial benchmark:
+  - 15 scenarios x 2 modes x 6 structured profiles = 180 cells.
+  - naive ASR: 15/15; clean utility: 15/15.
+  - schema-only ASR: 15/15; clean utility: 15/15.
+  - prompt-filter ASR: 14/15; clean utility: 15/15.
+  - repeat-same-tool ASR: 15/15; clean utility: 15/15.
+  - independent-validator ASR: 0/15; clean utility: 13/15; FPR: 2/15.
+  - combined-policy ASR: 0/15; clean utility: 15/15; FPR: 0/15.
+- Added `docs/paper-draft-zh.md` as the current Chinese working draft.
+- Updated `docs/paper-draft.md` and `docs/partial-pilot-results.md` with
+  structured results and the remaining limitations.
+
+This addresses part of the previous P0 list: structured final-answer schema,
+field-level oracle, repeat-same-tool comparison, explicit validator event, and
+truthful clean utility/FPR are now present for the local scripted slice. It does
+not yet address the larger P0 requirements: real model agent harness, 30-45
+paired real-model pilot, multiple models, signed receipts, and close-work
+ablation.
+
+## Round 4: subagent review of Chinese draft and structured slice
+
+A third reviewer subagent reviewed the Chinese working draft, structured oracle,
+structured runner, and tests.
+
+### Reviewer decision
+
+**Borderline as an artifact/research draft; Weak Reject as a USENIX Security /
+IEEE S&P / CCS submission today.**
+
+The reviewer explicitly confirmed that the Chinese draft now clearly includes:
+
+- benchmark definition;
+- 15-scenario 10% slice;
+- baseline design;
+- deterministic 150-cell results;
+- structured 180-cell results;
+- real-model smoke pilot;
+- honest claim boundaries.
+
+The reviewer also confirmed that the structured oracle and 180-cell structured
+partial benchmark materially address part of the prior P0 list:
+
+- field-level decisive fields;
+- structured final-answer scoring;
+- false-field and true-field acceptance;
+- ASR, clean utility, FPR, and effective verification;
+- explicit `visible_tool_result`, `repeat_tool_call`, `validator_call`,
+  `freshness_check`, and `structured_final` events;
+- smoke tests covering structured naive, validator, and truthful utility.
+
+### Remaining P0 from Round 4
+
+The work is still not Weak Accept because:
+
+1. main results are still scripted baselines, not true model-driven tool-calling
+   agents;
+2. independent validator data is still scenario-provided rather than a runtime
+   budgeted validator service;
+3. freshness is currently a metadata event, not a real security decision;
+4. signed receipt verification is not implemented;
+5. the benchmark has only 15 hand-written scenarios;
+6. real-model evidence is still only the six-scenario smoke pilot.
+
+The next three highest-impact changes are:
+
+1. implement a real tool-call harness and run a 30-45 paired-scenario
+   real-model pilot with at least two models;
+2. expand structured scoring into a paper-grade run manifest with forced final
+   schema validation, per-suite metrics, token/latency/tool budgets, retry and
+   timeout policy, trace hashes, and confidence intervals;
+3. implement real signed-receipt, freshness, independent read-after-write, and
+   combined-policy baselines with fail-open/fail-closed behavior and truthful
+   utility/FPR reporting.
