@@ -1,5 +1,10 @@
 __pycache__/
 *.py[cod]
+.env
+*.env
+*.env.*
+!.env.example
+!*.env.example
 .pytest_cache/
 .ruff_cache/
 .mypy_cache/
@@ -47,3 +52,6 @@ traces/**/*
 traces/newapi_partial_pilot/
 papers/**/*.pdf
 papers/**/*.part
+localtest/runs/
+localtest/*.jsonl
+localtest/*.log
